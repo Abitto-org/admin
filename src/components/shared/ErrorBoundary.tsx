@@ -1,6 +1,6 @@
 import { Component, type ReactNode } from "react";
-import { Box, Typography, Button, Paper } from "@mui/material";
-import { ErrorOutline } from "@mui/icons-material";
+import { Box, Typography, Button } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 interface Props {
   children: ReactNode;
@@ -28,19 +28,19 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
     console.error("Error caught by ErrorBoundary:", error, errorInfo);
-    this.setState({
-      error,
-      errorInfo,
-    });
+    this.setState({ error, errorInfo });
   }
 
-  handleReset = () => {
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-    });
-    globalThis.location.href = "/";
+  handleRefresh = () => {
+    globalThis.location.reload();
+  };
+
+  handleBack = () => {
+    if (globalThis.history.length > 1) {
+      globalThis.history.back();
+    } else {
+      globalThis.location.href = "/";
+    }
   };
 
   render() {
@@ -49,131 +49,107 @@ class ErrorBoundary extends Component<Props, State> {
 
       return (
         <Box
+          minHeight="100vh"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          minHeight="100vh"
           px={2}
-          bgcolor="#f5f5f5"
+          bgcolor="#ffffff"
         >
-          <Box maxWidth="600px" width="100%">
-            <Paper
-              elevation={0}
-              sx={{
-                p: 4,
-                borderRadius: "12px",
-                border: "1px solid #EDEDED",
-              }}
+          <Box textAlign="center" maxWidth={560} width="100%">
+            {/* Headline */}
+            <Typography
+              fontSize="56px"
+              fontWeight={900}
+              letterSpacing="-1px"
+              mb={2}
             >
-              {/* Icon and Title */}
-              <Box display="flex" alignItems="center" gap={2} mb={2}>
-                <ErrorOutline sx={{ fontSize: 40, color: "#d32f2f" }} />
-                <Typography fontSize="24px" fontWeight={700} color="#000000">
-                  Oops! Something went wrong
-                </Typography>
-              </Box>
+              Something broke
+            </Typography>
 
-              {/* Description */}
-              <Typography
-                fontSize="14px"
-                fontWeight={400}
-                color="text.primary"
-                mb={3}
+            {/* Friendly text */}
+            <Typography fontSize="15px" color="text.secondary" mb={4}>
+              This part of the app ran into an unexpected problem. A quick
+              refresh usually fixes it.
+            </Typography>
+
+            {/* Actions */}
+            <Box
+              display="flex"
+              justifyContent="center"
+              gap={2}
+              mb={isDev ? 4 : 0}
+            >
+              <Button
+                variant="outlined"
+                onClick={this.handleBack}
+                sx={{
+                  px: 3,
+                  py: 1.3,
+                  borderRadius: "999px",
+                  textTransform: "none",
+                  fontWeight: 600,
+                }}
               >
-                {isDev
-                  ? "An error occurred while rendering this component. Check the details below."
-                  : "We're sorry, but something unexpected happened. Please try refreshing the page or contact support if the problem persists."}
-              </Typography>
+                Go back
+              </Button>
 
-              {/* Dev Mode: Error Details */}
-              {isDev && this.state.error && (
-                <Box mb={3}>
+              <Button
+                variant="contained"
+                startIcon={<RefreshIcon />}
+                onClick={this.handleRefresh}
+                sx={{
+                  px: 4,
+                  py: 1.3,
+                  borderRadius: "999px",
+                  textTransform: "none",
+                  fontWeight: 600,
+                }}
+              >
+                Refresh page
+              </Button>
+            </Box>
+
+            {/* Dev-only details */}
+            {isDev && this.state.error && (
+              <Box textAlign="left">
+                <Typography fontSize="14px" fontWeight={600} mb={1}>
+                  Error details
+                </Typography>
+
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: "#fafafa",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "12px",
+                    maxHeight: 220,
+                    overflowY: "auto",
+                  }}
+                >
                   <Typography
-                    fontSize="14px"
+                    fontSize="12px"
                     fontWeight={600}
-                    color="#000000"
+                    color="#b91c1c"
                     mb={1}
                   >
-                    Error Details:
+                    {this.state.error.name}: {this.state.error.message}
                   </Typography>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      bgcolor: "#fef2f2",
-                      border: "1px solid #fecaca",
-                      borderRadius: "8px",
-                      maxHeight: "200px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    <Typography
-                      fontSize="12px"
-                      fontWeight={600}
-                      color="#dc2626"
-                      mb={1}
-                    >
-                      {this.state.error.name}: {this.state.error.message}
-                    </Typography>
-                    {this.state.error.stack && (
-                      <Typography
-                        component="pre"
-                        fontSize="11px"
-                        fontFamily="monospace"
-                        color="#991b1b"
-                        sx={{
-                          whiteSpace: "pre-wrap",
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {this.state.error.stack}
-                      </Typography>
-                    )}
-                  </Paper>
-                </Box>
-              )}
 
-              {/* Dev Mode: Component Stack */}
-              {isDev && this.state.errorInfo?.componentStack && (
-                <Box mb={3}>
-                  <Typography
-                    fontSize="14px"
-                    fontWeight={600}
-                    color="#000000"
-                    mb={1}
-                  >
-                    Component Stack:
-                  </Typography>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      bgcolor: "#fef3c7",
-                      border: "1px solid #fde68a",
-                      borderRadius: "8px",
-                      maxHeight: "150px",
-                      overflowY: "auto",
-                    }}
-                  >
+                  {this.state.error.stack && (
                     <Typography
                       component="pre"
                       fontSize="11px"
                       fontFamily="monospace"
-                      color="#92400e"
-                      sx={{
-                        whiteSpace: "pre-wrap",
-                        wordBreak: "break-word",
-                      }}
+                      color="#7f1d1d"
+                      sx={{ whiteSpace: "pre-wrap" }}
                     >
-                      {this.state.errorInfo.componentStack}
+                      {this.state.error.stack}
                     </Typography>
-                  </Paper>
+                  )}
                 </Box>
-              )}
-
-              {/* Action Button */}
-              <Box display="flex" justifyContent="flex-end">
-                <Button onClick={this.handleReset}>Go to Home</Button>
               </Box>
-            </Paper>
+            )}
           </Box>
         </Box>
       );

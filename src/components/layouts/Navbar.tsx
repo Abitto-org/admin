@@ -1,7 +1,8 @@
-import { Box, Avatar, Typography, Stack } from "@mui/material";
+import { Box, Avatar, Typography, Stack, IconButton } from "@mui/material";
 import { type FC } from "react";
 import RefreshIcon from "@/assets/icons/refresh.svg";
 import NotificationsIcon from "@/assets/icons/notifications.svg";
+import CollapseIcon from "@/assets/icons/collapse.svg";
 
 interface NavbarProps {
   user?: {
@@ -9,9 +10,10 @@ interface NavbarProps {
     lastName: string;
     role: string;
   };
+  onMobileMenuToggle?: () => void;
 }
 
-const Navbar: FC<NavbarProps> = ({ user }) => {
+const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
   const userData = user || {
     firstName: "John",
     lastName: "Doe",
@@ -20,12 +22,10 @@ const Navbar: FC<NavbarProps> = ({ user }) => {
 
   const handleRefresh = () => {
     console.log("Refresh clicked");
-    // Implement refresh logic
   };
 
   const handleNotifications = () => {
     console.log("Notifications clicked");
-    // Implement notifications logic
   };
 
   const getInitials = () => {
@@ -37,7 +37,7 @@ const Navbar: FC<NavbarProps> = ({ user }) => {
       sx={{
         display: "flex",
         alignItems: "center",
-        justifyContent: "flex-end",
+        justifyContent: "space-between",
         padding: { xs: "12px 16px", md: "16px 24px" },
         borderBottom: { xs: "1px solid #ECECEC", md: "none" },
         backgroundColor: "white",
@@ -46,11 +46,55 @@ const Navbar: FC<NavbarProps> = ({ user }) => {
         zIndex: 100,
       }}
     >
+      {/* Mobile: Menu Toggle and Logo */}
+      <Box
+        sx={{
+          display: { xs: "flex", md: "none" },
+          alignItems: "center",
+          gap: "12px",
+        }}
+      >
+        {/* Menu Toggle Button */}
+        <IconButton
+          onClick={onMobileMenuToggle}
+          sx={{
+            width: "28px",
+            height: "28px",
+            padding: 0,
+          }}
+          aria-label="toggle menu"
+        >
+          <Box
+            component="img"
+            src={CollapseIcon}
+            alt="menu"
+            sx={{ width: "28px", height: "28px" }}
+          />
+        </IconButton>
+
+        {/* Logo */}
+        <Typography
+          sx={{
+            fontWeight: 700,
+            fontSize: "16px",
+            lineHeight: "20px",
+            letterSpacing: "-0.01em",
+            textTransform: "capitalize",
+            color: "#669900",
+            whiteSpace: "nowrap",
+          }}
+        >
+          AbittoEnergy
+        </Typography>
+      </Box>
+
+      {/* Desktop and Mobile: Right Side Actions */}
       <Stack
         direction="row"
         alignItems="center"
         sx={{
           gap: { xs: "16px", md: "24px" },
+          marginLeft: { xs: 0, md: "auto" },
         }}
       >
         {/* Refresh Button */}

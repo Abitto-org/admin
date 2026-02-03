@@ -98,11 +98,11 @@ const Sidebar: FC<SidebarProps> = ({
       <Box
         sx={{
           width: {
-            xs: "90%",
+            xs: "75%",
             md: isCollapsed ? "auto" : "273px",
           },
           minWidth: {
-            xs: "90%",
+            xs: "75%",
             md: isCollapsed ? "auto" : "273px",
           },
           height: "100vh",
@@ -150,26 +150,31 @@ const Sidebar: FC<SidebarProps> = ({
           >
             AbittoEnergy
           </Typography>
-          <IconButton
-            onClick={onToggleCollapse}
-            sx={{
-              width: { xs: "28px", md: "32px" },
-              height: { xs: "28px", md: "32px" },
-              padding: 0,
-              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
-            }}
+          <Tooltip
+            title={isCollapsed ? "Show menu" : "Hide menu"}
+            placement="right"
           >
-            <Box
-              component="img"
-              src={CollapseIcon}
-              alt="collapse"
+            <IconButton
+              onClick={onToggleCollapse}
               sx={{
-                width: { xs: "28px", md: "48px" },
-                height: { xs: "28px", md: "48px" },
+                width: { xs: "28px", md: "32px" },
+                height: { xs: "28px", md: "32px" },
+                padding: 0,
+                transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
               }}
-            />
-          </IconButton>
+            >
+              <Box
+                component="img"
+                src={CollapseIcon}
+                alt="collapse"
+                sx={{
+                  width: { xs: "28px", md: isCollapsed ? "50px" : "32px" },
+                  height: { xs: "28px", md: isCollapsed ? "50px" : "32px" },
+                }}
+              />
+            </IconButton>
+          </Tooltip>
         </Box>
 
         {/* Navigation Sections */}
@@ -209,7 +214,6 @@ const Sidebar: FC<SidebarProps> = ({
                         backgroundColor: isActive(link.path)
                           ? "#FAFAFA"
                           : "transparent",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                         justifyContent: {
                           xs: "flex-start",
                           md: isCollapsed ? "center" : "flex-start",
@@ -261,7 +265,6 @@ const Sidebar: FC<SidebarProps> = ({
                 cursor: "pointer",
                 borderRadius: "8px",
                 backgroundColor: "#EA00001A",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 justifyContent: {
                   xs: "flex-start",
                   md: isCollapsed ? "center" : "flex-start",

@@ -93,7 +93,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
         direction="row"
         alignItems="center"
         sx={{
-          gap: { xs: "16px", md: "24px" },
+          gap: { xs: "12px", md: "24px" },
           marginLeft: { xs: 0, md: "auto" },
         }}
       >
@@ -160,8 +160,8 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
           {/* Profile Avatar */}
           <Avatar
             sx={{
-              width: "47px",
-              height: "47px",
+              width: { md: "40px", lg: "47px" },
+              height: { md: "40px", lg: "47px" },
               backgroundColor: "#3266CC",
               fontFamily: "Geist, sans-serif",
               fontWeight: 600,
@@ -219,8 +219,8 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
         {/* Mobile: Avatar only */}
         <Avatar
           sx={{
-            width: "40px",
-            height: "40px",
+            width: "32px",
+            height: "32px",
             backgroundColor: "#3266CC",
             fontFamily: "Geist, sans-serif",
             fontWeight: 600,

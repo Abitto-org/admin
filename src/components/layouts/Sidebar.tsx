@@ -98,11 +98,11 @@ const Sidebar: FC<SidebarProps> = ({
       <Box
         sx={{
           width: {
-            xs: "85%",
+            xs: "90%",
             md: isCollapsed ? "auto" : "273px",
           },
           minWidth: {
-            xs: "85%",
+            xs: "90%",
             md: isCollapsed ? "auto" : "273px",
           },
           height: "100vh",
@@ -110,7 +110,8 @@ const Sidebar: FC<SidebarProps> = ({
           borderRight: "1px solid #ECECEC",
           display: "flex",
           flexDirection: "column",
-          transition: "all 0.3s ease-in-out",
+          transition:
+            "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           overflowX: "hidden",
           position: { xs: "fixed", md: "sticky" },
           top: 0,
@@ -127,7 +128,10 @@ const Sidebar: FC<SidebarProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: {
+              xs: "space-between",
+              md: isCollapsed ? "center" : "space-between",
+            },
             mb: 4,
             gap: 1,
           }}
@@ -152,7 +156,7 @@ const Sidebar: FC<SidebarProps> = ({
               width: { xs: "28px", md: "32px" },
               height: { xs: "28px", md: "32px" },
               padding: 0,
-              transition: "transform 0.5s ease-in-out",
+              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
             }}
           >
@@ -161,8 +165,8 @@ const Sidebar: FC<SidebarProps> = ({
               src={CollapseIcon}
               alt="collapse"
               sx={{
-                width: { xs: "28px", md: "32px" },
-                height: { xs: "28px", md: "32px" },
+                width: { xs: "28px", md: "48px" },
+                height: { xs: "28px", md: "48px" },
               }}
             />
           </IconButton>
@@ -205,7 +209,7 @@ const Sidebar: FC<SidebarProps> = ({
                         backgroundColor: isActive(link.path)
                           ? "#FAFAFA"
                           : "transparent",
-                        transition: "all 0.2s ease-in-out",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                         justifyContent: {
                           xs: "flex-start",
                           md: isCollapsed ? "center" : "flex-start",
@@ -257,7 +261,7 @@ const Sidebar: FC<SidebarProps> = ({
                 cursor: "pointer",
                 borderRadius: "8px",
                 backgroundColor: "#EA00001A",
-                transition: "all 0.2s ease-in-out",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 justifyContent: {
                   xs: "flex-start",
                   md: isCollapsed ? "center" : "flex-start",

@@ -62,7 +62,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children, user }) => {
             flex: 1,
             overflowY: "auto",
             overflowX: "hidden",
-            padding: { xs: "16px", md: "24px" },
+            padding: { xs: "12px", md: "24px" },
             backgroundColor: "#FAFAFA",
           }}
         >

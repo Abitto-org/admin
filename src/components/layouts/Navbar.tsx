@@ -38,7 +38,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: { xs: "12px 16px", md: "16px 24px" },
+        padding: { xs: "12px 12px", md: "16px 24px" },
         borderBottom: { xs: "1px solid #ECECEC", md: "none" },
         backgroundColor: "white",
         position: "sticky",

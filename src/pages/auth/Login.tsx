@@ -39,7 +39,7 @@ const Login = () => {
   const onSubmit = (data: LoginFormData) => {
     console.log("Form data:", data);
     navigate("/dashboard");
-  }; 
+  };
 
   return (
     <Box

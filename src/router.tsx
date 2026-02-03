@@ -15,7 +15,11 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import App from "./App";
 import NotFound from "@/pages/NotFound";
 
+import DashboardLayout from "./components/layouts/DashboardLayout";
+
 const Login = lazy(() => import("@/pages/auth/Login"));
+
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
 
 interface RouteConfig {
   path: string;
@@ -30,6 +34,7 @@ const routes: RouteConfig[] = [
     page: () => <App />,
   },
   { path: "/auth/login", page: Login, layout: AuthLayout },
+  { path: "/dashboard", page: Dashboard, layout: DashboardLayout },
   { path: "*", page: NotFound },
 ];
 

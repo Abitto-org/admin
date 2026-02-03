@@ -7,13 +7,7 @@ const AuthLayout: FC<PropsWithChildren> = ({ children }) => {
     <Box
       display="flex"
       height="100vh"
-      sx={
-        {
-          // overflow: "hidden",
-        }
-      }
     >
-      {/* Left Sidebar - 42% width, max 606px */}
       <Box
         sx={{
           width: "50%",
@@ -21,8 +15,6 @@ const AuthLayout: FC<PropsWithChildren> = ({ children }) => {
           backgroundColor: "#669900",
           display: { xs: "none", md: "flex" },
           flexDirection: "column",
-          // alignItems: "center",
-          // justifyContent: "center",
           gap: 4,
         }}
       >
@@ -69,8 +61,6 @@ const AuthLayout: FC<PropsWithChildren> = ({ children }) => {
           </Typography>
         </Box>
       </Box>
-
-      {/* Right Content Area - Remaining space */}
       <Box
         sx={{
           flex: 1,

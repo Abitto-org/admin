@@ -14,7 +14,7 @@ const StatCard: FC<StatCardProps> = ({ label, value, subtext, action }) => {
       sx={{
         height: "115px",
         borderRadius: "8px",
-        padding: "16px 20px",
+        padding: { xs: "12px 12px", md: "16px 20px" },
         border: "1px solid #F8F8F8",
         display: "flex",
         flexDirection: "column",
@@ -43,7 +43,7 @@ const StatCard: FC<StatCardProps> = ({ label, value, subtext, action }) => {
       <Typography
         sx={{
           fontWeight: 700,
-          fontSize: "24px",
+          fontSize: { xs: "18px", md: "24px" },
           lineHeight: "100%",
           letterSpacing: "-2%",
           textTransform: "capitalize",
@@ -55,7 +55,14 @@ const StatCard: FC<StatCardProps> = ({ label, value, subtext, action }) => {
       </Typography>
 
       {/* Subtext */}
-      <Box sx={{ mt: "12px" }}>{subtext}</Box>
+      <Box
+        sx={{
+          mt: { xs: "8px", md: "12px" },
+          fontSize: { xs: "12px", md: "16px" },
+        }}
+      >
+        {subtext}
+      </Box>
     </Box>
   );
 };

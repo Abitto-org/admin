@@ -1,4 +1,4 @@
-import {  Select, MenuItem, type SelectChangeEvent } from "@mui/material";
+import { Select, MenuItem, type SelectChangeEvent } from "@mui/material";
 import { KeyboardArrowDown } from "@mui/icons-material";
 import { type FC, useState } from "react";
 
@@ -19,7 +19,7 @@ const RangeSelect: FC<RangeSelectProps> = ({ defaultValue = "Today" }) => {
       onChange={handleChange}
       IconComponent={KeyboardArrowDown}
       sx={{
-        maxWidth: "81px",
+        maxWidth: {xs:"61px", md:"81px"},
         height: "32px",
         borderRadius: "8px",
         backgroundColor: "#FAFAFA",
@@ -32,12 +32,12 @@ const RangeSelect: FC<RangeSelectProps> = ({ defaultValue = "Today" }) => {
           alignItems: "center",
           gap: "4px",
           fontWeight: 600,
-          fontSize: "14px",
+          fontSize: { xs: "12px", sm: "14px" },
           lineHeight: "100%",
           color: "#414141",
         },
         "& .MuiSvgIcon-root": {
-          fontSize: "14px",
+          fontSize: { xs: "12px", sm: "14px" },
           color: "#414141",
         },
       }}

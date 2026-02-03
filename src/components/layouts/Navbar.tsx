@@ -1,4 +1,11 @@
-import { Box, Avatar, Typography, Stack, IconButton } from "@mui/material";
+import {
+  Box,
+  Avatar,
+  Typography,
+  Stack,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import { type FC } from "react";
 import RefreshIcon from "@/assets/icons/refresh.svg";
 import NotificationsIcon from "@/assets/icons/notifications.svg";
@@ -98,56 +105,60 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
         }}
       >
         {/* Refresh Button */}
-        <Box
-          onClick={handleRefresh}
-          sx={{
-            width: "28px",
-            height: "28px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: "4px",
-            transition: "background-color 0.2s ease-in-out",
-            "&:hover": {
-              backgroundColor: "#FAFAFA",
-            },
-          }}
-          aria-label="refresh"
-        >
+        <Tooltip title={"Refresh"} placement="top">
           <Box
-            component="img"
-            src={RefreshIcon}
-            alt="refresh"
-            sx={{ width: "28px", height: "28px" }}
-          />
-        </Box>
+            onClick={handleRefresh}
+            sx={{
+              width: "28px",
+              height: "28px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "4px",
+              transition: "background-color 0.2s ease-in-out",
+              "&:hover": {
+                backgroundColor: "#FAFAFA",
+              },
+            }}
+            aria-label="refresh"
+          >
+            <Box
+              component="img"
+              src={RefreshIcon}
+              alt="refresh"
+              sx={{ width: "28px", height: "28px" }}
+            />
+          </Box>
+        </Tooltip>
 
         {/* Notifications Button */}
-        <Box
-          onClick={handleNotifications}
-          sx={{
-            width: "28px",
-            height: "28px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: "4px",
-            transition: "background-color 0.2s ease-in-out",
-            "&:hover": {
-              backgroundColor: "#FAFAFA",
-            },
-          }}
-          aria-label="notifications"
-        >
+        <Tooltip title={"Notifications"} placement="top">
           <Box
-            component="img"
-            src={NotificationsIcon}
-            alt="notifications"
-            sx={{ width: "28px", height: "28px" }}
-          />
-        </Box>
+            onClick={handleNotifications}
+            sx={{
+              width: "28px",
+              height: "28px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "4px",
+              transition: "background-color 0.2s ease-in-out",
+              "&:hover": {
+                backgroundColor: "#FAFAFA",
+              },
+            }}
+            aria-label="notifications"
+          >
+            <Box
+              component="img"
+              src={NotificationsIcon}
+              alt="notifications"
+              sx={{ width: "28px", height: "28px" }}
+            />
+          </Box>
+        </Tooltip>
 
         {/* User Profile Section */}
         <Box
@@ -163,7 +174,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
               width: { md: "40px", lg: "47px" },
               height: { md: "40px", lg: "47px" },
               backgroundColor: "#3266CC",
-              fontFamily: "Geist, sans-serif",
               fontWeight: 600,
               fontSize: "16px",
             }}
@@ -175,7 +185,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
           <Stack spacing="4px">
             <Typography
               sx={{
-                fontFamily: "Geist, sans-serif",
                 fontWeight: 600,
                 fontSize: "16px",
                 lineHeight: "100%",
@@ -201,7 +210,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
             >
               <Typography
                 sx={{
-                  fontFamily: "Geist, sans-serif",
                   fontWeight: 600,
                   fontSize: "14px",
                   lineHeight: "100%",
@@ -222,7 +230,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
             width: "32px",
             height: "32px",
             backgroundColor: "#3266CC",
-            fontFamily: "Geist, sans-serif",
             fontWeight: 600,
             fontSize: "14px",
             display: { xs: "flex", sm: "none" },

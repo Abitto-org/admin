@@ -1,11 +1,11 @@
 import { Box, Typography, Stack } from "@mui/material";
-import { NorthEast } from "@mui/icons-material";
 import { type FC } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import LinkText from "./LinkText";
 
 const dummyData = [
-  { name: "Registered", value: 70, color: "#3266CC" },
-  { name: "Linked", value: 30, color: "#669900" },
+  { name: "Registered Meters", value: 70, color: "#3266CC" },
+  { name: "Linked Meters", value: 30, color: "#669900" },
 ];
 
 const MeterComparisonChart: FC = () => {
@@ -46,7 +46,7 @@ const MeterComparisonChart: FC = () => {
         <Typography
           sx={{
             fontWeight: 600,
-            fontSize: "14px",
+            fontSize: { xs: "12px", md: "14px" },
             lineHeight: "100%",
             letterSpacing: "-1%",
             textTransform: "capitalize",
@@ -95,31 +95,42 @@ const MeterComparisonChart: FC = () => {
             textAlign: "center",
           }}
         >
-          <Typography
+          <Box
             sx={{
-              fontWeight: 600,
-              fontSize: "20px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
-              textTransform: "capitalize",
-              color: "#000000",
-              mb: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
             }}
           >
-            {linkedPercentage}%
-          </Typography>
-          <Typography
-            sx={{
-              fontWeight: 600,
-              fontSize: "14px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
-              textTransform: "capitalize",
-              color: "#414141",
-            }}
-          >
-            registered meters linked
-          </Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                fontSize: { xs: "16px", md: "20px" },
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#000000",
+                mb: "8px",
+              }}
+            >
+              {linkedPercentage}%
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                fontSize: { xs: "12px", md: "14px" },
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#414141",
+                mb: 2,
+              }}
+            >
+              registered meters <br /> linked
+            </Typography>
+            <LinkText text="View Meters" onClick={handleViewMeters} />
+          </Box>
         </Box>
       </Box>
 
@@ -147,14 +158,14 @@ const MeterComparisonChart: FC = () => {
                 sx={{
                   width: "12px",
                   height: "12px",
-                  borderRadius: "2px",
+                  borderRadius: "4px",
                   backgroundColor: item.color,
                 }}
               />
               <Typography
                 sx={{
                   fontWeight: 600,
-                  fontSize: "14px",
+                  fontSize: { xs: "12px", md: "14px" },
                   lineHeight: "100%",
                   letterSpacing: "-1%",
                   textTransform: "capitalize",
@@ -166,39 +177,6 @@ const MeterComparisonChart: FC = () => {
             </Box>
           ))}
         </Stack>
-
-        {/* View Meters Link */}
-        <Box
-          onClick={handleViewMeters}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            cursor: "pointer",
-            "&:hover": {
-              opacity: 0.8,
-            },
-          }}
-        >
-          <Typography
-            sx={{
-              fontWeight: 600,
-              fontSize: "14px",
-              lineHeight: "100%",
-              letterSpacing: "0%",
-              textTransform: "capitalize",
-              color: "#669900",
-            }}
-          >
-            View Meters
-          </Typography>
-          <NorthEast
-            sx={{
-              fontSize: "16px",
-              color: "#669900",
-            }}
-          />
-        </Box>
       </Box>
     </Box>
   );

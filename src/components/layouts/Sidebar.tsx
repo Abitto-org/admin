@@ -178,7 +178,7 @@ const Sidebar: FC<SidebarProps> = ({
         </Box>
 
         {/* Navigation Sections */}
-        <Stack spacing={3} sx={{ flex: 1, overflowY: "auto" }}>
+        <Stack className="no-scrollbar" spacing={3} sx={{ flex: 1, overflowY: "auto", pb: 5 }}>
           {navSections.map((section, index) => (
             <Box key={index}>
               <Typography

@@ -1,8 +1,8 @@
 import { Box, Typography, Stack } from "@mui/material";
 import { type FC } from "react";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -11,13 +11,13 @@ import {
 import TrendUpBlueIcon from "@/assets/icons/trend-up-blue.svg";
 
 const dummyData = [
-  { day: "Mon", usage: 150 },
-  { day: "Tue", usage: 200 },
-  { day: "Wed", usage: 180 },
-  { day: "Thu", usage: 250 },
-  { day: "Fri", usage: 220 },
-  { day: "Sat", usage: 280 },
-  { day: "Sun", usage: 300 },
+  { day: "Mon", usage: 0 },
+  { day: "Tue", usage: 75 },
+  { day: "Wed", usage: 120 },
+  { day: "Thu", usage: 240 },
+  { day: "Fri", usage: 190 },
+  { day: "Sat", usage: 250 },
+  { day: "Sun", usage: 280 },
 ];
 
 const TotalUsageChart: FC = () => {
@@ -26,7 +26,7 @@ const TotalUsageChart: FC = () => {
       sx={{
         backgroundColor: "white",
         borderRadius: "8px",
-        padding: "24px",
+        padding: { xs: "12px", md: "24px" },
         height: "427px",
         display: "flex",
         flexDirection: "column",
@@ -46,7 +46,7 @@ const TotalUsageChart: FC = () => {
           <Typography
             sx={{
               fontWeight: 600,
-              fontSize: "16px",
+              fontSize: { xs: "14px", md: "16px" },
               lineHeight: "100%",
               letterSpacing: "-1%",
               textTransform: "capitalize",
@@ -93,7 +93,7 @@ const TotalUsageChart: FC = () => {
             <Typography
               sx={{
                 fontWeight: 700,
-                fontSize: "16px",
+                fontSize: { xs: "14px", md: "16px" },
                 lineHeight: "100%",
                 letterSpacing: "-1%",
                 textTransform: "capitalize",
@@ -106,7 +106,7 @@ const TotalUsageChart: FC = () => {
             <Typography
               sx={{
                 fontWeight: 600,
-                fontSize: "14px",
+                fontSize: { xs: "12px", md: "14px" },
                 lineHeight: "100%",
                 letterSpacing: "-1%",
                 textTransform: "capitalize",
@@ -130,7 +130,7 @@ const TotalUsageChart: FC = () => {
             <Typography
               sx={{
                 fontWeight: 700,
-                fontSize: "16px",
+                fontSize: { xs: "14px", md: "16px" },
                 lineHeight: "100%",
                 letterSpacing: "-1%",
                 textTransform: "capitalize",
@@ -143,7 +143,7 @@ const TotalUsageChart: FC = () => {
             <Typography
               sx={{
                 fontWeight: 600,
-                fontSize: "14px",
+                fontSize: { xs: "12px", md: "14px" },
                 lineHeight: "100%",
                 letterSpacing: "-1%",
                 textTransform: "capitalize",
@@ -159,22 +159,14 @@ const TotalUsageChart: FC = () => {
       {/* Chart */}
       <Box sx={{ flex: 1, height: "278px" }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
+          <AreaChart
             data={dummyData}
-            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
           >
             <defs>
               <linearGradient id="colorUsage" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="53.25%"
-                  stopColor="rgba(224, 235, 204, 0.3)"
-                  stopOpacity={1}
-                />
-                <stop
-                  offset="99.53%"
-                  stopColor="rgba(255, 255, 255, 0)"
-                  stopOpacity={0}
-                />
+                <stop offset="0%" stopColor="#E0EBCC4D" />
+                <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="0" stroke="transparent" />
@@ -182,34 +174,33 @@ const TotalUsageChart: FC = () => {
               dataKey="day"
               axisLine={false}
               tickLine={false}
+              tickMargin={8}
               tick={{
                 fill: "#414141",
                 fontWeight: 600,
                 fontSize: 14,
-                letterSpacing: "-1%",
               }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
+              tickMargin={8}
               ticks={[0, 50, 100, 150, 200, 250, 300]}
               tick={{
                 fill: "#414141",
                 fontWeight: 600,
                 fontSize: 14,
-                letterSpacing: "-1%",
               }}
             />
-            <Line
+            <Area
               type="monotone"
               dataKey="usage"
               stroke="#669900"
               strokeWidth={1.2}
-              dot={false}
               fill="url(#colorUsage)"
-              fillOpacity={1}
+              dot={false}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </Box>
     </Box>

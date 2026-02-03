@@ -4,6 +4,11 @@ import StatCard from "@/components/ui/dashboard/StatCard";
 import TrendText from "@/components/ui/dashboard/TrendText";
 import LinkText from "@/components/ui/dashboard/LinkText";
 import RangeSelect from "@/components/ui/dashboard/RangeSelect";
+import TotalUsageChart from "@/components/ui/dashboard/TotalUsageChart";
+import MeterComparisonChart from "@/components/ui/dashboard/MeterComparisonChart";
+import RecentActivity from "@/components/ui/dashboard/RecentActivity";
+import LinkRequest from "@/components/ui/dashboard/LinkRequest";
+import TransactionsHistory from "@/components/ui/dashboard/TransactionsHistory";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 
 const Dashboard: FC = () => {
@@ -29,7 +34,7 @@ const Dashboard: FC = () => {
           justifyContent: "space-between",
           alignItems: { xs: "flex-start", md: "center" },
           gap: { xs: "24px", md: "16px" },
-          mb: "32px",
+          mb: { xs: 2, md: 3 },
         }}
       >
         {/* Title and Subtitle */}
@@ -60,7 +65,7 @@ const Dashboard: FC = () => {
 
         {/* Action Buttons */}
         <Stack
-          direction={{ xs: "column", sm: "row" }}
+          direction="row"
           spacing="16px"
           sx={{
             width: { xs: "100%", sm: "auto" },
@@ -75,7 +80,7 @@ const Dashboard: FC = () => {
               backgroundColor: "#FFFFFF",
               color: "#669900",
               fontWeight: 600,
-              fontSize: "16px",
+              fontSize: { xs: "14px", sm: "16px" },
               lineHeight: "100%",
               letterSpacing: "0%",
               textTransform: "capitalize",
@@ -97,7 +102,7 @@ const Dashboard: FC = () => {
               backgroundColor: "#669900",
               color: "#FFFFFF",
               fontWeight: 600,
-              fontSize: "16px",
+              fontSize: { xs: "14px", sm: "16px" },
               lineHeight: "100%",
               letterSpacing: "0%",
               textTransform: "capitalize",
@@ -129,11 +134,11 @@ const Dashboard: FC = () => {
         sx={{
           display: "grid",
           gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, 1fr)",
+            xs: "repeat(2, 1fr)",
             lg: "repeat(4, 1fr)",
           },
           gap: "8px",
+          mb: { xs: 2, md: 3 },
         }}
       >
         <StatCard
@@ -179,6 +184,40 @@ const Dashboard: FC = () => {
           }
         />
       </Box>
+
+      {/* Charts Section */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            lg: "60% 40%",
+          },
+          gap: "10px",
+          mb: { xs: 2, md: 3 },
+        }}
+      >
+        <TotalUsageChart />
+        <MeterComparisonChart />
+      </Box>
+
+      {/* Recent Activity and Link Request Section */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            lg: "40% 1fr",
+          },
+          gap: "10px",
+        }}
+      >
+        <RecentActivity />
+        <LinkRequest />
+      </Box>
+
+      {/* Transactions History Section */}
+      <TransactionsHistory />
     </Box>
   );
 };

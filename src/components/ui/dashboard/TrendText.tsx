@@ -27,7 +27,7 @@ const TrendText: FC<TrendTextProps> = ({ text }) => {
       <Typography
         sx={{
           fontWeight: 600,
-          fontSize: "14px",
+          fontSize: { xs: "12px", sm: "14px" },
           lineHeight: "100%",
           letterSpacing: "0%",
           textTransform: "capitalize",

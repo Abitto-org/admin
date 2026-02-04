@@ -11,15 +11,21 @@ import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 // Layouts
 import AuthLayout from "@/components/layouts/AuthLayout";
-
-import App from "./App";
-import NotFound from "@/pages/NotFound";
-
 import DashboardLayout from "./components/layouts/DashboardLayout";
 
+import App from "./App";
+
+// 404
+import NotFound from "@/pages/NotFound";
+
+// Auth Page
 const Login = lazy(() => import("@/pages/auth/Login"));
 
+// Main Pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const LinkRequests = lazy(() => import("@/pages/LinkRequests"));
+const Meters = lazy(() => import("@/pages/Meters"));
+const Users = lazy(() => import("@/pages/Users"));
 
 interface RouteConfig {
   path: string;
@@ -35,6 +41,9 @@ const routes: RouteConfig[] = [
   },
   { path: "/auth/login", page: Login, layout: AuthLayout },
   { path: "/dashboard", page: Dashboard, layout: DashboardLayout },
+  { path: "/link-requests", page: LinkRequests, layout: DashboardLayout },
+  { path: "/meters", page: Meters, layout: DashboardLayout },
+  { path: "/users", page: Users, layout: DashboardLayout },
   { path: "*", page: NotFound },
 ];
 

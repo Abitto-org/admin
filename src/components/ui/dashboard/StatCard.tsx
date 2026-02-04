@@ -5,10 +5,19 @@ interface StatCardProps {
   label: string;
   value: string;
   subtext: ReactNode;
+  subtextColor?: string; // Custom color for subtext
+  subtextGap?: string; // Gap between subtext elements (e.g., "4px", "8px")
   action?: ReactNode;
 }
 
-const StatCard: FC<StatCardProps> = ({ label, value, subtext, action }) => {
+const StatCard: FC<StatCardProps> = ({
+  label,
+  value,
+  subtext,
+  subtextColor = "#414141", // Default color
+  subtextGap = "4px", // Default gap
+  action,
+}) => {
   return (
     <Box
       sx={{
@@ -58,7 +67,12 @@ const StatCard: FC<StatCardProps> = ({ label, value, subtext, action }) => {
       <Box
         sx={{
           mt: { xs: "8px", md: "12px" },
-          fontSize: { xs: "12px", md: "16px" },
+          fontSize: { xs: "12px", md: "14px" },
+          color: subtextColor,
+          display: "flex",
+          alignItems: "center",
+          gap: subtextGap,
+          fontWeight: "600",
         }}
       >
         {subtext}

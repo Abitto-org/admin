@@ -8,8 +8,9 @@ import TotalUsageChart from "@/components/ui/dashboard/TotalUsageChart";
 import MeterComparisonChart from "@/components/ui/dashboard/MeterComparisonChart";
 import RecentActivity from "@/components/ui/dashboard/RecentActivity";
 import LinkRequest from "@/components/ui/dashboard/LinkRequest";
-import TransactionsHistory from "@/components/ui/dashboard/TransactionsHistory";
+import TransactionsHistory from "@/components/ui/dashboard/TransactionsHistoryTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
+// import TrendDownIcon from "@/assets/icons/trend-down.svg"; // If you have this
 
 const Dashboard: FC = () => {
   const handleRegisterUser = () => {
@@ -141,19 +142,24 @@ const Dashboard: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
+        {/* Card 1: Default TrendText (works exactly like before!) */}
         <StatCard
           label="Total Users"
           value="266"
           subtext={<TrendText text="+200 users this month" />}
+          subtextGap="4px"
         />
 
+        {/* Card 2: TrendText with custom color + Action component */}
         <StatCard
           label="Total Revenue"
           value="₦ 790,000"
-          subtext={<TrendText text="₦20,000 today" />}
+          subtext={<TrendText text="₦20,000 today" color="#414141" />}
           action={<RangeSelect defaultValue="Today" />}
+          subtextGap="4px"
         />
 
+        {/* Card 3: LinkText with larger gap (icon feels more separate) */}
         <StatCard
           label="Total Active Meters"
           value="500"
@@ -161,27 +167,24 @@ const Dashboard: FC = () => {
             <LinkText
               text="View Link Request"
               onClick={handleViewLinkRequest}
+              iconGap="6px" // Larger gap for the trailing icon
             />
           }
+          subtextGap="6px" // Match the larger gap
         />
 
+        {/* Card 4: Plain text without icon */}
         <StatCard
           label="Total Gas Sold"
           value="5,000 kg"
           subtext={
-            <Typography
-              sx={{
-                fontWeight: 600,
-                fontSize: "14px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                textTransform: "capitalize",
-                color: "#414141",
-              }}
-            >
-              10kg gas sold today
-            </Typography>
+            <TrendText
+              text="10kg gas sold today"
+              showIcon={false}
+              color="#414141"
+            />
           }
+          subtextGap="4px"
         />
       </Box>
 

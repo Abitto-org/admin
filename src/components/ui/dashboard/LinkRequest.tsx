@@ -34,7 +34,7 @@ const LinkRequest: FC = () => {
           sx={{
             fontFamily: "Geist",
             fontWeight: 600,
-            fontSize: { xs: "14px", sm: "15px", md: "16px" },
+            fontSize: "16px",
             lineHeight: "100%",
             letterSpacing: "-0.01em",
             textTransform: "capitalize",
@@ -49,7 +49,7 @@ const LinkRequest: FC = () => {
           sx={{
             fontFamily: "Geist",
             fontWeight: 600,
-            fontSize: { xs: "14px", sm: "15px", md: "16px" },
+            fontSize: "16px",
             lineHeight: "100%",
             letterSpacing: "-0.01em",
             textTransform: "capitalize",

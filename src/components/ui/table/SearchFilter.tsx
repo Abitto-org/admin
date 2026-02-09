@@ -36,7 +36,7 @@ const SearchFilter: FC<SearchFilterProps> = ({
         display: "flex",
         alignItems: "center",
         minWidth: { xs: "auto", lg: "408px" },
-        width: { xs: "100%", sm: "auto" },
+        width: { xs: "90%", lg: "auto" },
         borderRadius: "8px",
         gap: "10px",
         border: "1px solid #EAEAEA",

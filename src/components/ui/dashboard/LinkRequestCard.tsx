@@ -33,7 +33,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
         <Typography
           sx={{
             fontWeight: 700,
-            fontSize: { xs: "12px", sm: "13px", md: "14px" },
+            fontSize: "14px",
             lineHeight: "100%",
             letterSpacing: "0%",
             textTransform: "uppercase",
@@ -49,7 +49,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
           sx={{
             fontFamily: "Geist",
             fontWeight: 700,
-            fontSize: { xs: "12px", sm: "13px", md: "14px" },
+            fontSize: "14px",
             lineHeight: "100%",
             letterSpacing: "0%",
             textTransform: "capitalize",
@@ -72,7 +72,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
           <Typography
             sx={{
               fontWeight: 600,
-              fontSize: { xs: "12px", sm: "13px", md: "14px" },
+              fontSize: "14px",
               lineHeight: "100%",
               letterSpacing: "0%",
               textTransform: "capitalize",
@@ -86,7 +86,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
             sx={{
               fontFamily: "Geist",
               fontWeight: 600,
-              fontSize: { xs: "12px", sm: "13px", md: "14px" },
+              fontSize: "14px",
               lineHeight: { xs: "16px", sm: "18px", md: "19px" },
               letterSpacing: "0%",
               textTransform: "capitalize",
@@ -103,7 +103,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
             sx={{
               fontFamily: "Geist",
               fontWeight: 600,
-              fontSize: { xs: "12px", sm: "13px", md: "14px" },
+              fontSize: "14px",
               lineHeight: "100%",
               letterSpacing: "0%",
               textTransform: "capitalize",
@@ -117,7 +117,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
             sx={{
               fontFamily: "Geist",
               fontWeight: 600,
-              fontSize: { xs: "12px", sm: "13px", md: "14px" },
+              fontSize: "14px",
               lineHeight: { xs: "16px", sm: "18px", md: "19px" },
               letterSpacing: "0%",
               textTransform: "capitalize",

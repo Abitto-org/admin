@@ -46,7 +46,7 @@ const MeterComparisonChart: FC = () => {
         <Typography
           sx={{
             fontWeight: 600,
-            fontSize: { xs: "12px", md: "14px" },
+            fontSize: "14px",
             lineHeight: "100%",
             letterSpacing: "-1%",
             textTransform: "capitalize",
@@ -106,7 +106,7 @@ const MeterComparisonChart: FC = () => {
             <Typography
               sx={{
                 fontWeight: 600,
-                fontSize: { xs: "16px", md: "20px" },
+                fontSize: { xs: "18px", md: "20px" },
                 lineHeight: "100%",
                 letterSpacing: "-1%",
                 textTransform: "capitalize",
@@ -119,7 +119,7 @@ const MeterComparisonChart: FC = () => {
             <Typography
               sx={{
                 fontWeight: 600,
-                fontSize: { xs: "12px", md: "14px" },
+                fontSize: "14px",
                 lineHeight: "100%",
                 letterSpacing: "-1%",
                 textTransform: "capitalize",
@@ -165,7 +165,7 @@ const MeterComparisonChart: FC = () => {
               <Typography
                 sx={{
                   fontWeight: 600,
-                  fontSize: { xs: "12px", md: "14px" },
+                  fontSize: "16px",
                   lineHeight: "100%",
                   letterSpacing: "-1%",
                   textTransform: "capitalize",

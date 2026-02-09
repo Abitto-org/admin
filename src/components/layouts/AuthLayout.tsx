@@ -6,7 +6,7 @@ const AuthLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <Box
       display="flex"
-      height="100vh"
+      height="100dvh"
     >
       <Box
         sx={{

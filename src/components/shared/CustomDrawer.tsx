@@ -46,6 +46,7 @@ const CustomDrawer: FC<CustomDrawerProps> = ({
           height: "100%",
           width: "100%",
           overflow: "hidden",
+          position: "relative",
         }}
       >
         {/* Sticky Header with Swipe Indicator and Close Button */}
@@ -71,46 +72,51 @@ const CustomDrawer: FC<CustomDrawerProps> = ({
               }}
             />
           )}
-
-          {/* Close Button */}
         </Box>
-        <Box
-          width="100%"
-          display="flex"
-          justifyContent="end"
-          mb="6px"
-          mr={{ xs: "16px", md: "24px" }}
-        >
+        {!isMobile && (
           <Box
+            width="100%"
+            display="flex"
+            justifyContent="end"
+            mb="6px"
             sx={{
-              borderRadius: "50%",
-              bgcolor: "#FAFAFA",
-              width: "24px",
-              height: "24px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              "&:hover": {
-                bgcolor: "#F5F5F5",
-              },
+              position: "absolute",
+              right: { xs: "16px", md: "24px" },
+              top: "24px",
             }}
-            onClick={onClose}
           >
-            <CloseIcon
+            <Box
               sx={{
-                fontSize: "15px",
-                color: "#000000",
+                borderRadius: "50%",
+                bgcolor: "#FAFAFA",
+                width: "24px",
+                height: "24px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                "&:hover": {
+                  bgcolor: "#F5F5F5",
+                },
               }}
-            />
+              onClick={onClose}
+            >
+              <CloseIcon
+                sx={{
+                  fontSize: "15px",
+                  color: "#000000",
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
+        )}
 
         {/* Content */}
         <Box
           sx={{
             px: { xs: "16px", md: "24px" },
             pb: "24px",
+            pt: isMobile ? "0px" : "30px",
             flex: 1,
             overflowY: "auto",
             overflowX: "hidden",

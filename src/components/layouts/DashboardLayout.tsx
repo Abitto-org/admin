@@ -34,7 +34,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children, user }) => {
   };
 
   return (
-    <Box display="flex" height="100vh" overflow="hidden">
+    <Box display="flex" height="100dvh" overflow="hidden">
       {/* Sidebar */}
       <Sidebar
         isCollapsed={isCollapsed}

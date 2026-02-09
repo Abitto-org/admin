@@ -105,7 +105,7 @@ const Sidebar: FC<SidebarProps> = ({
             xs: "75%",
             md: isCollapsed ? "auto" : "273px",
           },
-          height: "100vh",
+          height: "100dvh",
           padding: { xs: "16px", md: "21px" },
           borderRight: "1px solid #ECECEC",
           display: "flex",

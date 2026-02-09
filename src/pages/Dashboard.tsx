@@ -10,15 +10,12 @@ import RecentActivity from "@/components/ui/dashboard/RecentActivity";
 import LinkRequest from "@/components/ui/dashboard/LinkRequest";
 import TransactionsHistory from "@/components/ui/dashboard/TransactionsHistoryTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
+import useDisclosure from "@/hooks/useDisclosure";
+import CustomDrawer from "@/components/shared/CustomDrawer";
 
 const Dashboard: FC = () => {
-  const handleRegisterUser = () => {
-    console.log("Register new user clicked");
-  };
-
-  const handleLinkMeter = () => {
-    console.log("Link a meter clicked");
-  };
+  const registerUserDrawer = useDisclosure();
+  const linkMeterDrawer = useDisclosure();
 
   const handleViewLinkRequest = () => {
     console.log("View link request clicked");
@@ -72,7 +69,7 @@ const Dashboard: FC = () => {
           }}
         >
           <Button
-            onClick={handleRegisterUser}
+            onClick={registerUserDrawer.onOpen}
             sx={{
               height: "48px",
               borderRadius: "32px",
@@ -94,7 +91,7 @@ const Dashboard: FC = () => {
           </Button>
 
           <Button
-            onClick={handleLinkMeter}
+            onClick={linkMeterDrawer.onOpen}
             sx={{
               height: "48px",
               borderRadius: "32px",
@@ -220,6 +217,34 @@ const Dashboard: FC = () => {
 
       {/* Transactions History Section */}
       <TransactionsHistory showViewAllButton />
+
+      {/* Register User Drawer */}
+      <CustomDrawer
+        open={registerUserDrawer.open}
+        onClose={registerUserDrawer.onClose}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
+            Register New User
+          </Typography>
+          {/* Add your register user form content here */}
+          <Typography>Register user form goes here...</Typography>
+        </Box>
+      </CustomDrawer>
+
+      {/* Link Meter Drawer */}
+      <CustomDrawer
+        open={linkMeterDrawer.open}
+        onClose={linkMeterDrawer.onClose}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
+            Link a Meter
+          </Typography>
+          {/* Add your link meter form content here */}
+          <Typography>Link meter form goes here yayyayyaya...</Typography>
+        </Box>
+      </CustomDrawer>
     </>
   );
 };

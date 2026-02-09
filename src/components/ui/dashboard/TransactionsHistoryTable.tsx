@@ -4,6 +4,10 @@ import DataTable from "../table/DataTable";
 import Badge from "../table/Badge";
 import LinkText from "./LinkText";
 
+interface TransactionsHistoryTableProps {
+  showViewAllButton?: boolean;
+}
+
 interface Transaction {
   id: string;
   timestamp: string;
@@ -80,7 +84,9 @@ const badgeConfig: BadgeConfig = {
   },
 };
 
-const TransactionsHistoryTable: FC = () => {
+const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
+  showViewAllButton,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 10;
 
@@ -174,7 +180,7 @@ const TransactionsHistoryTable: FC = () => {
       currentPage={currentPage}
       totalPages={totalPages}
       onPageChange={handlePageChange}
-      showViewAllButton
+      showViewAllButton={showViewAllButton}
       viewAllButtonText="View All Transactions"
       onViewAll={handleViewAll}
     />

@@ -12,7 +12,7 @@ import {
   Speed,
   People,
   Receipt,
-  Analytics,
+  // Analytics,
   HelpCenter,
   Settings,
   Logout as LogoutIcon,
@@ -48,7 +48,7 @@ const navSections: NavSection[] = [
       { label: "Meters", path: "/meters", icon: <Speed /> },
       { label: "Users", path: "/users", icon: <People /> },
       { label: "Transactions", path: "/transactions", icon: <Receipt /> },
-      { label: "Analytics", path: "/analytics", icon: <Analytics /> },
+      // { label: "Analytics", path: "/analytics", icon: <Analytics /> },
     ],
   },
   {
@@ -178,7 +178,11 @@ const Sidebar: FC<SidebarProps> = ({
         </Box>
 
         {/* Navigation Sections */}
-        <Stack className="no-scrollbar" spacing={3} sx={{ flex: 1, overflowY: "auto", pb: 5 }}>
+        <Stack
+          className="no-scrollbar"
+          spacing={3}
+          sx={{ flex: 1, overflowY: "auto", pb: 5 }}
+        >
           {navSections.map((section, index) => (
             <Box key={index}>
               <Typography

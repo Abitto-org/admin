@@ -10,7 +10,6 @@ import RecentActivity from "@/components/ui/dashboard/RecentActivity";
 import LinkRequest from "@/components/ui/dashboard/LinkRequest";
 import TransactionsHistory from "@/components/ui/dashboard/TransactionsHistoryTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
-// import TrendDownIcon from "@/assets/icons/trend-down.svg"; // If you have this
 
 const Dashboard: FC = () => {
   const handleRegisterUser = () => {
@@ -26,7 +25,7 @@ const Dashboard: FC = () => {
   };
 
   return (
-    <Box>
+    <>
       {/* Header Section */}
       <Box
         sx={{
@@ -220,8 +219,8 @@ const Dashboard: FC = () => {
       </Box>
 
       {/* Transactions History Section */}
-      <TransactionsHistory />
-    </Box>
+      <TransactionsHistory showViewAllButton />
+    </>
   );
 };
 

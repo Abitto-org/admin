@@ -14,7 +14,7 @@ const Users: FC = () => {
   };
 
   return (
-    <Box>
+    <>
       {/* Header Section */}
       <Box
         sx={{
@@ -133,7 +133,7 @@ const Users: FC = () => {
         />
       </Box>
       <UsersTable />
-    </Box>
+    </>
   );
 };
 

@@ -10,7 +10,7 @@ const Meters: FC = () => {
   };
 
   return (
-    <Box>
+    <>
       {/* Header Section */}
       <Box
         sx={{
@@ -122,7 +122,7 @@ const Meters: FC = () => {
         />
       </Box>
       <MetersTable />
-    </Box>
+    </>
   );
 };
 

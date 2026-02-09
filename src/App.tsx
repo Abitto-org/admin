@@ -1,17 +1,10 @@
-import { Button, Box } from '@mui/material';
+import { Navigate } from "react-router-dom";
 
 function App() {
-  return (
-    <Box sx={{ padding: '20px' }}>
-      <h1>Vite + React + Material UI</h1>
-      <Button variant="contained" color="primary">
-        Click Me
-      </Button>
-      <Button variant="outlined" color="secondary" style={{ marginLeft: '10px' }}>
-        Outlined Button 
-      </Button>
-    </Box>
-  );
+  // const isAuthenticated = checkToken();
+  // return isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/auth/login" />;
+
+  return <Navigate to="/dashboard" replace />;
 }
 
 export default App;

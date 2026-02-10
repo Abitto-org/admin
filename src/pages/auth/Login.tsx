@@ -12,7 +12,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useLogin } from "@/hooks/useAuth";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -26,7 +26,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  const { login, isLoading, error: loginError } = useLogin();
 
   const {
     register,
@@ -36,9 +36,8 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log("Form data:", data);
-    navigate("/dashboard");
+  const onSubmit = async (data: LoginFormData) => {
+    await login(data);
   };
 
   return (
@@ -73,6 +72,21 @@ const Login = () => {
         Sign in to manage the system and operations.
       </Typography>
 
+      {/* Login Error */}
+      {loginError && (
+        <Box
+          mb={2}
+          p={2}
+          bgcolor="#fdecea"
+          borderRadius="8px"
+          border="1px solid #f5c6cb"
+        >
+          <Typography fontSize="12px" color="#d32f2f">
+            {loginError}
+          </Typography>
+        </Box>
+      )}
+
       {/* Email Input */}
       <Box mb={2}>
         <InputLabel
@@ -93,6 +107,7 @@ const Login = () => {
           {...register("email")}
           error={!!errors.email}
           helperText={errors.email?.message}
+          disabled={isLoading}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "8px",
@@ -152,6 +167,7 @@ const Login = () => {
           {...register("password")}
           error={!!errors.password}
           helperText={errors.password?.message}
+          disabled={isLoading}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "8px",
@@ -195,6 +211,7 @@ const Login = () => {
                   <IconButton
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
+                    disabled={isLoading}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -207,7 +224,9 @@ const Login = () => {
 
       {/* Login Button */}
       <Box display="flex" justifyContent="flex-end">
-        <Button type="submit">Log In</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Log In"}
+        </Button>
       </Box>
     </Box>
   );

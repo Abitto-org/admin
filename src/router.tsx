@@ -19,6 +19,7 @@ import NotFound from "@/pages/NotFound";
 import App from "./App";
 // Auth Page
 const Login = lazy(() => import("@/pages/auth/Login"));
+const VerifyOTP = lazy(() => import("@/pages/auth/VerifyOTP"));
 
 // Main Pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -42,6 +43,7 @@ const routes: RouteConfig[] = [
     page: App,
   },
   { path: "/auth/login", page: Login, layout: AuthLayout },
+  { path: "/auth/verify-otp", page: VerifyOTP, layout: AuthLayout },
   { path: "/dashboard", page: Dashboard, layout: DashboardLayout },
   { path: "/link-requests", page: LinkRequests, layout: DashboardLayout },
   { path: "/meters", page: Meters, layout: DashboardLayout },

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Typography, TextField, Button, InputLabel } from "@mui/material";
 import {
   useState,
@@ -8,23 +7,20 @@ import {
   type KeyboardEvent,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  useVerifyOtp,
-  useResendOtp,
-  getTempOtp,
-} from "@/hooks/useAuth";
+import { useVerifyOtp, useResendOtp, getTempOtp } from "@/hooks/useAuth";
 
 const OTP_LENGTH = 6;
-const TIMER_DURATION = 90; 
+const TIMER_DURATION = 90;
 
 const VerifyOtp = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const email = location.state?.email;
 
-  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
+  const [otp, setOtp] = useState<string[]>(new Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState(TIMER_DURATION);
   const [isExpired, setIsExpired] = useState(false);
+  const [isAutoVerifying, setIsAutoVerifying] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const { verifyOtp, isLoading, error } = useVerifyOtp();
@@ -40,7 +36,6 @@ const VerifyOtp = () => {
       navigate("/auth/login");
     }
   }, [email, navigate]);
-
   const handleVerifyOtp = async (otpDigits: string[] = otp) => {
     if (!email || isExpired) return;
 
@@ -59,15 +54,16 @@ const VerifyOtp = () => {
     const tempData = getTempOtp();
     if (tempData && tempData.email === email) {
       const otpDigits = tempData.otp.split("");
-      // Defer state update to avoid cascading renders
       setTimeout(() => {
         setOtp(otpDigits);
+        setIsAutoVerifying(true);
         // Auto-submit after a brief delay
         setTimeout(() => {
           handleVerifyOtp(otpDigits);
         }, 500);
       }, 0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
 
   // Timer countdown
@@ -149,7 +145,7 @@ const VerifyOtp = () => {
       // Reset timer and expired state
       setTimer(TIMER_DURATION);
       setIsExpired(false);
-      setOtp(Array(OTP_LENGTH).fill(""));
+      setOtp(new Array(OTP_LENGTH).fill(""));
       inputRefs.current[0]?.focus();
     }
   };
@@ -191,9 +187,19 @@ const VerifyOtp = () => {
         <Typography
           fontSize="14px"
           fontWeight={500}
-          color={isExpired ? "#d32f2f" : "#000000"}
+          color={
+            isExpired
+              ? "#d32f2f"
+              : isAutoVerifying || isLoading
+                ? "#1976d2"
+                : "#000000"
+          }
         >
-          {isExpired ? "OTP Expired" : `Time remaining: ${formatTime(timer)}`}
+          {isAutoVerifying || isLoading
+            ? "Verifying..."
+            : isExpired
+              ? "OTP Expired"
+              : `Time remaining: ${formatTime(timer)}`}
         </Typography>
       </Box>
 
@@ -217,9 +223,10 @@ const VerifyOtp = () => {
               inputRef={(el) => (inputRefs.current[index] = el)}
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onKeyDown={(e) => handleKeyDown(index, e as any)}
               onPaste={index === 0 ? handlePaste : undefined}
-              disabled={isExpired || isLoading}
+              disabled={isExpired || isLoading || isAutoVerifying}
               error={!!error}
               inputProps={{
                 maxLength: 1,
@@ -299,9 +306,14 @@ const VerifyOtp = () => {
       <Box display="flex" justifyContent="flex-end">
         <Button
           type="submit"
-          disabled={isExpired || isLoading || otp.some((digit) => !digit)}
+          disabled={
+            isExpired ||
+            isLoading ||
+            isAutoVerifying ||
+            otp.some((digit) => !digit)
+          }
         >
-          {isLoading ? "Verifying..." : "Verify"}
+          {isLoading || isAutoVerifying ? "Verifying..." : "Verify"}
         </Button>
       </Box>
     </Box>

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "@/api/auth.api";
-import { setAccessToken } from "@/utils/auth";
+import { useAuthStore } from "@/store/auth.store";
 import type { LoginRequest, VerifyOtpRequest } from "@/types/api.types";
 
 const OTP_STORAGE_KEY = "ABITTO_TEMP_OTP";
 const EMAIL_STORAGE_KEY = "ABITTO_TEMP_EMAIL";
 
+// Helper to store OTP temporarily in development
 const storeTempOtp = (email: string, otp: string) => {
   if (import.meta.env.DEV) {
     localStorage.setItem(OTP_STORAGE_KEY, otp);
@@ -14,6 +15,7 @@ const storeTempOtp = (email: string, otp: string) => {
   }
 };
 
+// Helper to get and clear temp OTP
 export const getTempOtp = (): { email: string; otp: string } | null => {
   if (import.meta.env.DEV) {
     const otp = localStorage.getItem(OTP_STORAGE_KEY);
@@ -68,6 +70,7 @@ export const useVerifyOtp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { setToken, fetchUser } = useAuthStore();
 
   const verifyOtp = async (data: VerifyOtpRequest) => {
     setIsLoading(true);
@@ -78,7 +81,10 @@ export const useVerifyOtp = () => {
 
       if (response.status === "success" && response.data.validated) {
         // Save access token
-        setAccessToken(response.data.token);
+        setToken(response.data.token);
+
+        // Fetch user profile
+        await fetchUser();
 
         // Clear temporary OTP data
         clearTempOtp();

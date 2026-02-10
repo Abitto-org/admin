@@ -2,17 +2,24 @@ import { Box } from "@mui/material";
 import { type FC, type PropsWithChildren, useState } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import { useAuthStore } from "@/store/auth.store";
 
-interface DashboardLayoutProps extends PropsWithChildren {
-  user?: {
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
-}
+const SIDEBAR_STORAGE_KEY = "sidebar-collapsed-state";
 
-const DashboardLayout: FC<DashboardLayoutProps> = ({ children, user }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+// Helper function to get initial collapsed state from localStorage
+const getInitialCollapsedState = (): boolean => {
+  try {
+    const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : false;
+  } catch {
+    return false;
+  }
+};
+
+const DashboardLayout: FC<PropsWithChildren> = ({ children }) => {
+  const { user } = useAuthStore();
+
+  const [isCollapsed, setIsCollapsed] = useState(getInitialCollapsedState);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const handleToggleCollapse = () => {
@@ -21,7 +28,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children, user }) => {
       setIsMobileOpen(!isMobileOpen);
     } else {
       // On desktop, toggle the collapse state
-      setIsCollapsed(!isCollapsed);
+      setIsCollapsed((prev) => !prev);
     }
   };
 

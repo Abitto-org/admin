@@ -9,6 +9,10 @@ import { createBrowserRouter } from "react-router-dom";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
+// Guards
+import AuthGuard from "@/components/guards/AuthGuard";
+// import GuestGuard from "@/components/guards/GuestGuard";
+
 // Layouts
 import AuthLayout from "@/components/layouts/AuthLayout";
 import DashboardLayout from "./components/layouts/DashboardLayout";
@@ -17,7 +21,8 @@ import DashboardLayout from "./components/layouts/DashboardLayout";
 import NotFound from "@/pages/NotFound";
 
 import App from "./App";
-// Auth Page
+
+// Auth Pages
 const Login = lazy(() => import("@/pages/auth/Login"));
 const VerifyOTP = lazy(() => import("@/pages/auth/VerifyOTP"));
 
@@ -43,14 +48,43 @@ const routes: RouteConfig[] = [
     page: App,
   },
   { path: "/auth/login", page: Login, layout: AuthLayout },
-  { path: "/auth/verify-otp", page: VerifyOTP, layout: AuthLayout },
-  { path: "/dashboard", page: Dashboard, layout: DashboardLayout },
-  { path: "/link-requests", page: LinkRequests, layout: DashboardLayout },
-  { path: "/meters", page: Meters, layout: DashboardLayout },
-  { path: "/users", page: Users, layout: DashboardLayout },
-  { path: "/transactions", page: Transactions, layout: DashboardLayout },
-  { path: "/help-center", page: HelpCenter, layout: DashboardLayout },
-  { path: "/settings", page: Settings, layout: DashboardLayout },
+  {
+    path: "/auth/verify-otp",
+    page: VerifyOTP,
+    layout: AuthLayout,
+  },
+  {
+    path: "/dashboard",
+    page: Dashboard,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/link-requests",
+    page: LinkRequests,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  { path: "/meters", page: Meters, layout: DashboardLayout, guard: AuthGuard },
+  { path: "/users", page: Users, layout: DashboardLayout, guard: AuthGuard },
+  {
+    path: "/transactions",
+    page: Transactions,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/help-center",
+    page: HelpCenter,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/settings",
+    page: Settings,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
   { path: "*", page: NotFound },
 ];
 

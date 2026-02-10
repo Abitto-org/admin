@@ -11,7 +11,7 @@ import LinkRequest from "@/components/ui/dashboard/LinkRequest";
 import TransactionsHistory from "@/components/ui/dashboard/TransactionsHistoryTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import useDisclosure from "@/hooks/useDisclosure";
-import CustomDrawer from "@/components/shared/CustomDrawer";
+import CustomDrawer from "@/components/ui/drawers/CustomDrawer";
 
 const Dashboard: FC = () => {
   const registerUserDrawer = useDisclosure();
@@ -216,7 +216,7 @@ const Dashboard: FC = () => {
       </Box>
 
       {/* Transactions History Section */}
-      <TransactionsHistory showViewAllButton />
+      <TransactionsHistory showViewAllButton  />
 
       {/* Register User Drawer */}
       <CustomDrawer

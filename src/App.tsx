@@ -1,10 +1,24 @@
+import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
+import { useAuthStore } from "@/store/auth.store";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 function App() {
-  // const isAuthenticated = checkToken();
-  // return isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/auth/login" />;
+  const { isAuthenticated, isLoading, fetchUser } = useAuthStore();
 
-  return <Navigate to="/dashboard" replace />;
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  return isAuthenticated ? (
+    <Navigate to="/dashboard" replace />
+  ) : (
+    <Navigate to="/auth/login" replace />
+  );
 }
 
 export default App;

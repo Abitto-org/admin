@@ -12,14 +12,16 @@ import {
   Speed,
   People,
   Receipt,
-  // Analytics,
   HelpCenter,
   Settings,
   Logout as LogoutIcon,
 } from "@mui/icons-material";
-import { type JSX, type FC } from "react";
+import { type JSX, type FC, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CollapseIcon from "@/assets/icons/collapse.svg";
+import { useAuthStore } from "@/store/auth.store";
+import useDisclosure from "@/hooks/useDisclosure";
+import LogoutConfirmDialog from "@/components/ui/modals/LogoutConfirmDialog";
 
 interface NavLink {
   label: string;
@@ -39,6 +41,8 @@ interface SidebarProps {
   onCloseMobile: () => void;
 }
 
+const SIDEBAR_STORAGE_KEY = "sidebar-collapsed-state";
+
 const navSections: NavSection[] = [
   {
     title: "General",
@@ -48,7 +52,6 @@ const navSections: NavSection[] = [
       { label: "Meters", path: "/meters", icon: <Speed /> },
       { label: "Users", path: "/users", icon: <People /> },
       { label: "Transactions", path: "/transactions", icon: <Receipt /> },
-      // { label: "Analytics", path: "/analytics", icon: <Analytics /> },
     ],
   },
   {
@@ -68,9 +71,17 @@ const Sidebar: FC<SidebarProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuthStore();
+  const logoutDialog = useDisclosure();
+
+  // Persist collapse state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
 
   const handleLogout = () => {
-    console.log("Logout clicked");
+    logout();
+    navigate("/auth/login");
   };
 
   const handleNavigation = (path: string) => {
@@ -169,8 +180,8 @@ const Sidebar: FC<SidebarProps> = ({
                 src={CollapseIcon}
                 alt="collapse"
                 sx={{
-                  width: { xs: "28px", md: isCollapsed ? "50px" : "32px" },
-                  height: { xs: "28px", md: isCollapsed ? "50px" : "32px" },
+                  width: { xs: "28px", md: isCollapsed ? "45px" : "32px" },
+                  height: { xs: "28px", md: isCollapsed ? "45px" : "32px" },
                 }}
               />
             </IconButton>
@@ -260,7 +271,7 @@ const Sidebar: FC<SidebarProps> = ({
           {/* Logout Button */}
           <Tooltip title={isCollapsed ? "Logout" : ""} placement="right">
             <Box
-              onClick={handleLogout}
+              onClick={logoutDialog.onOpen}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -302,6 +313,13 @@ const Sidebar: FC<SidebarProps> = ({
           </Tooltip>
         </Stack>
       </Box>
+
+      {/* Logout Confirmation Dialog */}
+      <LogoutConfirmDialog
+        open={logoutDialog.open}
+        onClose={logoutDialog.onClose}
+        onConfirm={handleLogout}
+      />
     </>
   );
 };

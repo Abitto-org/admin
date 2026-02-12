@@ -36,6 +36,21 @@ const Settings: FC = () => {
     notifyAdminType: "",
   });
 
+  // Store original data for comparison
+  const [originalData, setOriginalData] = useState<UpdateSettingsPayload>({
+    timezone: "",
+    currency: "",
+    minWalletTopup: "",
+    gasPricePerKg: "",
+    meterResyncIntervalMinutes: 0,
+    autoUnlinkInactiveMeterDays: 0,
+    enableAdminAlerts: false,
+    notifyAdminType: "",
+  });
+
+  // Check if form has changes
+  const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
+
   // Populate form when data is loaded
   useEffect(() => {
     if (settingsData?.data) {
@@ -51,21 +66,20 @@ const Settings: FC = () => {
         enableAdminAlerts: settingsData.data.enableAdminAlerts,
         notifyAdminType: settingsData.data.notifyAdminType,
       };
-      console.log("📥 Initial form data loaded:", newFormData);
       queueMicrotask(() => {
         setFormData(newFormData);
+        setOriginalData(newFormData); // Store original data
       });
     }
   }, [settingsData]);
 
   const handleSaveChanges = () => {
-    console.log("💾 Attempting to save settings...");
-    console.log("📤 Current form data to be sent:", formData);
-    console.log("📤 Form data stringified:", JSON.stringify(formData, null, 2));
-
+    if (!hasChanges) {
+      return;
+    }
     updateSettings(formData, {
       onSuccess: () => {
-        console.log("✅ Settings updated successfully");
+        setOriginalData(formData);
       },
       onError: (error) => {
         console.error("❌ Failed to update settings:", error);
@@ -77,13 +91,11 @@ const Settings: FC = () => {
     field: keyof UpdateSettingsPayload,
     value: string | number | boolean,
   ) => {
-    console.log(`🔄 Updating field "${field}":`, value);
     setFormData((prev) => {
       const updated = {
         ...prev,
         [field]: value,
       };
-      console.log(`📋 Updated form state:`, updated);
       return updated;
     });
   };
@@ -479,10 +491,6 @@ const Settings: FC = () => {
                 <Switch
                   checked={formData.enableAdminAlerts}
                   onChange={(e) => {
-                    console.log(
-                      "🔔 Toggle enableAdminAlerts:",
-                      e.target.checked,
-                    );
                     updateFormField("enableAdminAlerts", e.target.checked);
                   }}
                   sx={{
@@ -515,7 +523,7 @@ const Settings: FC = () => {
       <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 3 }}>
         <Button
           onClick={handleSaveChanges}
-          disabled={isUpdating}
+          disabled={!hasChanges || isUpdating}
           sx={{
             height: "48px",
             borderRadius: "32px",
@@ -577,12 +585,10 @@ const SettingsInput: FC<SettingsInputProps> = ({
 
   // Sync input value with prop when not editing
   if (!isEditing && inputValue !== value) {
-    console.log(`🔄 "${label}" - Prop value changed to:`, value);
     setInputValue(value);
   }
 
   const handleEdit = () => {
-    console.log(`✏️ "${label}" - Edit clicked, entering edit mode`);
     setIsEditing(true);
     // Focus the input after state update
     setTimeout(() => {
@@ -591,21 +597,14 @@ const SettingsInput: FC<SettingsInputProps> = ({
   };
 
   const handleSave = () => {
-    console.log(`💾 "${label}" - Save clicked`);
-    console.log(`   Old value: "${value}"`);
-    console.log(`   New value: "${inputValue}"`);
     setIsEditing(false);
     if (onChange && inputValue !== value) {
-      console.log(`   ✅ Value changed, calling onChange`);
       onChange(inputValue);
-    } else {
-      console.log(`   ⏭️ No change detected, skipping onChange`);
-    }
+    } else return;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    console.log(`⌨️ "${label}" - Input changed to:`, newValue);
     setInputValue(newValue);
   };
 

@@ -1,20 +1,107 @@
+import { useAuthStore } from "@/store/auth.store";
+import { getInitials, getDisplayName, getRole } from "@/utils/auth";
 import {
   Avatar,
   Box,
-  Button,
   Stack,
   Typography,
+  Button,
+  Switch,
   InputBase,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
-import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
-import { type FC } from "react";
-import { linkRequests } from "@/data";
-import ConnectedMetersCard from "@/components/ui/dashboard/ConnectedMetersCard";
+import { type FC, useState, useEffect } from "react";
+import { useGetSettings, useEditSettings } from "@/hooks/useSettings";
+import type { UpdateSettingsPayload } from "@/types/settings.types";
 
 const Settings: FC = () => {
-  const handleEdit = (field: string) => {
-    console.log(`Edit ${field} clicked`);
+  const { user } = useAuthStore();
+
+  // Fetch settings
+  const { data: settingsData, isLoading, error } = useGetSettings();
+
+  // Update settings mutation
+  const { mutate: updateSettings, isPending: isUpdating } = useEditSettings();
+
+  // Form state
+  const [formData, setFormData] = useState<UpdateSettingsPayload>({
+    timezone: "",
+    currency: "",
+    minWalletTopup: "",
+    gasPricePerKg: "",
+    meterResyncIntervalMinutes: 0,
+    autoUnlinkInactiveMeterDays: 0,
+    enableAdminAlerts: false,
+    notifyAdminType: "",
+  });
+
+  // Populate form when data is loaded
+  useEffect(() => {
+    if (settingsData?.data) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData({
+        timezone: settingsData.data.timezone,
+        currency: settingsData.data.currency,
+        minWalletTopup: settingsData.data.minWalletTopup,
+        gasPricePerKg: settingsData.data.gasPricePerKg,
+        meterResyncIntervalMinutes:
+          settingsData.data.meterResyncIntervalMinutes,
+        autoUnlinkInactiveMeterDays:
+          settingsData.data.autoUnlinkInactiveMeterDays,
+        enableAdminAlerts: settingsData.data.enableAdminAlerts,
+        notifyAdminType: settingsData.data.notifyAdminType,
+      });
+    }
+  }, [settingsData]);
+
+  console.log("Grant settings form data", formData);
+
+  const handleSaveChanges = () => {
+    updateSettings(formData, {
+      onSuccess: () => {
+        console.log("Settings updated successfully");
+      },
+      onError: (error) => {
+        console.error("Failed to update settings:", error);
+      },
+    });
   };
+
+  const updateFormField = (
+    field: keyof UpdateSettingsPayload,
+    value: string | number | boolean,
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "400px",
+        }}
+      >
+        <CircularProgress sx={{ color: "#669900" }} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">
+          Failed to load settings. Please try again.
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -54,6 +141,7 @@ const Settings: FC = () => {
           </Typography>
         </Box>
       </Box>
+
       <Box
         sx={{
           borderRadius: "8px",
@@ -65,7 +153,7 @@ const Settings: FC = () => {
       >
         <Box
           sx={{
-            display: "flex",
+            display: { xs: "none", sm: "flex" },
             alignItems: "center",
             gap: "12px",
           }}
@@ -73,14 +161,14 @@ const Settings: FC = () => {
           {/* Profile Avatar */}
           <Avatar
             sx={{
-              width: "47px",
-              height: "47px",
+              width: { md: "40px", lg: "47px" },
+              height: { md: "40px", lg: "47px" },
               backgroundColor: "#3266CC",
               fontWeight: 600,
               fontSize: "16px",
             }}
           >
-            {"JD"}
+            {getInitials(user)}
           </Avatar>
 
           {/* User Info */}
@@ -95,537 +183,471 @@ const Settings: FC = () => {
                 color: "#000000",
               }}
             >
-              John Doe
+              {getDisplayName(user)}
             </Typography>
-
-            <Typography
+            {/* Role Badge */}
+            <Box
               sx={{
-                fontWeight: 400,
-                fontSize: "14px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                color: "#424242",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "32px",
+                padding: "6px 16px",
+                backgroundColor: "#6699001A",
+                width: "fit-content",
               }}
             >
-              johndoe@gmail.com
-            </Typography>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  lineHeight: "100%",
+                  letterSpacing: "0%",
+                  textTransform: "capitalize",
+                  color: "#669900",
+                }}
+              >
+                {getRole(user)}
+              </Typography>
+            </Box>
           </Stack>
         </Box>
-        <Stack
-          direction="row"
-          spacing="16px"
+      </Box>
+
+      {/* Settings Cards Grid */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", lg: "repeat(2, 1fr)" },
+          gap: "24px",
+          mt: 3,
+        }}
+      >
+        {/* General Card */}
+        <Box
           sx={{
-            width: { xs: "100%", sm: "auto" },
+            borderRadius: "8px",
+            padding: { xs: "16px 12px", md: "18px 24px" },
+            backgroundColor: "white",
           }}
         >
-          <Button
-            sx={{
-              height: "48px",
-              borderRadius: "32px",
-              padding: "12px 24px",
-              backgroundColor: "#FAFAFA",
-              color: "#121212",
-              fontWeight: 600,
-              fontSize: { xs: "14px", sm: "16px" },
-              lineHeight: "100%",
-              letterSpacing: "0%",
-              textTransform: "capitalize",
-              whiteSpace: "nowrap",
-              "&:hover": {
-                backgroundColor: "#F5F5F5",
-              },
-            }}
-          >
-            Change Password
-          </Button>
-
-          <Button
-            sx={{
-              height: "48px",
-              borderRadius: "32px",
-              padding: "12px 24px",
-              backgroundColor: "#669900",
-              color: "#FFFFFF",
-              fontWeight: 600,
-              fontSize: { xs: "14px", sm: "16px" },
-              lineHeight: "100%",
-              letterSpacing: "0%",
-              textTransform: "capitalize",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              whiteSpace: "nowrap",
-              "&:hover": {
-                backgroundColor: "#558000",
-              },
-            }}
-          >
-            Edit Profile
-            <Box
-              component="img"
-              src={ButtonArrowIcon}
-              alt="arrow"
+          <Box sx={{ mb: 3 }}>
+            <Typography
               sx={{
-                width: "20px",
-                height: "20px",
+                fontWeight: 700,
+                fontSize: "20px",
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#000000",
+                mb: "4px",
               }}
+            >
+              General
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: 500,
+                fontSize: "14px",
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#424242",
+                mt: "12px",
+              }}
+            >
+              Manage your general settings
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <SettingsInput
+              label="Time Zone"
+              placeholder="Select time zone"
+              value={formData.timezone}
+              onChange={(value) => updateFormField("timezone", value)}
             />
-          </Button>
-        </Stack>
-      </Box>
-      <Box
-        sx={{
-          borderRadius: "8px",
-          padding: { xs: "20px 12px", md: "32px 24px" },
-          backgroundColor: "white",
-          mt: 3,
-        }}
-      >
-        {/* Title */}
-        <Box>
-          <Typography
-            sx={{
-              fontWeight: 700,
-              fontSize: "20px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
-              textTransform: "capitalize",
-              color: "#000000",
-              mb: "4px",
-            }}
-          >
-            Connected Meters
-          </Typography>
-          <Typography
-            sx={{
-              fontWeight: 500,
-              fontSize: "14px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
-              textTransform: "capitalize",
-              color: "#424242",
-              mt: "12px",
-              mb: 2,
-            }}
-          >
-            Get answers and support for your gas account
-          </Typography>
+            <SettingsInput
+              label="Currency"
+              placeholder="Select currency"
+              value={formData.currency}
+              onChange={(value) => updateFormField("currency", value)}
+            />
+          </Box>
         </Box>
+
+        {/* Payment Settings Card */}
         <Box
-          className={"no-scrollbar"}
           sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(3, 1fr)",
-              md: "repeat(3, 1fr)",
+            borderRadius: "8px",
+            padding: { xs: "16px 12px", md: "18px 24px" },
+            backgroundColor: "white",
+          }}
+        >
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: "20px",
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#000000",
+                mb: "4px",
+              }}
+            >
+              Payment Settings
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: 500,
+                fontSize: "14px",
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#424242",
+                mt: "12px",
+              }}
+            >
+              Configure payment preferences
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <SettingsInput
+              label="Minimum Wallet Top Up"
+              placeholder="Enter minimum amount"
+              value={formData.minWalletTopup}
+              type="number"
+              onChange={(value) => updateFormField("minWalletTopup", value)}
+            />
+            <SettingsInput
+              label="Price Per KG"
+              placeholder="Enter price per kg"
+              value={formData.gasPricePerKg}
+              type="number"
+              onChange={(value) => updateFormField("gasPricePerKg", value)}
+            />
+          </Box>
+        </Box>
+
+        {/* Meter Settings Card */}
+        <Box
+          sx={{
+            borderRadius: "8px",
+            padding: { xs: "16px 12px", md: "18px 24px" },
+            backgroundColor: "white",
+          }}
+        >
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: "20px",
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#000000",
+                mb: "4px",
+              }}
+            >
+              Meter Settings
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: 500,
+                fontSize: "14px",
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#424242",
+                mt: "12px",
+              }}
+            >
+              Manage meter configurations
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <SettingsInput
+              label="Meter Resync Interval"
+              placeholder="Enter interval in minutes"
+              value={String(formData.meterResyncIntervalMinutes)}
+              type="number"
+              onChange={(value) =>
+                updateFormField("meterResyncIntervalMinutes", Number(value))
+              }
+            />
+            <SettingsInput
+              label="Auto Unlink Inactive Meter"
+              placeholder="Enter days"
+              value={String(formData.autoUnlinkInactiveMeterDays)}
+              type="number"
+              onChange={(value) =>
+                updateFormField("autoUnlinkInactiveMeterDays", Number(value))
+              }
+            />
+          </Box>
+        </Box>
+
+        {/* Notifications Card */}
+        <Box
+          sx={{
+            borderRadius: "8px",
+            padding: { xs: "16px 12px", md: "18px 24px" },
+            backgroundColor: "white",
+          }}
+        >
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: "20px",
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#000000",
+                mb: "4px",
+              }}
+            >
+              Notifications
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: 500,
+                fontSize: "14px",
+                lineHeight: "100%",
+                letterSpacing: "-1%",
+                textTransform: "capitalize",
+                color: "#424242",
+                mt: "12px",
+              }}
+            >
+              Control notification preferences
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {/* Alerts Toggle */}
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                component="label"
+                sx={{
+                  fontFamily: "Geist",
+                  fontWeight: 600,
+                  fontSize: "16px",
+                  lineHeight: "100%",
+                  letterSpacing: "0%",
+                  textTransform: "capitalize",
+                  color: "#000000",
+                  mb: "8px",
+                  display: "block",
+                }}
+              >
+                Alerts
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  borderRadius: "8px",
+                  py: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    lineHeight: "100%",
+                    letterSpacing: "0%",
+                    color: "#000000",
+                  }}
+                >
+                  Enable alerts to admin
+                </Typography>
+                <Switch
+                  checked={formData.enableAdminAlerts}
+                  onChange={(e) =>
+                    updateFormField("enableAdminAlerts", e.target.checked)
+                  }
+                  sx={{
+                    "& .MuiSwitch-switchBase.Mui-checked": {
+                      color: "#669900",
+                    },
+                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                      backgroundColor: "#669900",
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+
+            {/* Notify Admins Input */}
+            <Box sx={{ minWidth: 0 }}>
+              <SettingsInput
+                label="Notify Admins"
+                placeholder="Select Admin"
+                value={formData.notifyAdminType}
+                type="text"
+                onChange={(value) => updateFormField("notifyAdminType", value)}
+              />
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Save Changes Button */}
+      <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 3 }}>
+        <Button
+          onClick={handleSaveChanges}
+          disabled={isUpdating}
+          sx={{
+            height: "48px",
+            borderRadius: "32px",
+            padding: "12px 24px",
+            backgroundColor: "#669900",
+            color: "#FFFFFF",
+            fontWeight: 600,
+            fontSize: { xs: "14px", sm: "16px" },
+            lineHeight: "100%",
+            letterSpacing: "0%",
+            textTransform: "capitalize",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            whiteSpace: "nowrap",
+            "&:hover": {
+              backgroundColor: "#558000",
             },
-            gap: { xs: "12px", sm: "10px" },
-            height: {
-              xs: "calc(100% - 40px)",
-              sm: "calc(427px - 24px - 16px)",
-            },
-            overflowY: "auto",
-            "&::-webkit-scrollbar": {
-              width: "6px",
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "#F5F5F5",
-              borderRadius: "3px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#D0D0D0",
-              borderRadius: "3px",
-              "&:hover": {
-                backgroundColor: "#B0B0B0",
-              },
+            "&:disabled": {
+              backgroundColor: "#CCCCCC",
+              color: "#666666",
             },
           }}
         >
-          {linkRequests.map((request, index) => (
-            <ConnectedMetersCard key={index} {...request} />
-          ))}
-        </Box>
-      </Box>
-      <Box
-        sx={{
-          borderRadius: "8px",
-          padding: { xs: "16px 12px", md: "18px 24px" },
-          backgroundColor: "white",
-          mt: 3,
-        }}
-      >
-        {/* Title */}
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            sx={{
-              fontWeight: 700,
-              fontSize: "20px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
-              textTransform: "capitalize",
-              color: "#000000",
-              mb: "4px",
-            }}
-          >
-            Personal Details
-          </Typography>
-          <Typography
-            sx={{
-              fontWeight: 500,
-              fontSize: "14px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
-              textTransform: "capitalize",
-              color: "#424242",
-              mt: "12px",
-            }}
-          >
-            Get answers and support for your gas account
-          </Typography>
-        </Box>
-
-        {/* Form Inputs */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" },
-            gap: "24px",
-          }}
-        >
-          {/* First Name */}
-          <Box sx={{ minWidth: 0 }}>
-            <Typography
-              component="label"
-              sx={{
-                fontFamily: "Geist",
-                fontWeight: 600,
-                fontSize: "16px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                textTransform: "capitalize",
-                color: "#000000",
-                mb: "8px",
-                display: "block",
-              }}
-            >
-              First Name
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                borderRadius: "8px",
-                border: "1px solid #EAEAEA",
-                paddingTop: { xs: "12px", md: "18px" },
-                paddingRight: { xs: "16px", md: "24px" },
-                paddingBottom: { xs: "12px", md: "18px" },
-                paddingLeft: { xs: "16px", md: "24px" },
-              }}
-            >
-              <InputBase
-                placeholder="Enter first name"
-                sx={{
-                  flex: 1,
-                  minWidth: 0,
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  color: "#000000",
-                  "& input": {
-                    padding: 0,
-                    "&::placeholder": {
-                      color: "#808080",
-                      opacity: 1,
-                    },
-                  },
-                }}
-              />
-              <Typography
-                onClick={() => handleEdit("First Name")}
-                sx={{
-                  fontFamily: "Geist",
-                  fontWeight: 700,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  textTransform: "capitalize",
-                  color: "#669900",
-                  cursor: "pointer",
-                  flexShrink: 0,
-                }}
-              >
-                Edit
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Last Name */}
-          <Box sx={{ minWidth: 0 }}>
-            <Typography
-              component="label"
-              sx={{
-                fontFamily: "Geist",
-                fontWeight: 600,
-                fontSize: "16px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                textTransform: "capitalize",
-                color: "#000000",
-                mb: "8px",
-                display: "block",
-              }}
-            >
-              Last Name
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                borderRadius: "8px",
-                border: "1px solid #EAEAEA",
-                paddingTop: { xs: "12px", md: "18px" },
-                paddingRight: { xs: "16px", md: "24px" },
-                paddingBottom: { xs: "12px", md: "18px" },
-                paddingLeft: { xs: "16px", md: "24px" },
-              }}
-            >
-              <InputBase
-                placeholder="Enter last name"
-                sx={{
-                  flex: 1,
-                  minWidth: 0,
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  color: "#000000",
-                  "& input": {
-                    padding: 0,
-                    "&::placeholder": {
-                      color: "#808080",
-                      opacity: 1,
-                    },
-                  },
-                }}
-              />
-              <Typography
-                onClick={() => handleEdit("Last Name")}
-                sx={{
-                  fontFamily: "Geist",
-                  fontWeight: 700,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  textTransform: "capitalize",
-                  color: "#669900",
-                  cursor: "pointer",
-                  flexShrink: 0,
-                }}
-              >
-                Edit
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Email Address */}
-          <Box sx={{ minWidth: 0 }}>
-            <Typography
-              component="label"
-              sx={{
-                fontFamily: "Geist",
-                fontWeight: 600,
-                fontSize: "16px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                textTransform: "capitalize",
-                color: "#000000",
-                mb: "8px",
-                display: "block",
-              }}
-            >
-              Email Address
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                borderRadius: "8px",
-                border: "1px solid #EAEAEA",
-                paddingTop: { xs: "12px", md: "18px" },
-                paddingRight: { xs: "16px", md: "24px" },
-                paddingBottom: { xs: "12px", md: "18px" },
-                paddingLeft: { xs: "16px", md: "24px" },
-              }}
-            >
-              <InputBase
-                type="email"
-                placeholder="Enter email address"
-                sx={{
-                  flex: 1,
-                  minWidth: 0,
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  color: "#000000",
-                  "& input": {
-                    padding: 0,
-                    "&::placeholder": {
-                      color: "#808080",
-                      opacity: 1,
-                    },
-                  },
-                }}
-              />
-              <Typography
-                onClick={() => handleEdit("Email Address")}
-                sx={{
-                  fontFamily: "Geist",
-                  fontWeight: 700,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  textTransform: "capitalize",
-                  color: "#669900",
-                  cursor: "pointer",
-                  flexShrink: 0,
-                }}
-              >
-                Edit
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Phone Number */}
-          <Box sx={{ minWidth: 0 }}>
-            <Typography
-              component="label"
-              sx={{
-                fontFamily: "Geist",
-                fontWeight: 600,
-                fontSize: "16px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                textTransform: "capitalize",
-                color: "#000000",
-                mb: "8px",
-                display: "block",
-              }}
-            >
-              Phone Number
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                borderRadius: "8px",
-                border: "1px solid #EAEAEA",
-                paddingTop: { xs: "12px", md: "18px" },
-                paddingRight: { xs: "16px", md: "24px" },
-                paddingBottom: { xs: "12px", md: "18px" },
-                paddingLeft: { xs: "16px", md: "24px" },
-              }}
-            >
-              <InputBase
-                type="tel"
-                placeholder="Enter phone number"
-                sx={{
-                  flex: 1,
-                  minWidth: 0,
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  color: "#000000",
-                  "& input": {
-                    padding: 0,
-                    "&::placeholder": {
-                      color: "#808080",
-                      opacity: 1,
-                    },
-                  },
-                }}
-              />
-              <Typography
-                onClick={() => handleEdit("Phone Number")}
-                sx={{
-                  fontFamily: "Geist",
-                  fontWeight: 700,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  textTransform: "capitalize",
-                  color: "#669900",
-                  cursor: "pointer",
-                  flexShrink: 0,
-                }}
-              >
-                Edit
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* NIN - No Edit */}
-          <Box sx={{ minWidth: 0 }}>
-            <Typography
-              component="label"
-              sx={{
-                fontFamily: "Geist",
-                fontWeight: 600,
-                fontSize: "16px",
-                lineHeight: "100%",
-                letterSpacing: "0%",
-                textTransform: "capitalize",
-                color: "#000000",
-                mb: "8px",
-                display: "block",
-              }}
-            >
-              NIN
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                borderRadius: "8px",
-                border: "1px solid #EAEAEA",
-                paddingTop: { xs: "12px", md: "18px" },
-                paddingRight: { xs: "16px", md: "24px" },
-                paddingBottom: { xs: "12px", md: "18px" },
-                paddingLeft: { xs: "16px", md: "24px" },
-              }}
-            >
-              <InputBase
-                placeholder="Enter NIN"
-                sx={{
-                  flex: 1,
-                  minWidth: 0,
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  lineHeight: "100%",
-                  letterSpacing: "0%",
-                  color: "#000000",
-                  "& input": {
-                    padding: 0,
-                    "&::placeholder": {
-                      color: "#808080",
-                      opacity: 1,
-                    },
-                  },
-                }}
-              />
-            </Box>
-          </Box>
-        </Box>
+          {isUpdating ? (
+            <>
+              <CircularProgress size={16} sx={{ color: "#FFFFFF" }} />
+              Saving...
+            </>
+          ) : (
+            "Save Changes"
+          )}
+        </Button>
       </Box>
     </>
   );
 };
 
 export default Settings;
+
+interface SettingsInputProps {
+  label: string;
+  placeholder: string;
+  value?: string;
+  type?: "text" | "email" | "tel" | "number";
+  onChange?: (value: string) => void;
+}
+
+const SettingsInput: FC<SettingsInputProps> = ({
+  label,
+  placeholder,
+  value = "",
+  type = "text",
+  onChange,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState(value);
+
+  // Update local state when prop value changes
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setIsEditing(false);
+    if (onChange) {
+      onChange(inputValue);
+    }
+  };
+
+  return (
+    <Box sx={{ minWidth: 0 }}>
+      <Typography
+        component="label"
+        sx={{
+          fontFamily: "Geist",
+          fontWeight: 600,
+          fontSize: "16px",
+          lineHeight: "100%",
+          letterSpacing: "0%",
+          textTransform: "capitalize",
+          color: "#000000",
+          mb: "8px",
+          display: "block",
+        }}
+      >
+        {label}
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          borderRadius: "8px",
+          border: "1px solid #EAEAEA",
+          paddingTop: { xs: "12px", md: "18px" },
+          paddingRight: { xs: "16px", md: "24px" },
+          paddingBottom: { xs: "12px", md: "18px" },
+          paddingLeft: { xs: "16px", md: "24px" },
+        }}
+      >
+        <InputBase
+          type={type}
+          placeholder={placeholder}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          readOnly={!isEditing}
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            fontWeight: 400,
+            fontSize: "14px",
+            lineHeight: "100%",
+            letterSpacing: "0%",
+            color: "#000000",
+            "& input": {
+              padding: 0,
+              cursor: isEditing ? "text" : "default",
+              "&::placeholder": {
+                color: "#808080",
+                opacity: 1,
+              },
+            },
+          }}
+        />
+        <Typography
+          onClick={isEditing ? handleSave : handleEdit}
+          sx={{
+            fontFamily: "Geist",
+            fontWeight: 700,
+            fontSize: "14px",
+            lineHeight: "100%",
+            letterSpacing: "0%",
+            textTransform: "capitalize",
+            color: "#669900",
+            cursor: "pointer",
+            flexShrink: 0,
+          }}
+        >
+          {isEditing ? "Save" : "Edit"}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};

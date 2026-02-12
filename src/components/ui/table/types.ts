@@ -50,6 +50,10 @@ export interface DataTableProps<T = any> {
   viewAllButtonText?: string;
   onViewAll?: () => void;
 
+  // Loading
+  isLoading?: boolean;
+  skeletonRows?: number;
+
   // Styling
   containerSx?: any;
 }

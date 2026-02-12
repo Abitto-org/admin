@@ -1,8 +1,7 @@
-import type { FC } from "react";
-import type { ILinkRequest } from "@/types/linkRequests.types";
 import { Box, Typography } from "@mui/material";
 
-const ConnectedMetersCard: FC<ILinkRequest> = (request) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ConnectedMetersCard = (request: any) => {
   return (
     <Box
       key={request.id}

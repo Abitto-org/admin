@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import type { ILinkRequest } from "@/types/linkRequest.types";
+import type { ILinkRequest } from "@/types/linkRequests.types";
 import { Box, Typography } from "@mui/material";
 
 const ConnectedMetersCard: FC<ILinkRequest> = (request) => {

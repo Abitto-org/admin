@@ -11,7 +11,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { type FC, useState, useEffect } from "react";
+import { type FC, useState, useEffect, useRef } from "react";
 import { useGetSettings, useEditSettings } from "@/hooks/useSettings";
 import type { UpdateSettingsPayload } from "@/types/settings.types";
 
@@ -39,8 +39,7 @@ const Settings: FC = () => {
   // Populate form when data is loaded
   useEffect(() => {
     if (settingsData?.data) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData({
+      const newFormData = {
         timezone: settingsData.data.timezone,
         currency: settingsData.data.currency,
         minWalletTopup: settingsData.data.minWalletTopup,
@@ -51,19 +50,25 @@ const Settings: FC = () => {
           settingsData.data.autoUnlinkInactiveMeterDays,
         enableAdminAlerts: settingsData.data.enableAdminAlerts,
         notifyAdminType: settingsData.data.notifyAdminType,
+      };
+      console.log("📥 Initial form data loaded:", newFormData);
+      queueMicrotask(() => {
+        setFormData(newFormData);
       });
     }
   }, [settingsData]);
 
-  console.log("Grant settings form data", formData);
-
   const handleSaveChanges = () => {
+    console.log("💾 Attempting to save settings...");
+    console.log("📤 Current form data to be sent:", formData);
+    console.log("📤 Form data stringified:", JSON.stringify(formData, null, 2));
+
     updateSettings(formData, {
       onSuccess: () => {
-        console.log("Settings updated successfully");
+        console.log("✅ Settings updated successfully");
       },
       onError: (error) => {
-        console.error("Failed to update settings:", error);
+        console.error("❌ Failed to update settings:", error);
       },
     });
   };
@@ -72,10 +77,15 @@ const Settings: FC = () => {
     field: keyof UpdateSettingsPayload,
     value: string | number | boolean,
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    console.log(`🔄 Updating field "${field}":`, value);
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [field]: value,
+      };
+      console.log(`📋 Updated form state:`, updated);
+      return updated;
+    });
   };
 
   if (isLoading) {
@@ -468,9 +478,13 @@ const Settings: FC = () => {
                 </Typography>
                 <Switch
                   checked={formData.enableAdminAlerts}
-                  onChange={(e) =>
-                    updateFormField("enableAdminAlerts", e.target.checked)
-                  }
+                  onChange={(e) => {
+                    console.log(
+                      "🔔 Toggle enableAdminAlerts:",
+                      e.target.checked,
+                    );
+                    updateFormField("enableAdminAlerts", e.target.checked);
+                  }}
                   sx={{
                     "& .MuiSwitch-switchBase.Mui-checked": {
                       color: "#669900",
@@ -484,7 +498,7 @@ const Settings: FC = () => {
             </Box>
 
             {/* Notify Admins Input */}
-            <Box sx={{ minWidth: 0 }}>
+            {/* <Box sx={{ minWidth: 0 }}>
               <SettingsInput
                 label="Notify Admins"
                 placeholder="Select Admin"
@@ -492,7 +506,7 @@ const Settings: FC = () => {
                 type="text"
                 onChange={(value) => updateFormField("notifyAdminType", value)}
               />
-            </Box>
+            </Box> */}
           </Box>
         </Box>
       </Box>
@@ -559,21 +573,40 @@ const SettingsInput: FC<SettingsInputProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Update local state when prop value changes
-  useEffect(() => {
+  // Sync input value with prop when not editing
+  if (!isEditing && inputValue !== value) {
+    console.log(`🔄 "${label}" - Prop value changed to:`, value);
     setInputValue(value);
-  }, [value]);
+  }
 
   const handleEdit = () => {
+    console.log(`✏️ "${label}" - Edit clicked, entering edit mode`);
     setIsEditing(true);
+    // Focus the input after state update
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const handleSave = () => {
+    console.log(`💾 "${label}" - Save clicked`);
+    console.log(`   Old value: "${value}"`);
+    console.log(`   New value: "${inputValue}"`);
     setIsEditing(false);
-    if (onChange) {
+    if (onChange && inputValue !== value) {
+      console.log(`   ✅ Value changed, calling onChange`);
       onChange(inputValue);
+    } else {
+      console.log(`   ⏭️ No change detected, skipping onChange`);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    console.log(`⌨️ "${label}" - Input changed to:`, newValue);
+    setInputValue(newValue);
   };
 
   return (
@@ -600,27 +633,30 @@ const SettingsInput: FC<SettingsInputProps> = ({
           alignItems: "center",
           gap: "12px",
           borderRadius: "8px",
-          border: "1px solid #EAEAEA",
+          border: isEditing ? "2px solid #669900" : "1px solid #EAEAEA",
           paddingTop: { xs: "12px", md: "18px" },
           paddingRight: { xs: "16px", md: "24px" },
           paddingBottom: { xs: "12px", md: "18px" },
           paddingLeft: { xs: "16px", md: "24px" },
+          transition: "border 0.2s ease-in-out",
         }}
       >
         <InputBase
+          inputRef={inputRef}
           type={type}
           placeholder={placeholder}
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={handleInputChange}
           readOnly={!isEditing}
           sx={{
             flex: 1,
             minWidth: 0,
-            fontWeight: 400,
+            fontWeight: isEditing ? 600 : 400,
             fontSize: "14px",
             lineHeight: "100%",
             letterSpacing: "0%",
             color: "#000000",
+            transition: "font-weight 0.2s ease-in-out",
             "& input": {
               padding: 0,
               cursor: isEditing ? "text" : "default",
@@ -643,6 +679,7 @@ const SettingsInput: FC<SettingsInputProps> = ({
             color: "#669900",
             cursor: "pointer",
             flexShrink: 0,
+            userSelect: "none",
           }}
         >
           {isEditing ? "Save" : "Edit"}

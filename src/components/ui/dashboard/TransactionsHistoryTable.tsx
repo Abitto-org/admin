@@ -3,6 +3,7 @@ import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
 import Badge from "../table/Badge";
 import LinkText from "./LinkText";
+import { useNavigate } from "react-router-dom";
 
 interface TransactionsHistoryTableProps {
   showViewAllButton?: boolean;
@@ -88,10 +89,11 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
   showViewAllButton,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
   const totalPages = 10;
 
   const handleViewAll = () => {
-    console.log("View all transactions clicked");
+    navigate("/transactions");
   };
 
   const handleViewTransaction = (id: string) => {

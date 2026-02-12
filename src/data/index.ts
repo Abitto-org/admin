@@ -1,4 +1,4 @@
-import type { ILinkRequest } from "@/types/linkRequest.types";
+import type { ILinkRequest } from "@/types/linkRequests.types";
 
 export const linkRequests: ILinkRequest[] = [
   {

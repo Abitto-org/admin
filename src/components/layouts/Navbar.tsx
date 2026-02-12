@@ -3,7 +3,7 @@ import { type FC } from "react";
 import RefreshIcon from "@/assets/icons/refresh.svg";
 import NotificationsIcon from "@/assets/icons/notifications.svg";
 import CollapseIcon from "@/assets/icons/collapse.svg";
-import type { User } from "@/types/user.types";
+import type { User } from "@/types/users.types";
 import { getInitials, getDisplayName, getRole } from "@/utils/auth";
 
 interface NavbarProps {

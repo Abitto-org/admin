@@ -1,4 +1,11 @@
-// User types
+export interface GetProfileResponseData {
+  user: User;
+}
+
+export type GetProfileResponse =
+  import("./api.types").ApiResponse<GetProfileResponseData>;
+
+// User API Types
 export interface User {
   id: string;
   email: string;
@@ -37,11 +44,50 @@ export interface User {
   houseNumber: string | null;
   onboardingEstateName: string | null;
   onboardingCompleted: boolean;
+  hasLinkedMeter: boolean;
 }
 
-export interface GetProfileResponseData {
-  user: User;
+export interface UserStats {
+  totalUsers: number;
+  joinedToday: number;
+  activeToday: number;
+  usersWithoutMeters: number;
+  totalKgBoughtToday: number;
+  percentageWithoutMeters: number;
 }
 
-export type GetProfileResponse =
-  import("./api.types").ApiResponse<GetProfileResponseData>;
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface GetUsersResponse {
+  status: string;
+  message: string;
+  data: {
+    stats: UserStats;
+    users: User[];
+    pagination: Pagination;
+  };
+}
+
+export interface GetUsersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+}
+
+// Table row type for UI
+export interface UserTableRow {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  status: boolean;
+  meterLinked: boolean;
+  dateJoined: string;
+}

@@ -1,6 +1,7 @@
-import { Box, Typography, Button, Stack, Skeleton } from "@mui/material";
+import { Box, Typography, Button, Stack } from "@mui/material";
 import { type FC, useState, useMemo } from "react";
 import StatCard from "@/components/ui/dashboard/StatCard";
+import StatCardSkeleton from "@/components/ui/dashboard/StatCardSkeleton";
 import MetersTable from "@/components/ui/dashboard/MetersTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import { useGetMeters } from "@/hooks/useMeters";
@@ -12,7 +13,6 @@ const Meters: FC = () => {
 
   const handleLinkMeter = () => {
     console.log("Link a meter clicked");
-    // Navigate to link meter page or open modal
   };
 
   // Prepare query params
@@ -150,21 +150,9 @@ const Meters: FC = () => {
       >
         {isLoading ? (
           <>
-            <Skeleton
-              variant="rectangular"
-              height={120}
-              sx={{ borderRadius: "8px" }}
-            />
-            <Skeleton
-              variant="rectangular"
-              height={120}
-              sx={{ borderRadius: "8px" }}
-            />
-            <Skeleton
-              variant="rectangular"
-              height={120}
-              sx={{ borderRadius: "8px" }}
-            />
+            <StatCardSkeleton label="Total Meters" />
+            <StatCardSkeleton label="Total Linked Meters" />
+            <StatCardSkeleton label="Unlinked Meters" />
           </>
         ) : (
           <>

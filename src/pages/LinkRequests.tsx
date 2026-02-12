@@ -1,12 +1,59 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
-import { type FC } from "react";
+import { type FC, useState, useMemo } from "react";
 import StatCard from "@/components/ui/dashboard/StatCard";
+import StatCardSkeleton from "@/components/ui/dashboard/StatCardSkeleton";
 import LinkRequestsTable from "@/components/ui/dashboard/LinkRequestsTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
+import { useGetLinkRequests } from "@/hooks/useLinkRequests";
 
 const LinkRequests: FC = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterValue, setFilterValue] = useState<string>("all");
+
   const handleLinkMeter = () => {
     console.log("Link a meter clicked");
+    // Navigate to link meter page or open modal
+  };
+
+  // Prepare query params
+  const queryParams = useMemo(() => {
+    const params: {
+      page: number;
+      limit: number;
+      search?: string;
+      status?: "pending" | "approved" | "rejected";
+    } = {
+      page: currentPage,
+      limit: 10,
+    };
+
+    if (searchQuery) {
+      params.search = searchQuery;
+    }
+
+    if (filterValue === "pending") {
+      params.status = "pending";
+    } else if (filterValue === "approved") {
+      params.status = "approved";
+    } else if (filterValue === "rejected") {
+      params.status = "rejected";
+    }
+
+    return params;
+  }, [currentPage, searchQuery, filterValue]);
+
+  // Fetch link requests data
+  const { data, isLoading } = useGetLinkRequests(queryParams);
+  console.log("Link requests data:", data);
+
+  // Extract stats
+  const stats = data?.data?.stats || {
+    pendingLinkRequests: 0,
+    linkRequestsToday: 0,
+    totalLinkedMeters: 0,
+    rejectedRequests: 0,
+    rejectedToday: 0,
   };
 
   return (
@@ -104,24 +151,45 @@ const LinkRequests: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        <StatCard
-          label="Awaiting Review"
-          value="266"
-          subtext="8 Requests Today"
-        />{" "}
-        <StatCard
-          label="Total Linked Meters"
-          value="590"
-          subtext="75% of meters has been linked"
-        />{" "}
-        <StatCard
-          label="Rejected Requests"
-          value="20"
-          subtext="4 Rejected Today"
-          subtextColor="#FF170A"
-        />
+        {isLoading ? (
+          <>
+            <StatCardSkeleton label="Awaiting Review" />
+            <StatCardSkeleton label="Total Linked Meters" />
+            <StatCardSkeleton label="Rejected Requests" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              label="Awaiting Review"
+              value={stats.pendingLinkRequests.toString()}
+              subtext={`${stats.linkRequestsToday} Requests Today`}
+            />
+            <StatCard
+              label="Total Linked Meters"
+              value={stats.totalLinkedMeters.toString()}
+              subtext="Successfully linked meters"
+              subtextColor="#2EAE4E"
+            />
+            <StatCard
+              label="Rejected Requests"
+              value={stats.rejectedRequests.toString()}
+              subtext={`${stats.rejectedToday} Rejected Today`}
+              subtextColor="#FF170A"
+            />
+          </>
+        )}
       </Box>
-      <LinkRequestsTable />
+
+      <LinkRequestsTable
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterValue={filterValue}
+        onFilterChange={setFilterValue}
+        data={data}
+        isLoading={isLoading}
+      />
     </>
   );
 };

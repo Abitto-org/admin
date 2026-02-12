@@ -1,14 +1,15 @@
 import type { FC } from "react";
-import type { ILinkRequest } from "@/types/linkRequest.types";
+import type { ILinkRequestCard } from "@/types/linkRequests.types";
 import { Box, Typography } from "@mui/material";
 
-const LinkRequestCard: FC<ILinkRequest> = (request) => {
+const LinkRequestCard: FC<ILinkRequestCard> = (request) => {
   const handleApprove = () => {
-    console.log("Approve clicked for:");
+    console.log("Approve clicked for:", request.id);
+    console.log("Request details:", request);
   };
+
   return (
     <Box
-      key={request.id}
       sx={{
         borderRadius: "8px",
         backgroundColor: "#FAFAFA",
@@ -41,7 +42,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
             wordBreak: "break-all",
           }}
         >
-          {request.meterId}
+          {request.meterNumber || request.meterId || "N/A"}
         </Typography>
 
         <Typography
@@ -93,7 +94,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
               color: "#000000",
             }}
           >
-            {request.userName}
+            {request.userName || "Unassigned"}
           </Typography>
         </Box>
 
@@ -124,7 +125,7 @@ const LinkRequestCard: FC<ILinkRequest> = (request) => {
               color: "#000000",
             }}
           >
-            {request.address}
+            {request.address || "N/A"}
           </Typography>
         </Box>
       </Box>

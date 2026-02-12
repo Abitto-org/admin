@@ -1,68 +1,13 @@
-import { type FC, useState } from "react";
+import { type FC, useMemo } from "react";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
 import Badge from "../table/Badge";
 import LinkText from "./LinkText";
-
-interface LinkRequest {
-  id: string;
-  meterId: string;
-  user: string;
-  requestType: string;
-  date: string;
-  status: "success" | "pending" | "failed";
-}
-
-const mockLinkRequests: LinkRequest[] = [
-  {
-    id: "1",
-    meterId: "12r5543377283464",
-    user: "Chibuike Man",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "success",
-  },
-  {
-    id: "2",
-    meterId: "12r5543377283464",
-    user: "Chibuike Obisike",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "failed",
-  },
-  {
-    id: "3",
-    meterId: "12r5543377283464",
-    user: "Chris Mbah",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "success",
-  },
-  {
-    id: "4",
-    meterId: "12r5543377283464",
-    user: "Nelsomn Maduka",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "failed",
-  },
-  {
-    id: "5",
-    meterId: "12r5543377283464",
-    user: "Chibuike Man",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "pending",
-  },
-  {
-    id: "6",
-    meterId: "12r5543377283464",
-    user: "Chibuike Man",
-    requestType: "Re-Link",
-    date: "20-08-2025 | 8:58am",
-    status: "success",
-  },
-];
+import type {
+  LinkRequestTableRow,
+  LinkRequestStatus,
+  GetLinkRequestsResponse,
+} from "@/types/linkRequests.types";
 
 // Badge color configuration
 const badgeConfig: BadgeConfig = {
@@ -73,50 +18,127 @@ const badgeConfig: BadgeConfig = {
   },
 };
 
-const LinkRequestsTable: FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 10;
+interface LinkRequestsTableProps {
+  currentPage: number;
+  onPageChange: (page: number) => void;
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  filterValue: string;
+  onFilterChange: (value: string) => void;
+  data: GetLinkRequestsResponse | undefined;
+  isLoading: boolean;
+}
 
-  const handleViewTransaction = (id: string) => {
-    console.log("View transaction:", id);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Add logic to fetch data for the selected page
+const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
+  currentPage,
+  onPageChange,
+  onSearchChange,
+  filterValue,
+  onFilterChange,
+  data,
+  isLoading,
+}) => {
+  const handleViewRequest = (id: string) => {
+    console.log("View request:", id);
+    // Navigate to request details page or open modal
   };
 
   const handleSearchChange = (value: string) => {
-    console.log("Search:", value);
-    // Add search logic here
+    onSearchChange(value);
   };
 
   const handleFilterChange = (value: string) => {
-    console.log("Filter:", value);
-    // Add filter logic here
+    onFilterChange(value);
+    onPageChange(1); // Reset to page 1 when filter changes
   };
 
+  // Transform API data to table rows
+  const tableData: LinkRequestTableRow[] = useMemo(() => {
+    if (!data?.data?.requests) return [];
+
+    return data.data.requests.map((item) => {
+      const { request, user, meter } = item;
+      console.log("request", request);
+      console.log("user", user);
+      console.log("meter", meter);
+
+      // Determine status for badge display
+      const getStatusForBadge = (status: string): LinkRequestStatus => {
+        if (status === "approved") return "success";
+        if (status === "rejected") return "failed";
+        return "pending";
+      };
+
+      // Format address with null checks
+      const houseNumber = request.houseNumber || "N/A";
+      const estatePart = request.estateName ? `, ${request.estateName}` : "";
+      const address = `${houseNumber}${estatePart}`;
+
+      // Format date with null check
+      const formatDate = (dateString: string | null) => {
+        if (!dateString) return "N/A";
+        try {
+          const date = new Date(dateString);
+          const day = String(date.getDate()).padStart(2, "0");
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const year = date.getFullYear();
+          const hours = String(date.getHours()).padStart(2, "0");
+          const minutes = String(date.getMinutes()).padStart(2, "0");
+          return `${day}-${month}-${year} | ${hours}:${minutes}`;
+        } catch {
+          return "N/A";
+        }
+      };
+
+      // Format user name with null checks
+      const userName = user
+        ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+          "Unassigned"
+        : "Unassigned";
+
+      // Determine request type (simplified - you may need to adjust based on your logic)
+      const requestType = request.adminId ? "Re-Link" : "New Link";
+
+      return {
+        id: request.id || "",
+        meterId: meter?.deviceId || "N/A",
+        meterNumber: meter?.meterNumber || "N/A",
+        user: userName,
+        requestType,
+        date: formatDate(request.createdAt),
+        address,
+        status: getStatusForBadge(request.status),
+        rawStatus: request.status,
+      };
+    });
+  }, [data]);
+
   // Column configuration
-  const columns: Column<LinkRequest>[] = [
+  const columns: Column<LinkRequestTableRow>[] = [
     {
-      key: "meterId",
-      label: "Meter ID",
-      minWidth: "160px",
+      key: "meterNumber",
+      label: "Meter Number",
+      minWidth: "140px",
     },
     {
       key: "user",
       label: "User",
-      minWidth: "100px",
+      minWidth: "150px",
     },
     {
       key: "requestType",
       label: "Request Type",
-      minWidth: "100px",
+      minWidth: "120px",
     },
     {
       key: "date",
       label: "Date",
-      minWidth: "120px",
+      minWidth: "160px",
+    },
+    {
+      key: "address",
+      label: "Address",
+      minWidth: "200px",
     },
     {
       key: "status",
@@ -129,17 +151,17 @@ const LinkRequestsTable: FC = () => {
       key: "actions",
       label: "Action",
       renderCell: (_, row) => (
-        <LinkText text="View" onClick={() => handleViewTransaction(row.id)} />
+        <LinkText text="View" onClick={() => handleViewRequest(row.id)} />
       ),
     },
   ];
 
   // Filter options
   const filterOptions = [
-    { label: "All", value: "filter" },
-    { label: "Success", value: "success" },
+    { label: "All Requests", value: "all" },
     { label: "Pending", value: "pending" },
-    { label: "Failed", value: "failed" },
+    { label: "Approved", value: "approved" },
+    { label: "Rejected", value: "rejected" },
   ];
 
   return (
@@ -147,17 +169,19 @@ const LinkRequestsTable: FC = () => {
       title="Requests"
       subtitle="All Meter Linking Requests"
       columns={columns}
-      data={mockLinkRequests}
+      data={tableData}
       searchable
-      searchPlaceholder="Search"
+      searchPlaceholder="Search by meter number, device ID, or user name"
       onSearchChange={handleSearchChange}
       filterable
       filterOptions={filterOptions}
       onFilterChange={handleFilterChange}
-      defaultFilterValue="filter"
+      defaultFilterValue={filterValue}
       currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
+      totalPages={data?.data?.pagination?.totalPages || 1}
+      onPageChange={onPageChange}
+      isLoading={isLoading}
+      skeletonRows={10}
     />
   );
 };

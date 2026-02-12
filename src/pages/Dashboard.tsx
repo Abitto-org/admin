@@ -12,13 +12,15 @@ import TransactionsHistory from "@/components/ui/dashboard/TransactionsHistoryTa
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import useDisclosure from "@/hooks/useDisclosure";
 import CustomDrawer from "@/components/ui/drawers/CustomDrawer";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard: FC = () => {
   const registerUserDrawer = useDisclosure();
   const linkMeterDrawer = useDisclosure();
+  const navigate = useNavigate();
 
   const handleViewLinkRequest = () => {
-    console.log("View link request clicked");
+    navigate("/link-requests");
   };
 
   return (
@@ -161,7 +163,7 @@ const Dashboard: FC = () => {
           value="500"
           subtext={
             <LinkText
-              text="View Link Request"
+              text="View Link Requests"
               onClick={handleViewLinkRequest}
               iconGap="6px" // Larger gap for the trailing icon
             />
@@ -216,7 +218,7 @@ const Dashboard: FC = () => {
       </Box>
 
       {/* Transactions History Section */}
-      <TransactionsHistory showViewAllButton  />
+      <TransactionsHistory showViewAllButton />
 
       {/* Register User Drawer */}
       <CustomDrawer

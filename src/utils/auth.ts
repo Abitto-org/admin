@@ -1,4 +1,4 @@
-import type { User } from "@/types/user.types";
+import type { User } from "@/types/users.types";
 
 export const ACCESS_TOKEN_KEY = "ABITTO_ACCESS_TOKEN";
 

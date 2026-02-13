@@ -1,5 +1,10 @@
 import { http } from "./index";
-import type { GetMetersResponse, GetMetersParams } from "@/types/meters.types";
+import type {
+  GetMetersResponse,
+  GetMetersParams,
+  LinkMeterParams,
+  LinkMeterResponse,
+} from "@/types/meters.types";
 
 export const metersApi = {
   getMeters: async (params: GetMetersParams): Promise<GetMetersResponse> => {
@@ -11,6 +16,15 @@ export const metersApi = {
         ...(params.search && { search: params.search }),
       },
     });
+    return response.data;
+  },
+
+  linkMeter: async (params: LinkMeterParams): Promise<LinkMeterResponse> => {
+    const { meterNumber, ...body } = params;
+    const response = await http.post<LinkMeterResponse>(
+      `/meter/admin/link/${meterNumber}`,
+      body,
+    );
     return response.data;
   },
 };

@@ -98,6 +98,7 @@ const MetersTable: FC<MetersTableProps> = ({
       // Format user name with null checks
       const userName = user
         ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+          user.email ||
           "Unassigned"
         : "Unassigned";
 

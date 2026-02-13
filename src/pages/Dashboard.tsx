@@ -13,6 +13,7 @@ import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import useDisclosure from "@/hooks/useDisclosure";
 import CustomDrawer from "@/components/ui/drawers/CustomDrawer";
 import { useNavigate } from "react-router-dom";
+import LinkMeterForm from "@/components/ui/dashboard/LinkMeterForm";
 
 const Dashboard: FC = () => {
   const registerUserDrawer = useDisclosure();
@@ -239,13 +240,10 @@ const Dashboard: FC = () => {
         open={linkMeterDrawer.open}
         onClose={linkMeterDrawer.onClose}
       >
-        <Box>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
-            Link a Meter
-          </Typography>
-          {/* Add your link meter form content here */}
-          <Typography>Link meter form goes here yayyayyaya...</Typography>
-        </Box>
+        <LinkMeterForm
+          onClose={linkMeterDrawer.onClose}
+          open={linkMeterDrawer.open}
+        />
       </CustomDrawer>
     </>
   );

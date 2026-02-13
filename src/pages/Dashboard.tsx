@@ -240,7 +240,10 @@ const Dashboard: FC = () => {
         open={linkMeterDrawer.open}
         onClose={linkMeterDrawer.onClose}
       >
-        <LinkMeterForm onClose={linkMeterDrawer.onClose} />
+        <LinkMeterForm
+          onClose={linkMeterDrawer.onClose}
+          open={linkMeterDrawer.open}
+        />
       </CustomDrawer>
     </>
   );

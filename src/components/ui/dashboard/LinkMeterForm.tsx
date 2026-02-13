@@ -5,7 +5,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PatternFormat } from "react-number-format";
@@ -22,9 +22,10 @@ import {
 
 interface LinkMeterFormProps {
   onClose: () => void;
+  open?: boolean;
 }
 
-const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose }) => {
+const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [apiError, setApiError] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -36,6 +37,7 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose }) => {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<LinkMeterFormData>({
     resolver: zodResolver(linkMeterSchema),
@@ -47,6 +49,17 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose }) => {
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const meterNumber = watch("meterNumber");
+
+  // Reset form when drawer opens/closes
+  useEffect(() => {
+    if (open) {
+      // Reset everything when drawer opens
+      reset();
+      setSelectedUser(null);
+      setApiError("");
+      setShowSuccess(false);
+    }
+  }, [open, reset]);
 
   const handleUserChange = (user: User | null) => {
     setSelectedUser(user);

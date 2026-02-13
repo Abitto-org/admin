@@ -69,3 +69,32 @@ export interface MeterTableRow {
   status: string;
   valveStatus: boolean;
 }
+// Add these types to your existing meters.types.ts file
+
+export interface LinkMeterParams {
+  meterNumber: string;
+  userId: string;
+  estateId: string;
+  houseNumber: string;
+  estateName?: string;
+}
+
+export interface LinkedMeter {
+  id: string;
+  deviceId: string;
+  status: string;
+  userId: string;
+  valveStatus: boolean;
+  meterNumber: string;
+  estateId: string;
+  houseNumber: string;
+  estateName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LinkMeterResponse {
+  status: string;
+  message: string;
+  data: LinkedMeter;
+}

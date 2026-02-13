@@ -5,15 +5,16 @@ import StatCardSkeleton from "@/components/ui/dashboard/StatCardSkeleton";
 import MetersTable from "@/components/ui/dashboard/MetersTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import { useGetMeters } from "@/hooks/useMeters";
+import useDisclosure from "@/hooks/useDisclosure";
+import CustomDrawer from "@/components/ui/drawers/CustomDrawer";
+import LinkMeterForm from "@/components/ui/dashboard/LinkMeterForm";
 
 const Meters: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterValue, setFilterValue] = useState<string>("all");
 
-  const handleLinkMeter = () => {
-    console.log("Link a meter clicked");
-  };
+  const linkMeterDrawer = useDisclosure();
 
   // Prepare query params
   const queryParams = useMemo(() => {
@@ -101,7 +102,7 @@ const Meters: FC = () => {
           }}
         >
           <Button
-            onClick={handleLinkMeter}
+            onClick={linkMeterDrawer.onOpen}
             sx={{
               height: "48px",
               borderRadius: "32px",
@@ -186,6 +187,15 @@ const Meters: FC = () => {
         data={data}
         isLoading={isLoading}
       />
+      <CustomDrawer
+        open={linkMeterDrawer.open}
+        onClose={linkMeterDrawer.onClose}
+      >
+        <LinkMeterForm
+          onClose={linkMeterDrawer.onClose}
+          open={linkMeterDrawer.open}
+        />
+      </CustomDrawer>
     </>
   );
 };

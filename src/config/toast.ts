@@ -31,4 +31,6 @@ export const toastOption: DefaultToastOptions = {
       secondary: "#ef4444",
     },
   },
+  position: "bottom-right",
+  duration: 4000,
 };

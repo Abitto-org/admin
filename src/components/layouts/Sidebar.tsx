@@ -15,7 +15,9 @@ import {
   HelpCenter,
   Settings,
   Logout as LogoutIcon,
+  House,
 } from "@mui/icons-material";
+
 import { type JSX, type FC, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CollapseIcon from "@/assets/icons/collapse.svg";
@@ -51,6 +53,7 @@ const navSections: NavSection[] = [
       { label: "Link Requests", path: "/link-requests", icon: <LinkIcon /> },
       { label: "Meters", path: "/meters", icon: <Speed /> },
       { label: "Users", path: "/users", icon: <People /> },
+      { label: "Estates", path: "/estates", icon: <House /> },
       { label: "Transactions", path: "/transactions", icon: <Receipt /> },
     ],
   },

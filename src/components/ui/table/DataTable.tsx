@@ -4,6 +4,8 @@ import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import SearchFilter from "./SearchFilter";
 import Pagination from "./Pagination";
 import { type DataTableProps } from "./types";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const DataTable: FC<DataTableProps> = ({
   title,
@@ -26,6 +28,15 @@ const DataTable: FC<DataTableProps> = ({
   containerSx,
   isLoading = false,
   skeletonRows = 5,
+  showDateFilters = false,
+  startDate,
+  endDate,
+  onStartDateChange,
+  onEndDateChange,
+  showTypeFilter = false,
+  typeFilterOptions = [],
+  typeFilterValue = "all",
+  onTypeFilterChange,
 }) => {
   return (
     <Box
@@ -45,17 +56,14 @@ const DataTable: FC<DataTableProps> = ({
           justifyContent: "space-between",
           alignItems: { xs: "flex-start", sm: "center" },
           gap: { xs: "16px", sm: "12px" },
-          mb: "24px",
+          mb: 1,
         }}
       >
-        {/* Title */}
         <Box>
           <Typography
             sx={{
               fontWeight: 700,
               fontSize: "16px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
               textTransform: "capitalize",
               color: "#000000",
               mb: "4px",
@@ -63,13 +71,12 @@ const DataTable: FC<DataTableProps> = ({
           >
             {title}
           </Typography>
+
           {subtitle && (
             <Typography
               sx={{
                 fontWeight: 500,
                 fontSize: "14px",
-                lineHeight: "100%",
-                letterSpacing: "-1%",
                 textTransform: "capitalize",
                 color: "#424242",
                 mt: "12px",
@@ -80,8 +87,7 @@ const DataTable: FC<DataTableProps> = ({
           )}
         </Box>
 
-        {/* Search and Filter */}
-        {(searchable || filterable) && (
+        {(searchable || filterable || showDateFilters || showTypeFilter) && (
           <SearchFilter
             searchable={searchable}
             searchPlaceholder={searchPlaceholder}
@@ -90,7 +96,64 @@ const DataTable: FC<DataTableProps> = ({
             filterOptions={filterOptions}
             onFilterChange={onFilterChange}
             defaultFilterValue={defaultFilterValue}
+            showDateFilters={showDateFilters}
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={onStartDateChange}
+            onEndDateChange={onEndDateChange}
+            showTypeFilter={showTypeFilter}
+            typeFilterOptions={typeFilterOptions}
+            typeFilterValue={typeFilterValue}
+            onTypeFilterChange={onTypeFilterChange}
           />
+        )}
+      </Box>
+
+      {/* Date Filters */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "end",
+          mb: 2.5,
+          width: "100%",
+          gap: 1,
+        }}
+      >
+        {showDateFilters && (
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              label="Start Date"
+              value={startDate}
+              onChange={onStartDateChange}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: "220px",
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                    },
+                  },
+                },
+              }}
+            />
+            <DatePicker
+              label="End Date"
+              value={endDate}
+              onChange={onEndDateChange}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: "200px",
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                    },
+                  },
+                },
+              }}
+            />
+          </LocalizationProvider>
         )}
       </Box>
 

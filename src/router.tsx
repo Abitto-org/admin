@@ -30,6 +30,7 @@ const VerifyOTP = lazy(() => import("@/pages/auth/VerifyOTP"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const LinkRequests = lazy(() => import("@/pages/LinkRequests"));
 const Meters = lazy(() => import("@/pages/Meters"));
+const Estates = lazy(() => import("@/pages/Estates"));
 const Users = lazy(() => import("@/pages/Users"));
 const Transactions = lazy(() => import("@/pages/Transactions"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
@@ -66,6 +67,12 @@ const routes: RouteConfig[] = [
     guard: AuthGuard,
   },
   { path: "/meters", page: Meters, layout: DashboardLayout, guard: AuthGuard },
+  {
+    path: "/estates",
+    page: Estates,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
   { path: "/users", page: Users, layout: DashboardLayout, guard: AuthGuard },
   {
     path: "/transactions",

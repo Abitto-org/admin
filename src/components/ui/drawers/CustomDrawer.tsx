@@ -17,6 +17,7 @@ const CustomDrawer: FC<CustomDrawerProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isLarge = useMediaQuery(theme.breakpoints.down("lg"));
 
   return (
     <SwipeableDrawer
@@ -28,7 +29,7 @@ const CustomDrawer: FC<CustomDrawerProps> = ({
       disableDiscovery={!isMobile}
       PaperProps={{
         sx: {
-          width: isMobile ? "100%" : "30%",
+          width: isMobile ? "100%" : isLarge ? "40%" : "30%",
           height: isMobile ? "50vh" : "100%",
           borderRadius: isMobile ? "16px 16px 0 0" : 0,
         },

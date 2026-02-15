@@ -14,6 +14,7 @@ import {
 import { type FC, useState, useEffect, useRef } from "react";
 import { useGetSettings, useEditSettings } from "@/hooks/useSettings";
 import type { UpdateSettingsPayload } from "@/types/settings.types";
+import toast from "react-hot-toast";
 
 const Settings: FC = () => {
   const { user } = useAuthStore();
@@ -80,6 +81,7 @@ const Settings: FC = () => {
     updateSettings(formData, {
       onSuccess: () => {
         setOriginalData(formData);
+        toast.success("Settings Saved Successfully");
       },
       onError: (error) => {
         console.error("❌ Failed to update settings:", error);

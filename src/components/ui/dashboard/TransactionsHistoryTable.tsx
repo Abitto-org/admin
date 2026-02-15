@@ -1,82 +1,16 @@
-import { type FC, useState } from "react";
+import { type FC, useMemo } from "react";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
 import Badge from "../table/Badge";
 import LinkText from "./LinkText";
-import { useNavigate } from "react-router-dom";
+import type {
+  TransactionTableRow,
+  TransactionStatusType,
+  GetTransactionsResponse,
+  Transaction,
+} from "@/types/transactions.types";
+import { formatAmount, formatDate } from "@/utils";
 
-interface TransactionsHistoryTableProps {
-  showViewAllButton?: boolean;
-}
-
-interface Transaction {
-  id: string;
-  timestamp: string;
-  user: string;
-  type: string;
-  amount: string;
-  gasUnit: string;
-  status: "success" | "pending" | "failed";
-}
-
-const mockTransactions: Transaction[] = [
-  {
-    id: "1",
-    timestamp: "20-08-2025 | 8:58am",
-    user: "Chibuike Man",
-    type: "Gas Purchase",
-    amount: "₦ 50,000",
-    gasUnit: "24.6 kg",
-    status: "success",
-  },
-  {
-    id: "2",
-    timestamp: "20-08-2025 | 7:32am",
-    user: "Adaeze Okafor",
-    type: "Gas Purchase",
-    amount: "₦ 30,000",
-    gasUnit: "15.2 kg",
-    status: "pending",
-  },
-  {
-    id: "3",
-    timestamp: "19-08-2025 | 6:15pm",
-    user: "Emeka Johnson",
-    type: "Gas Purchase",
-    amount: "₦ 75,000",
-    gasUnit: "38.5 kg",
-    status: "failed",
-  },
-  {
-    id: "4",
-    timestamp: "19-08-2025 | 3:45pm",
-    user: "Ngozi Eze",
-    type: "Gas Purchase",
-    amount: "₦ 40,000",
-    gasUnit: "20.0 kg",
-    status: "success",
-  },
-  {
-    id: "5",
-    timestamp: "19-08-2025 | 1:20pm",
-    user: "Oluwaseun Balogun",
-    type: "Gas Purchase",
-    amount: "₦ 60,000",
-    gasUnit: "30.8 kg",
-    status: "success",
-  },
-  {
-    id: "6",
-    timestamp: "18-08-2025 | 11:05am",
-    user: "Funmilayo Adebayo",
-    type: "Gas Purchase",
-    amount: "₦ 45,000",
-    gasUnit: "22.5 kg",
-    status: "pending",
-  },
-];
-
-// Badge color configuration
 const badgeConfig: BadgeConfig = {
   status: {
     success: { bg: "#E8F5E9", text: "#2E7D32" },
@@ -85,38 +19,109 @@ const badgeConfig: BadgeConfig = {
   },
 };
 
+interface TransactionsHistoryTableProps {
+  // Mode props
+  mode?: "widget" | "full"; // widget = dashboard view, full = transactions page
+  showViewAllButton?: boolean;
+  onViewAll?: () => void;
+
+  // Data props
+  data: GetTransactionsResponse | undefined;
+  isLoading: boolean;
+
+  // Full mode props (only used when mode="full")
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
+  filterValue?: string;
+  onFilterChange?: (value: string) => void;
+  typeFilter?: string;
+  onTypeFilterChange?: (value: string) => void;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  onStartDateChange?: (date: Date | null) => void;
+  onEndDateChange?: (date: Date | null) => void;
+  onViewTransaction?: (id: string) => void;
+}
+
 const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
-  showViewAllButton,
+  mode = "full",
+  showViewAllButton = false,
+  onViewAll,
+  data,
+  isLoading,
+  currentPage = 1,
+  onPageChange,
+  // searchQuery = "",
+  onSearchChange,
+  filterValue = "all",
+  onFilterChange,
+  typeFilter = "all",
+  onTypeFilterChange,
+  startDate = null,
+  endDate = null,
+  onStartDateChange,
+  onEndDateChange,
+  onViewTransaction,
 }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
-  const totalPages = 10;
-
-  const handleViewAll = () => {
-    navigate("/transactions");
-  };
-
-  const handleViewTransaction = (id: string) => {
-    console.log("View transaction:", id);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Add logic to fetch data for the selected page
+  const getGasUnit = (transaction: Transaction): string => {
+    if (transaction.type === "GAS_PURCHASE_ONLINE") {
+      const metadata = transaction.metadata;
+      if (metadata?.metadata?.kgPurchased) {
+        return `${metadata.metadata.kgPurchased} kg`;
+      }
+      if (metadata?.kgPurchased) {
+        return `${metadata.kgPurchased} kg`;
+      }
+    }
+    return "N/A";
   };
 
   const handleSearchChange = (value: string) => {
-    console.log("Search:", value);
-    // Add search logic here
+    onSearchChange?.(value);
   };
 
   const handleFilterChange = (value: string) => {
-    console.log("Filter:", value);
-    // Add filter logic here
+    onFilterChange?.(value);
+    onPageChange?.(1);
   };
 
-  // Column configuration
-  const columns: Column<Transaction>[] = [
+  const handleTypeFilterChange = (value: string) => {
+    onTypeFilterChange?.(value);
+    onPageChange?.(1);
+  };
+
+  const tableData: TransactionTableRow[] = useMemo(() => {
+    if (!data?.data?.transactions) return [];
+
+    const transactions = data.data.transactions;
+
+    // In widget mode, only show first 8 transactions
+    const displayTransactions =
+      mode === "widget" ? transactions.slice(0, 8) : transactions;
+
+    return displayTransactions.map((transaction) => {
+      const getStatusForBadge = (status: string): TransactionStatusType => {
+        if (status === "SUCCESS") return "success";
+        if (status === "FAILED") return "failed";
+        return "pending";
+      };
+
+      return {
+        id: transaction.id,
+        timestamp: formatDate(transaction.createdAt),
+        user: transaction.userName || "N/A",
+        type: transaction.type.replace(/_/g, " "),
+        amount: formatAmount(Number(transaction.amount)),
+        gasUnit: getGasUnit(transaction),
+        status: getStatusForBadge(transaction.status),
+        reference: transaction.reference,
+      };
+    });
+  }, [data, mode]);
+
+  const columns: Column<TransactionTableRow>[] = [
     {
       key: "timestamp",
       label: "Timestamp",
@@ -125,12 +130,12 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
     {
       key: "user",
       label: "User",
-      minWidth: "100px",
+      minWidth: "150px",
     },
     {
       key: "type",
       label: "Type",
-      minWidth: "100px",
+      minWidth: "180px",
     },
     {
       key: "amount",
@@ -140,7 +145,7 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
     {
       key: "gasUnit",
       label: "Gas Unit",
-      minWidth: "80px",
+      minWidth: "100px",
     },
     {
       key: "status",
@@ -153,38 +158,80 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
       key: "actions",
       label: "Action",
       renderCell: (_, row) => (
-        <LinkText text="View" onClick={() => handleViewTransaction(row.id)} />
+        <LinkText
+          text="View"
+          onClick={() => onViewTransaction?.(row.id)}
+          showIcon={false}
+        />
       ),
     },
   ];
 
-  // Filter options
-  const filterOptions = [
-    { label: "All", value: "filter" },
-    { label: "Success", value: "success" },
-    { label: "Pending", value: "pending" },
-    { label: "Failed", value: "failed" },
+  const statusFilterOptions = [
+    { label: "All Status", value: "all" },
+    { label: "Success", value: "SUCCESS" },
+    { label: "Pending", value: "PENDING" },
+    { label: "Failed", value: "FAILED" },
   ];
 
+  const typeFilterOptions = [
+    { label: "All Types", value: "all" },
+    { label: "Gas Purchase", value: "GAS_PURCHASE_ONLINE" },
+    { label: "Wallet Top-up", value: "WALLET_TOPUP" },
+    { label: "Wallet Debit", value: "WALLET_DEBIT" },
+  ];
+
+  // Widget mode: No search, filters, or pagination
+  if (mode === "widget") {
+    return (
+      <DataTable
+        title="Transactions"
+        subtitle="Recent Activity"
+        columns={columns}
+        data={tableData}
+        searchable={false}
+        filterable={false}
+        showDateFilters={false}
+        showTypeFilter={false}
+        currentPage={1}
+        totalPages={1}
+        isLoading={isLoading}
+        skeletonRows={8}
+        showViewAllButton={showViewAllButton}
+        viewAllButtonText="View All Transactions"
+        onViewAll={onViewAll}
+      />
+    );
+  }
+
+  // Full mode: With all filters and pagination
   return (
     <DataTable
       title="Transactions"
       subtitle="Recent Activity"
       columns={columns}
-      data={mockTransactions}
+      data={tableData}
       searchable
-      searchPlaceholder="Search"
+      searchPlaceholder="Search by reference, user, or description"
       onSearchChange={handleSearchChange}
       filterable
-      filterOptions={filterOptions}
+      filterOptions={statusFilterOptions}
       onFilterChange={handleFilterChange}
-      defaultFilterValue="filter"
+      defaultFilterValue={filterValue}
+      showDateFilters={true}
+      startDate={startDate}
+      endDate={endDate}
+      onStartDateChange={onStartDateChange}
+      onEndDateChange={onEndDateChange}
+      showTypeFilter={true}
+      typeFilterOptions={typeFilterOptions}
+      typeFilterValue={typeFilter}
+      onTypeFilterChange={handleTypeFilterChange}
       currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-      showViewAllButton={showViewAllButton}
-      viewAllButtonText="View All Transactions"
-      onViewAll={handleViewAll}
+      totalPages={data?.data?.pagination?.totalPages || 1}
+      onPageChange={onPageChange}
+      isLoading={isLoading}
+      skeletonRows={10}
     />
   );
 };

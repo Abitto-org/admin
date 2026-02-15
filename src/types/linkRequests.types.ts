@@ -1,17 +1,16 @@
-// Link Request API Types
-
 export interface LinkRequestUser {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
 }
+type Status = "pending" | "approved" | "rejected";
 
 export interface LinkRequest {
   id: string;
   userId: string;
   meterId: string;
-  status: "pending" | "approved" | "rejected";
+  status: Status;
   adminId: string | null;
   estateId: string | null;
   houseNumber: string | null;
@@ -59,7 +58,7 @@ export interface GetLinkRequestsResponse {
 export interface GetLinkRequestsParams {
   page?: number;
   limit?: number;
-  status?: "pending" | "approved" | "rejected";
+  status?: Status;
   search?: string;
   startDate?: string;
   endDate?: string;
@@ -92,7 +91,7 @@ export interface LinkRequest {
   id: string;
   userId: string;
   meterId: string;
-  status: "pending" | "approved" | "rejected";
+  status: Status;
   adminId: string | null;
   estateId: string | null;
   houseNumber: string | null;
@@ -140,7 +139,7 @@ export interface GetLinkRequestsResponse {
 export interface GetLinkRequestsParams {
   page?: number;
   limit?: number;
-  status?: "pending" | "approved" | "rejected";
+  status?: Status;
   search?: string;
   startDate?: string;
   endDate?: string;
@@ -165,4 +164,35 @@ export interface ILinkRequestCard {
   meterNumber: string;
   userName: string;
   address: string;
+}
+// linkRequests.types.ts - Add these interfaces
+
+export interface LinkRequestDetailsData {
+  id: string;
+  userId: string;
+  meterId: string;
+  deviceId: string;
+  meterNumber: string;
+  userName: string;
+  userEmail: string;
+  estateId: string | null;
+  estateName: string | null;
+  houseNumber: string | null;
+  status: Status;
+  requestType: string;
+  createdAt: string;
+  reason: string | null;
+}
+
+export interface ReviewLinkRequestParams {
+  id: string;
+  status: "approved" | "rejected";
+  reason?: string;
+}
+
+export interface ReviewLinkRequestResponse {
+  status: string;
+  message: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data?: any;
 }

@@ -1,3 +1,4 @@
+// TransactionsHistoryTable.tsx - Simplified version
 import { type FC, useMemo } from "react";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
@@ -9,9 +10,6 @@ import type {
   GetTransactionsResponse,
   Transaction,
 } from "@/types/transactions.types";
-import { Box, TextField } from "@mui/material";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { formatDate } from "@/utils";
 
 const badgeConfig: BadgeConfig = {
@@ -175,100 +173,34 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
   ];
 
   return (
-    <Box>
-      {/* Date Filters */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          mb: 2,
-          flexWrap: "wrap",
-        }}
-      >
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            label="Start Date"
-            value={startDate}
-            onChange={onStartDateChange}
-            slotProps={{
-              textField: {
-                size: "small",
-                sx: {
-                  minWidth: "200px",
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "8px",
-                  },
-                },
-              },
-            }}
-          />
-          <DatePicker
-            label="End Date"
-            value={endDate}
-            onChange={onEndDateChange}
-            slotProps={{
-              textField: {
-                size: "small",
-                sx: {
-                  minWidth: "200px",
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "8px",
-                  },
-                },
-              },
-            }}
-          />
-        </LocalizationProvider>
-
-        {/* Type Filter Dropdown */}
-        <Box
-          sx={{
-            minWidth: "200px",
-          }}
-        >
-          <TextField
-            select
-            size="small"
-            value={typeFilter}
-            onChange={(e) => handleTypeFilterChange(e.target.value)}
-            SelectProps={{
-              native: true,
-            }}
-            sx={{
-              width: "100%",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "8px",
-              },
-            }}
-          >
-            {typeFilterOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </TextField>
-        </Box>
-      </Box>
-
-      <DataTable
-        title="Transactions"
-        subtitle="Recent Activity"
-        columns={columns}
-        data={tableData}
-        searchable
-        searchPlaceholder="Search by reference, user, or description"
-        onSearchChange={handleSearchChange}
-        filterable
-        filterOptions={statusFilterOptions}
-        onFilterChange={handleFilterChange}
-        defaultFilterValue={filterValue}
-        currentPage={currentPage}
-        totalPages={data?.data?.pagination?.totalPages || 1}
-        onPageChange={onPageChange}
-        isLoading={isLoading}
-        skeletonRows={10}
-      />
-    </Box>
+    <DataTable
+      title="Transactions"
+      subtitle="Recent Activity"
+      columns={columns}
+      data={tableData}
+      searchable
+      searchPlaceholder="Search by reference, user, or description"
+      onSearchChange={handleSearchChange}
+      filterable
+      filterOptions={statusFilterOptions}
+      onFilterChange={handleFilterChange}
+      defaultFilterValue={filterValue}
+      showDateFilters={true}
+      startDate={startDate}
+      endDate={endDate}
+      onStartDateChange={onStartDateChange}
+      onEndDateChange={onEndDateChange}
+      showTypeFilter={true}
+      typeFilterOptions={typeFilterOptions}
+      typeFilterValue={typeFilter}
+      onTypeFilterChange={handleTypeFilterChange}
+      // Pagination
+      currentPage={currentPage}
+      totalPages={data?.data?.pagination?.totalPages || 1}
+      onPageChange={onPageChange}
+      isLoading={isLoading}
+      skeletonRows={10}
+    />
   );
 };
 

@@ -26,6 +26,15 @@ const DataTable: FC<DataTableProps> = ({
   containerSx,
   isLoading = false,
   skeletonRows = 5,
+  showDateFilters = false,
+  startDate,
+  endDate,
+  onStartDateChange,
+  onEndDateChange,
+  showTypeFilter = false,
+  typeFilterOptions = [],
+  typeFilterValue = "all",
+  onTypeFilterChange,
 }) => {
   return (
     <Box
@@ -81,7 +90,7 @@ const DataTable: FC<DataTableProps> = ({
         </Box>
 
         {/* Search and Filter */}
-        {(searchable || filterable) && (
+        {(searchable || filterable || showDateFilters || showTypeFilter) && (
           <SearchFilter
             searchable={searchable}
             searchPlaceholder={searchPlaceholder}
@@ -90,6 +99,15 @@ const DataTable: FC<DataTableProps> = ({
             filterOptions={filterOptions}
             onFilterChange={onFilterChange}
             defaultFilterValue={defaultFilterValue}
+            showDateFilters={showDateFilters}
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={onStartDateChange}
+            onEndDateChange={onEndDateChange}
+            showTypeFilter={showTypeFilter}
+            typeFilterOptions={typeFilterOptions}
+            typeFilterValue={typeFilterValue}
+            onTypeFilterChange={onTypeFilterChange}
           />
         )}
       </Box>

@@ -7,9 +7,9 @@ import type {
   LinkRequestTableRow,
   LinkRequestStatus,
   GetLinkRequestsResponse,
+  LinkRequestDetailsData,
 } from "@/types/linkRequests.types";
 
-// Badge color configuration
 const badgeConfig: BadgeConfig = {
   status: {
     success: { bg: "#E8F5E9", text: "#2E7D32" },
@@ -27,6 +27,7 @@ interface LinkRequestsTableProps {
   onFilterChange: (value: string) => void;
   data: GetLinkRequestsResponse | undefined;
   isLoading: boolean;
+  onViewRequest: (requestData: LinkRequestDetailsData) => void; // Add this
 }
 
 const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
@@ -37,10 +38,35 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
   onFilterChange,
   data,
   isLoading,
+  onViewRequest, // Add this
 }) => {
-  const handleViewRequest = (id: string) => {
-    console.log("View request:", id);
-    // Navigate to request details page or open modal
+  const handleViewRequest = (row: LinkRequestTableRow) => {
+    // Find the full request data from the API response
+    const fullRequest = data?.data?.requests.find(
+      (item) => item.request.id === row.id,
+    );
+
+    if (fullRequest) {
+      const requestData: LinkRequestDetailsData = {
+        id: fullRequest.request.id,
+        userId: fullRequest.request.userId,
+        meterId: fullRequest.request.meterId,
+        deviceId: fullRequest.meter.deviceId,
+        meterNumber: fullRequest.meter.meterNumber,
+        userName:
+          `${fullRequest.user.firstName} ${fullRequest.user.lastName}`.trim(),
+        userEmail: fullRequest.user.email,
+        estateId: fullRequest.request.estateId,
+        estateName: fullRequest.request.estateName,
+        houseNumber: fullRequest.request.houseNumber,
+        status: fullRequest.request.status,
+        requestType: fullRequest.request.adminId ? "Re-Link" : "New Link",
+        createdAt: fullRequest.request.createdAt,
+        reason: fullRequest.request.reason,
+      };
+
+      onViewRequest(requestData);
+    }
   };
 
   const handleSearchChange = (value: string) => {
@@ -49,32 +75,25 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
 
   const handleFilterChange = (value: string) => {
     onFilterChange(value);
-    onPageChange(1); // Reset to page 1 when filter changes
+    onPageChange(1);
   };
 
-  // Transform API data to table rows
   const tableData: LinkRequestTableRow[] = useMemo(() => {
     if (!data?.data?.requests) return [];
 
     return data.data.requests.map((item) => {
       const { request, user, meter } = item;
-      console.log("request", request);
-      console.log("user", user);
-      console.log("meter", meter);
 
-      // Determine status for badge display
       const getStatusForBadge = (status: string): LinkRequestStatus => {
         if (status === "approved") return "success";
         if (status === "rejected") return "failed";
         return "pending";
       };
 
-      // Format address with null checks
       const houseNumber = request.houseNumber || "N/A";
       const estatePart = request.estateName ? `, ${request.estateName}` : "";
       const address = `${houseNumber}${estatePart}`;
 
-      // Format date with null check
       const formatDate = (dateString: string | null) => {
         if (!dateString) return "N/A";
         try {
@@ -90,13 +109,11 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
         }
       };
 
-      // Format user name with null checks
       const userName = user
         ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
           "Unassigned"
         : "Unassigned";
 
-      // Determine request type (simplified - you may need to adjust based on your logic)
       const requestType = request.adminId ? "Re-Link" : "New Link";
 
       return {
@@ -113,7 +130,6 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
     });
   }, [data]);
 
-  // Column configuration
   const columns: Column<LinkRequestTableRow>[] = [
     {
       key: "meterNumber",
@@ -151,12 +167,15 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
       key: "actions",
       label: "Action",
       renderCell: (_, row) => (
-        <LinkText text="View" onClick={() => handleViewRequest(row.id)} />
+        <LinkText
+          text="View"
+          onClick={() => handleViewRequest(row)}
+          showIcon={false}
+        />
       ),
     },
   ];
 
-  // Filter options
   const filterOptions = [
     { label: "All Requests", value: "all" },
     { label: "Pending", value: "pending" },

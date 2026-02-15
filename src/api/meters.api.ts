@@ -1,9 +1,12 @@
+
 import { http } from "./index";
 import type {
   GetMetersResponse,
   GetMetersParams,
   LinkMeterParams,
   LinkMeterResponse,
+  UnlinkMeterParams,
+  UnlinkMeterResponse,
 } from "@/types/meters.types";
 
 export const metersApi = {
@@ -24,6 +27,15 @@ export const metersApi = {
     const response = await http.post<LinkMeterResponse>(
       `/meter/admin/link/${meterNumber}`,
       body,
+    );
+    return response.data;
+  },
+
+  unlinkMeter: async (
+    params: UnlinkMeterParams,
+  ): Promise<UnlinkMeterResponse> => {
+    const response = await http.post<UnlinkMeterResponse>(
+      `/meter/admin/meters/${params.deviceId}/unlink`,
     );
     return response.data;
   },

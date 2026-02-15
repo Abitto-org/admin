@@ -1,6 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { linkRequestsApi } from "@/api/linkRequests.api";
-import type { GetLinkRequestsParams } from "@/types/linkRequests.types";
+import type {
+  GetLinkRequestsParams,
+  ReviewLinkRequestParams,
+} from "@/types/linkRequests.types";
 
 export const useGetLinkRequests = (params: GetLinkRequestsParams) => {
   return useQuery({
@@ -8,5 +11,18 @@ export const useGetLinkRequests = (params: GetLinkRequestsParams) => {
     queryFn: () => linkRequestsApi.getLinkRequests(params),
     staleTime: 30000,
     retry: 2,
+  });
+};
+
+export const useReviewLinkRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: ReviewLinkRequestParams) =>
+      linkRequestsApi.reviewLinkRequest(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["linkRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["meters"] });
+    },
   });
 };

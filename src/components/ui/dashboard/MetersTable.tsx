@@ -1,4 +1,5 @@
-import { type FC, useMemo } from "react";
+import { type FC, useMemo, useState } from "react";
+import { Menu, MenuItem, ListItemText } from "@mui/material";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
 import Badge from "../table/Badge";
@@ -7,9 +8,9 @@ import type {
   MeterTableRow,
   MeterLinkStatus,
   GetMetersResponse,
+  MeterActionData,
 } from "@/types/meters.types";
 
-// Badge color configuration
 const badgeConfig: BadgeConfig = {
   status: {
     registered: { bg: "#E8F5E9", text: "#2E7D32" },
@@ -32,21 +33,53 @@ interface MetersTableProps {
   onFilterChange: (value: string) => void;
   data: GetMetersResponse | undefined;
   isLoading: boolean;
+  onActionClick: (
+    action: "link" | "unlink" | "view",
+    meterData: MeterActionData,
+  ) => void;
 }
 
 const MetersTable: FC<MetersTableProps> = ({
   currentPage,
   onPageChange,
-  // searchQuery,
   onSearchChange,
   filterValue,
   onFilterChange,
   data,
   isLoading,
+  onActionClick,
 }) => {
-  const handleViewTransaction = (id: string) => {
-    console.log("View meter:", id);
-    // Navigate to meter details page or open modal
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedRow, setSelectedRow] = useState<MeterTableRow | null>(null);
+
+  const handleActionClick = (
+    event: React.MouseEvent<HTMLElement>,
+    row: MeterTableRow,
+  ) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  };
+
+  // MetersTable.tsx - Update handleMenuItemClick
+  const handleMenuItemClick = (action: "link" | "unlink" | "view") => {
+    if (selectedRow) {
+      onActionClick(action, {
+        deviceId: selectedRow.deviceId || selectedRow.meterId, // Add deviceId
+        meterNumber: selectedRow.meterNumber,
+        userId: selectedRow.userId,
+        userName:
+          selectedRow.user === "Unassigned" ? undefined : selectedRow.user,
+        estateId: selectedRow.estateId,
+        houseNumber: selectedRow.houseNumber,
+        estateName: selectedRow.estateName,
+      });
+    }
+    handleMenuClose();
   };
 
   const handleSearchChange = (value: string) => {
@@ -55,31 +88,25 @@ const MetersTable: FC<MetersTableProps> = ({
 
   const handleFilterChange = (value: string) => {
     onFilterChange(value);
-    onPageChange(1); // Reset to page 1 when filter changes
+    onPageChange(1);
   };
 
-  // Transform API data to table rows
   const tableData: MeterTableRow[] = useMemo(() => {
     if (!data?.data?.meters) return [];
 
     return data.data.meters.map((item: (typeof data.data.meters)[number]) => {
       const { meter, user } = item;
-      console.log("meter", meter);
-      console.log("user", user);
 
-      // Determine link status based on meter status
       const getLinkStatus = (status: string): MeterLinkStatus => {
         if (status === "registered" || status === "active") return "success";
         if (status === "inactive") return "failed";
         return "pending";
       };
 
-      // Format address with null checks
       const houseNumber = meter.houseNumber || "N/A";
       const estatePart = meter.estateName ? `, ${meter.estateName}` : "";
       const address = `${houseNumber}${estatePart}`;
 
-      // Format date with null check
       const formatDate = (dateString: string | null) => {
         if (!dateString) return "N/A";
         try {
@@ -95,7 +122,6 @@ const MetersTable: FC<MetersTableProps> = ({
         }
       };
 
-      // Format user name with null checks
       const userName = user
         ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
           user.email ||
@@ -107,11 +133,16 @@ const MetersTable: FC<MetersTableProps> = ({
         meterId: meter.deviceId || "N/A",
         meterNumber: meter.meterNumber || "N/A",
         user: userName,
+        userId: user?.id,
         linkStatus: getLinkStatus(meter.status),
         date: formatDate(meter.createdAt),
         address,
         status: meter.status,
         valveStatus: meter.valveStatus,
+        estateId: meter.estateId || undefined,
+        houseNumber: meter.houseNumber || undefined,
+        estateName: meter.estateName || undefined,
+        deviceId: meter.deviceId, // Add this line
       };
     });
   }, [data]);
@@ -160,37 +191,80 @@ const MetersTable: FC<MetersTableProps> = ({
       key: "actions",
       label: "Action",
       renderCell: (_, row) => (
-        <LinkText text="View" onClick={() => handleViewTransaction(row.id)} />
+        <LinkText text="Actions" onClick={(e) => handleActionClick(e, row)} />
       ),
     },
   ];
 
-  // Filter options
   const filterOptions = [
     { label: "All Meters", value: "all" },
     { label: "Linked", value: "linked" },
     { label: "Unlinked", value: "unlinked" },
   ];
 
+  const hasUser = selectedRow?.user && selectedRow.user !== "Unassigned";
+
   return (
-    <DataTable
-      title="Meters"
-      subtitle="All Meter Linking Requests"
-      columns={columns}
-      data={tableData}
-      searchable
-      searchPlaceholder="Search by meter number, device ID, or user name"
-      onSearchChange={handleSearchChange}
-      filterable
-      filterOptions={filterOptions}
-      onFilterChange={handleFilterChange}
-      defaultFilterValue={filterValue}
-      currentPage={currentPage}
-      totalPages={data?.data?.pagination?.totalPages || 1}
-      onPageChange={onPageChange}
-      isLoading={isLoading}
-      skeletonRows={10}
-    />
+    <>
+      <DataTable
+        title="Meters"
+        subtitle="All Meter Linking Requests"
+        columns={columns}
+        data={tableData}
+        searchable
+        searchPlaceholder="Search by meter number, device ID, or user name"
+        onSearchChange={handleSearchChange}
+        filterable
+        filterOptions={filterOptions}
+        onFilterChange={handleFilterChange}
+        defaultFilterValue={filterValue}
+        currentPage={currentPage}
+        totalPages={data?.data?.pagination?.totalPages || 1}
+        onPageChange={onPageChange}
+        isLoading={isLoading}
+        skeletonRows={10}
+      />
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+            borderRadius: "8px",
+            minWidth: "160px",
+          },
+        }}
+      >
+        <MenuItem onClick={() => handleMenuItemClick("view")}>
+          <ListItemText
+            primary="View Details"
+            primaryTypographyProps={{ fontSize: "14px" }}
+          />
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleMenuItemClick(hasUser ? "unlink" : "link")}
+        >
+          <ListItemText
+            primary={hasUser ? "Unlink Meter" : "Link Meter"}
+            primaryTypographyProps={{
+              fontSize: "14px",
+              color: hasUser ? "#EA0000" : "#669900",
+            }}
+          />
+        </MenuItem>
+      </Menu>
+    </>
   );
 };
 

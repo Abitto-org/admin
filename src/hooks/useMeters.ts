@@ -1,5 +1,10 @@
+// In your useMeters.ts, add:
 import { metersApi } from "@/api/meters.api";
-import type { GetMetersParams, LinkMeterParams } from "@/types/meters.types";
+import type {
+  GetMetersParams,
+  LinkMeterParams,
+  UnlinkMeterParams,
+} from "@/types/meters.types";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 export const useGetMeters = (params: GetMetersParams) => {
@@ -10,13 +15,25 @@ export const useGetMeters = (params: GetMetersParams) => {
     retry: 2,
   });
 };
+
 export const useLinkMeter = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (params: LinkMeterParams) => metersApi.linkMeter(params),
     onSuccess: () => {
-      // Invalidate and refetch relevant queries
+      queryClient.invalidateQueries({ queryKey: ["meters"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+};
+
+export const useUnlinkMeter = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: UnlinkMeterParams) => metersApi.unlinkMeter(params),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meters"] });
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },

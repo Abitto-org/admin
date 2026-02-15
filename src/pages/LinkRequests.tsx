@@ -6,17 +6,21 @@ import LinkRequestsTable from "@/components/ui/dashboard/LinkRequestsTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import { useGetLinkRequests } from "@/hooks/useLinkRequests";
 import useDisclosure from "@/hooks/useDisclosure";
-import CustomDrawer from "@/components/ui/drawers/CustomDrawer";
-import LinkMeterForm from "@/components/ui/dashboard/LinkMeterForm";
+import LinkMeterDrawer from "@/components/ui/drawers/LinkMeterDrawer";
+import LinkRequestDrawer from "@/components/ui/drawers/LinkRequestDrawer";
+import type { LinkRequestDetailsData } from "@/types/linkRequests.types";
 
 const LinkRequests: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterValue, setFilterValue] = useState<string>("all");
+  const [selectedRequestData, setSelectedRequestData] = useState<
+    LinkRequestDetailsData | undefined
+  >();
 
   const linkMeterDrawer = useDisclosure();
+  const linkRequestDrawer = useDisclosure();
 
-  // Prepare query params
   const queryParams = useMemo(() => {
     const params: {
       page: number;
@@ -43,17 +47,19 @@ const LinkRequests: FC = () => {
     return params;
   }, [currentPage, searchQuery, filterValue]);
 
-  // Fetch link requests data
   const { data, isLoading } = useGetLinkRequests(queryParams);
-  console.log("Link requests data:", data);
 
-  // Extract stats
   const stats = data?.data?.stats || {
     pendingLinkRequests: 0,
     linkRequestsToday: 0,
     totalLinkedMeters: 0,
     rejectedRequests: 0,
     rejectedToday: 0,
+  };
+
+  const handleViewRequest = (requestData: LinkRequestDetailsData) => {
+    setSelectedRequestData(requestData);
+    linkRequestDrawer.onOpen();
   };
 
   return (
@@ -69,7 +75,6 @@ const LinkRequests: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        {/* Title and Subtitle */}
         <Box>
           <Typography
             variant="h1"
@@ -95,7 +100,6 @@ const LinkRequests: FC = () => {
           </Typography>
         </Box>
 
-        {/* Action Buttons */}
         <Stack
           direction="row"
           spacing="16px"
@@ -189,16 +193,14 @@ const LinkRequests: FC = () => {
         onFilterChange={setFilterValue}
         data={data}
         isLoading={isLoading}
+        onViewRequest={handleViewRequest}
       />
-      <CustomDrawer
-        open={linkMeterDrawer.open}
-        onClose={linkMeterDrawer.onClose}
-      >
-        <LinkMeterForm
-          onClose={linkMeterDrawer.onClose}
-          open={linkMeterDrawer.open}
-        />
-      </CustomDrawer>
+
+      <LinkMeterDrawer linkMeterDrawer={linkMeterDrawer} />
+      <LinkRequestDrawer
+        linkRequestDrawer={linkRequestDrawer}
+        requestData={selectedRequestData}
+      />
     </>
   );
 };

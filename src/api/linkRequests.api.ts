@@ -2,6 +2,8 @@ import { http } from "./index";
 import type {
   GetLinkRequestsResponse,
   GetLinkRequestsParams,
+  ReviewLinkRequestParams,
+  ReviewLinkRequestResponse,
 } from "@/types/linkRequests.types";
 
 export const linkRequestsApi = {
@@ -20,6 +22,17 @@ export const linkRequestsApi = {
           ...(params.endDate && { endDate: params.endDate }),
         },
       },
+    );
+    return response.data;
+  },
+
+  reviewLinkRequest: async (
+    params: ReviewLinkRequestParams,
+  ): Promise<ReviewLinkRequestResponse> => {
+    const { id, ...body } = params;
+    const response = await http.patch<ReviewLinkRequestResponse>(
+      `/meter/link-requests/${id}`,
+      body,
     );
     return response.data;
   },

@@ -13,46 +13,22 @@ import type { User } from "@/types/users.types";
 import { useGetUsers } from "@/hooks/useUsers";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { getDisplayName, getInitials } from "@/utils/auth";
 
+// UserSelect.tsx - Update the interface and component
 interface UserSelectProps {
   value: User | null;
   onChange: (user: User | null) => void;
   error?: string;
+  disabled?: boolean; // Add this
 }
 
-const getInitials = (user: User): string => {
-  const firstName = user.firstName || "";
-  const lastName = user.lastName || "";
-
-  if (firstName && lastName) {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  }
-  if (firstName) {
-    return firstName.charAt(0).toUpperCase();
-  }
-  if (user.email) {
-    return user.email.charAt(0).toUpperCase();
-  }
-  return "U";
-};
-
-const getDisplayName = (user: User): string => {
-  const firstName = user.firstName || "";
-  const lastName = user.lastName || "";
-
-  if (firstName && lastName) {
-    return `${firstName} ${lastName}`;
-  }
-  if (firstName) {
-    return firstName;
-  }
-  if (user.username) {
-    return user.username;
-  }
-  return user.email;
-};
-
-const UserSelect: FC<UserSelectProps> = ({ value, onChange, error }) => {
+const UserSelect: FC<UserSelectProps> = ({
+  value,
+  onChange,
+  error,
+  disabled = false,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -115,6 +91,7 @@ const UserSelect: FC<UserSelectProps> = ({ value, onChange, error }) => {
   };
 
   const handleSelectUser = (user: User) => {
+    if (disabled) return; // Add this check
     onChange(user);
     setIsOpen(false);
     setSearch("");
@@ -122,9 +99,15 @@ const UserSelect: FC<UserSelectProps> = ({ value, onChange, error }) => {
   };
 
   const handleClickAway = () => {
+    if (disabled) return; // Add this check
     setIsOpen(false);
     setSearch("");
     setPage(1);
+  };
+
+  const handleToggle = () => {
+    if (disabled) return; // Add this check
+    setIsOpen(!isOpen);
   };
 
   return (
@@ -132,20 +115,21 @@ const UserSelect: FC<UserSelectProps> = ({ value, onChange, error }) => {
       <Box sx={{ position: "relative" }} ref={dropdownRef}>
         {/* Selected User Display / Trigger */}
         <Box
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggle}
           sx={{
             width: "94%",
             padding: "13px 16px",
             borderRadius: "8px",
             border: error ? "1.5px solid #D32F2F" : "1.5px solid #E0E0E0",
-            backgroundColor: "#FFFFFF",
-            cursor: "pointer",
+            backgroundColor: disabled ? "#F5F5F5" : "#FFFFFF", // Add disabled background
+            cursor: disabled ? "not-allowed" : "pointer", // Change cursor when disabled
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             transition: "all 0.2s",
+            opacity: disabled ? 0.6 : 1, // Add opacity for disabled state
             "&:hover": {
-              borderColor: error ? "#D32F2F" : "#669900",
+              borderColor: disabled ? "#E0E0E0" : error ? "#D32F2F" : "#669900",
             },
           }}
         >
@@ -220,8 +204,8 @@ const UserSelect: FC<UserSelectProps> = ({ value, onChange, error }) => {
           </Typography>
         )}
 
-        {/* Dropdown Menu */}
-        {isOpen && (
+        {/* Dropdown Menu - Only show if not disabled */}
+        {isOpen && !disabled && (
           <Box
             sx={{
               position: "absolute",
@@ -291,7 +275,6 @@ const UserSelect: FC<UserSelectProps> = ({ value, onChange, error }) => {
               }}
             >
               {isLoading && page === 1 ? (
-                // Initial loading skeletons
                 <Box sx={{ p: "8px" }}>
                   {[1, 2, 3, 4, 5].map((i) => (
                     <Box
@@ -383,7 +366,6 @@ const UserSelect: FC<UserSelectProps> = ({ value, onChange, error }) => {
                     </Box>
                   ))}
 
-                  {/* Loading more indicator */}
                   {isFetching && page > 1 && (
                     <Box sx={{ p: "8px" }}>
                       {[1, 2].map((i) => (

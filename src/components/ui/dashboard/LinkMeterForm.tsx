@@ -11,7 +11,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PatternFormat } from "react-number-format";
 import UserSelect from "./UserSelect";
 import type { User } from "@/types/users.types";
-import { useLinkMeter } from "@/hooks/useMeters";
+import type { MeterActionData } from "@/types/meters.types";
+import { useLinkMeter, useUnlinkMeter } from "@/hooks/useMeters";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import CheckIcon from "@/assets/icons/check.svg";
 import SuccessIcon from "@/assets/success.svg";
@@ -23,14 +24,24 @@ import {
 interface LinkMeterFormProps {
   onClose: () => void;
   open?: boolean;
+  mode?: "link" | "unlink";
+  meterData?: MeterActionData;
 }
 
-const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
+const LinkMeterForm: FC<LinkMeterFormProps> = ({
+  onClose,
+  open = true,
+  mode = "link",
+  meterData,
+}) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [apiError, setApiError] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const { mutate: linkMeter, isPending } = useLinkMeter();
+  const { mutate: linkMeter, isPending: isLinking } = useLinkMeter();
+  const { mutate: unlinkMeter, isPending: isUnlinking } = useUnlinkMeter();
+
+  const isPending = isLinking || isUnlinking;
 
   const {
     control,
@@ -50,16 +61,38 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
   // eslint-disable-next-line react-hooks/incompatible-library
   const meterNumber = watch("meterNumber");
 
-  // Reset form when drawer opens/closes
+  // Reset form when drawer opens/closes or mode changes
   useEffect(() => {
     if (open) {
-      // Reset everything when drawer opens
       reset();
-      setSelectedUser(null);
       setApiError("");
       setShowSuccess(false);
+
+      // Pre-fill form with meter data if provided
+      if (meterData) {
+        setValue("meterNumber", meterData.meterNumber);
+
+        // If unlinking, also set the user
+        if (mode === "unlink" && meterData.userId) {
+          setValue("userId", meterData.userId);
+          // Set selected user for display
+          setSelectedUser({
+            id: meterData.userId,
+            firstName: meterData.userName?.split(" ")[0] || "",
+            lastName: meterData.userName?.split(" ").slice(1).join(" ") || "",
+            email: "",
+            estateId: meterData.estateId || "",
+            houseNumber: meterData.houseNumber || "",
+            onboardingEstateName: meterData.estateName,
+          } as User);
+        } else {
+          setSelectedUser(null);
+        }
+      } else {
+        setSelectedUser(null);
+      }
     }
-  }, [open, reset]);
+  }, [open, reset, meterData, mode, setValue]);
 
   const handleUserChange = (user: User | null) => {
     setSelectedUser(user);
@@ -67,50 +100,77 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
     setApiError("");
   };
 
+  // LinkMeterForm.tsx - Update the onSubmit function
   const onSubmit = (data: LinkMeterFormData) => {
-    if (!selectedUser) return;
+    if (mode === "unlink") {
+      // Unlink flow - use deviceId from meterData
+      if (!meterData?.deviceId) {
+        setApiError("Device ID is required for unlinking");
+        return;
+      }
 
-    // Validate user has required info
-    if (!selectedUser.estateId) {
-      setApiError("Selected user must have estate information");
-      return;
+      unlinkMeter(
+        { deviceId: meterData.deviceId },
+        {
+          onSuccess: () => {
+            setShowSuccess(true);
+            setTimeout(() => {
+              onClose();
+            }, 2000);
+          },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onError: (error: any) => {
+            const errorMessage =
+              error?.response?.data?.message ||
+              error?.message ||
+              "Failed to unlink meter. Please try again.";
+            setApiError(errorMessage);
+          },
+        },
+      );
+    } else {
+      // Link flow (existing code remains the same)
+      if (!selectedUser) return;
+
+      if (!selectedUser.estateId) {
+        setApiError("Selected user must have estate information");
+        return;
+      }
+
+      if (!selectedUser.houseNumber) {
+        setApiError("Selected user must have a house number");
+        return;
+      }
+
+      const params = {
+        meterNumber: data.meterNumber,
+        userId: selectedUser.id,
+        estateId: selectedUser.estateId,
+        houseNumber: selectedUser.houseNumber,
+        ...(selectedUser.estateId === "OTHER" &&
+          selectedUser.onboardingEstateName && {
+            estateName: selectedUser.onboardingEstateName,
+          }),
+      };
+
+      linkMeter(params, {
+        onSuccess: () => {
+          setShowSuccess(true);
+          setTimeout(() => {
+            onClose();
+          }, 2000);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (error: any) => {
+          const errorMessage =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Failed to link meter. Please try again.";
+          setApiError(errorMessage);
+        },
+      });
     }
-
-    if (!selectedUser.houseNumber) {
-      setApiError("Selected user must have a house number");
-      return;
-    }
-
-    const params = {
-      meterNumber: data.meterNumber,
-      userId: selectedUser.id,
-      estateId: selectedUser.estateId,
-      houseNumber: selectedUser.houseNumber,
-      ...(selectedUser.estateId === "OTHER" &&
-        selectedUser.onboardingEstateName && {
-          estateName: selectedUser.onboardingEstateName,
-        }),
-    };
-
-    linkMeter(params, {
-      onSuccess: () => {
-        setShowSuccess(true);
-        // Auto close after 2 seconds
-        setTimeout(() => {
-          onClose();
-        }, 2000);
-      },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onError: (error: any) => {
-        const errorMessage =
-          error?.response?.data?.message ||
-          error?.message ||
-          "Failed to link meter. Please try again.";
-        setApiError(errorMessage);
-      },
-    });
   };
-
   if (showSuccess) {
     return (
       <Box
@@ -132,17 +192,18 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
             textAlign: "center",
           }}
         >
-          Linking Successful
+          {mode === "unlink" ? "Unlinking" : "Linking"} Successful
         </Typography>
       </Box>
     );
   }
 
-  // Check if meter number is valid
   const isValidMeterNumber =
     meterNumber &&
     /^\d{3}-\d{3}-\d{3}$/.test(meterNumber) &&
     !errors.meterNumber;
+
+  const isReadOnly = !!meterData;
 
   return (
     <Box
@@ -166,7 +227,7 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
             mb: "8px",
           }}
         >
-          Link a Meter
+          {mode === "unlink" ? "Unlink" : "Link"} a Meter
         </Typography>
         <Typography
           sx={{
@@ -176,7 +237,9 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
             color: "#414141",
           }}
         >
-          Connect a meter to a registered user
+          {mode === "unlink"
+            ? "Disconnect this meter from the registered user"
+            : "Connect a meter to a registered user"}
         </Typography>
       </Box>
 
@@ -234,7 +297,9 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
                 onBlur={onBlur}
                 error={!!errors.meterNumber}
                 helperText={errors.meterNumber?.message}
+                disabled={isReadOnly}
                 InputProps={{
+                  readOnly: isReadOnly,
                   endAdornment: isValidMeterNumber && (
                     <Box component="img" src={CheckIcon} alt="check" />
                   ),
@@ -244,15 +309,23 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
                     height: "56px",
                     fontSize: "16px",
                     borderRadius: "8px",
+                    backgroundColor: isReadOnly ? "#F5F5F5" : "transparent",
                     "& fieldset": {
                       borderColor: errors.meterNumber ? "#D32F2F" : "#E0E0E0",
                       borderWidth: "1.5px",
                     },
                     "&:hover fieldset": {
-                      borderColor: errors.meterNumber ? "#D32F2F" : "#669900",
+                      borderColor: isReadOnly
+                        ? "#E0E0E0"
+                        : errors.meterNumber
+                          ? "#D32F2F"
+                          : "#669900",
                     },
                     "&.Mui-focused fieldset": {
                       borderColor: errors.meterNumber ? "#D32F2F" : "#669900",
+                    },
+                    "&.Mui-disabled": {
+                      backgroundColor: "#F5F5F5",
                     },
                   },
                   "& .MuiFormHelperText-root": {
@@ -281,6 +354,7 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
             value={selectedUser}
             onChange={handleUserChange}
             error={errors.userId?.message}
+            disabled={mode === "unlink"}
           />
         </Box>
       </Box>
@@ -294,7 +368,7 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
             height: "48px",
             borderRadius: "32px",
             padding: "12px 24px",
-            backgroundColor: "#669900",
+            backgroundColor: mode === "unlink" ? "#EA0000" : "#669900",
             color: "#FFFFFF",
             fontWeight: 600,
             fontSize: "16px",
@@ -305,7 +379,7 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
             gap: "12px",
             minWidth: "150px",
             "&:hover": {
-              backgroundColor: "#558000",
+              backgroundColor: mode === "unlink" ? "#D50000" : "#558000",
             },
             "&:disabled": {
               backgroundColor: "#BDBDBD",
@@ -315,7 +389,7 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
         >
           {isPending ? (
             <>
-              Link
+              {mode === "unlink" ? "Unlink" : "Link"}
               <CircularProgress
                 size={20}
                 sx={{
@@ -325,7 +399,7 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({ onClose, open = true }) => {
             </>
           ) : (
             <>
-              Link
+              {mode === "unlink" ? "Unlink" : "Link"}
               <Box
                 component="img"
                 src={ButtonArrowIcon}

@@ -1,5 +1,3 @@
-// Meter API Types
-
 export interface MeterUser {
   id: string;
   firstName: string;
@@ -63,13 +61,17 @@ export interface MeterTableRow {
   meterId: string;
   meterNumber: string;
   user: string;
+  userId?: string;
   linkStatus: MeterLinkStatus;
   date: string;
   address: string;
   status: string;
   valveStatus: boolean;
+  estateId?: string;
+  houseNumber?: string;
+  estateName?: string;
+  deviceId?: string;
 }
-// Add these types to your existing meters.types.ts file
 
 export interface LinkMeterParams {
   meterNumber: string;
@@ -97,4 +99,40 @@ export interface LinkMeterResponse {
   status: string;
   message: string;
   data: LinkedMeter;
+}
+
+// meters.types.ts - Update these interfaces:
+
+export interface UnlinkMeterParams {
+  deviceId: string; // Changed from meterNumber to deviceId
+}
+
+export interface UnlinkedMeter {
+  id: string;
+  deviceId: string;
+  status: string;
+  userId: string | null;
+  valveStatus: boolean;
+  meterNumber: string;
+  estateId: string | null;
+  houseNumber: string | null;
+  estateName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UnlinkMeterResponse {
+  status: string; // Changed from success: boolean to status: string
+  message: string;
+  data: UnlinkedMeter; // Added data property
+}
+
+export interface MeterActionData {
+  deviceId: string;
+  meterNumber: string;
+  userId?: string;
+  userName?: string;
+  estateId?: string;
+  houseNumber?: string;
+  estateName?: string;
 }

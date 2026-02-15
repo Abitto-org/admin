@@ -1,14 +1,14 @@
 import { Box, Typography } from "@mui/material";
 import { NorthEast } from "@mui/icons-material";
-import { type FC, type ReactNode } from "react";
+import { type FC, type ReactNode, type MouseEvent } from "react";
 
 interface LinkTextProps {
   text: string;
-  onClick?: () => void;
-  icon?: ReactNode; // Optional custom icon (defaults to NorthEast)
-  showIcon?: boolean; // Whether to show icon (default: true)
-  color?: string; // Custom text color (default: #669900)
-  iconGap?: string; // Gap between text and icon (default: 4px)
+  onClick?: (event: MouseEvent<HTMLDivElement>) => void; // Updated to accept event
+  icon?: ReactNode;
+  showIcon?: boolean;
+  color?: string;
+  iconGap?: string;
 }
 
 const LinkText: FC<LinkTextProps> = ({
@@ -21,7 +21,7 @@ const LinkText: FC<LinkTextProps> = ({
 }) => {
   return (
     <Box
-      onClick={onClick}
+      onClick={onClick} // This will now pass the event
       sx={{
         display: "flex",
         alignItems: "center",

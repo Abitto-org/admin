@@ -6,17 +6,20 @@ import MetersTable from "@/components/ui/dashboard/MetersTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import { useGetMeters } from "@/hooks/useMeters";
 import useDisclosure from "@/hooks/useDisclosure";
-import CustomDrawer from "@/components/ui/drawers/CustomDrawer";
-import LinkMeterForm from "@/components/ui/dashboard/LinkMeterForm";
+import LinkMeterDrawer from "@/components/ui/drawers/LinkMeterDrawer";
+import type { MeterActionData } from "@/types/meters.types";
 
 const Meters: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterValue, setFilterValue] = useState<string>("all");
+  const [drawerMode, setDrawerMode] = useState<"link" | "unlink">("link");
+  const [selectedMeterData, setSelectedMeterData] = useState<
+    MeterActionData | undefined
+  >();
 
   const linkMeterDrawer = useDisclosure();
 
-  // Prepare query params
   const queryParams = useMemo(() => {
     const params: {
       page: number;
@@ -41,18 +44,34 @@ const Meters: FC = () => {
     return params;
   }, [currentPage, searchQuery, filterValue]);
 
-  // Fetch meters data
   const { data, isLoading } = useGetMeters(queryParams);
-  console.log("Meters data:", data);
 
-  // Extract stats
   const stats = data?.data?.stats || { total: 0, linked: 0, unlinked: 0 };
 
-  // Calculate percentages
   const linkedPercentage =
     stats.total > 0 ? Math.round((stats.linked / stats.total) * 100) : 0;
   const unlinkedPercentage =
     stats.total > 0 ? Math.round((stats.unlinked / stats.total) * 100) : 0;
+
+  const handleActionClick = (
+    action: "link" | "unlink" | "view",
+    meterData: MeterActionData,
+  ) => {
+    if (action === "view") {
+      console.log("View meter:", meterData);
+      // Navigate to meter details or open view modal
+    } else {
+      setDrawerMode(action);
+      setSelectedMeterData(meterData);
+      linkMeterDrawer.onOpen();
+    }
+  };
+
+  const handleNewLinkClick = () => {
+    setDrawerMode("link");
+    setSelectedMeterData(undefined);
+    linkMeterDrawer.onOpen();
+  };
 
   return (
     <>
@@ -67,7 +86,6 @@ const Meters: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        {/* Title and Subtitle */}
         <Box>
           <Typography
             variant="h1"
@@ -93,7 +111,6 @@ const Meters: FC = () => {
           </Typography>
         </Box>
 
-        {/* Action Buttons */}
         <Stack
           direction="row"
           spacing="16px"
@@ -102,7 +119,7 @@ const Meters: FC = () => {
           }}
         >
           <Button
-            onClick={linkMeterDrawer.onOpen}
+            onClick={handleNewLinkClick}
             sx={{
               height: "48px",
               borderRadius: "32px",
@@ -186,16 +203,14 @@ const Meters: FC = () => {
         onFilterChange={setFilterValue}
         data={data}
         isLoading={isLoading}
+        onActionClick={handleActionClick}
       />
-      <CustomDrawer
-        open={linkMeterDrawer.open}
-        onClose={linkMeterDrawer.onClose}
-      >
-        <LinkMeterForm
-          onClose={linkMeterDrawer.onClose}
-          open={linkMeterDrawer.open}
-        />
-      </CustomDrawer>
+
+      <LinkMeterDrawer
+        linkMeterDrawer={linkMeterDrawer}
+        mode={drawerMode}
+        meterData={selectedMeterData}
+      />
     </>
   );
 };

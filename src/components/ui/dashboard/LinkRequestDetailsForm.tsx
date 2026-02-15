@@ -10,6 +10,7 @@ import { useReviewLinkRequest } from "@/hooks/useLinkRequests";
 import type { LinkRequestDetailsData } from "@/types/linkRequests.types";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import SuccessIcon from "@/assets/success.svg";
+import { formatDate } from "@/utils";
 
 interface LinkRequestDetailsFormProps {
   onClose: () => void;
@@ -99,28 +100,14 @@ const LinkRequestDetailsForm: FC<LinkRequestDetailsFormProps> = ({
     );
   }
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      return `${day}-${month}-${year} | ${hours}:${minutes}`;
-    } catch {
-      return "N/A";
-    }
-  };
-
-  const isRequestPending = requestData.status === "pending"; // Renamed from isPending
+  const isRequestPending = requestData.status === "pending";
 
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "100%",
+        // height: "100%",
       }}
     >
       {/* Header */}
@@ -211,7 +198,6 @@ const LinkRequestDetailsForm: FC<LinkRequestDetailsFormProps> = ({
         {/* Request Details */}
         <Box sx={{ mb: 3 }}>
           <DetailRow label="Meter Number" value={requestData.meterNumber} />
-          <DetailRow label="Device ID" value={requestData.deviceId} />
           <DetailRow label="User Name" value={requestData.userName} />
           <DetailRow label="User Email" value={requestData.userEmail} />
           <DetailRow label="Request Type" value={requestData.requestType} />
@@ -274,7 +260,7 @@ const LinkRequestDetailsForm: FC<LinkRequestDetailsFormProps> = ({
       {isRequestPending && (
         <Box
           sx={{
-            mt: 4,
+            // mb: 10,
             display: "flex",
             gap: 2,
             justifyContent: "flex-end",
@@ -283,7 +269,7 @@ const LinkRequestDetailsForm: FC<LinkRequestDetailsFormProps> = ({
           {/* Reject Button */}
           <Button
             onClick={() => handleReview("rejected")}
-            disabled={isReviewing} // Using isReviewing instead of isPending
+            disabled={isReviewing}
             sx={{
               height: "48px",
               borderRadius: "32px",
@@ -328,7 +314,7 @@ const LinkRequestDetailsForm: FC<LinkRequestDetailsFormProps> = ({
           {/* Approve Button */}
           <Button
             onClick={() => handleReview("approved")}
-            disabled={isReviewing} // Using isReviewing instead of isPending
+            disabled={isReviewing}
             sx={{
               height: "48px",
               borderRadius: "32px",

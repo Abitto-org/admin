@@ -1,3 +1,4 @@
+// LinkRequestsTable.tsx - Add dummy data for testing
 import { type FC, useMemo } from "react";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
@@ -27,7 +28,7 @@ interface LinkRequestsTableProps {
   onFilterChange: (value: string) => void;
   data: GetLinkRequestsResponse | undefined;
   isLoading: boolean;
-  onViewRequest: (requestData: LinkRequestDetailsData) => void; // Add this
+  onViewRequest: (requestData: LinkRequestDetailsData) => void;
 }
 
 const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
@@ -38,10 +39,9 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
   onFilterChange,
   data,
   isLoading,
-  onViewRequest, // Add this
+  onViewRequest,
 }) => {
   const handleViewRequest = (row: LinkRequestTableRow) => {
-    // Find the full request data from the API response
     const fullRequest = data?.data?.requests.find(
       (item) => item.request.id === row.id,
     );

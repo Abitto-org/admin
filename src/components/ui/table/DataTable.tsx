@@ -4,6 +4,8 @@ import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import SearchFilter from "./SearchFilter";
 import Pagination from "./Pagination";
 import { type DataTableProps } from "./types";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const DataTable: FC<DataTableProps> = ({
   title,
@@ -54,17 +56,14 @@ const DataTable: FC<DataTableProps> = ({
           justifyContent: "space-between",
           alignItems: { xs: "flex-start", sm: "center" },
           gap: { xs: "16px", sm: "12px" },
-          mb: "24px",
+          mb: 1,
         }}
       >
-        {/* Title */}
         <Box>
           <Typography
             sx={{
               fontWeight: 700,
               fontSize: "16px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
               textTransform: "capitalize",
               color: "#000000",
               mb: "4px",
@@ -72,13 +71,12 @@ const DataTable: FC<DataTableProps> = ({
           >
             {title}
           </Typography>
+
           {subtitle && (
             <Typography
               sx={{
                 fontWeight: 500,
                 fontSize: "14px",
-                lineHeight: "100%",
-                letterSpacing: "-1%",
                 textTransform: "capitalize",
                 color: "#424242",
                 mt: "12px",
@@ -89,7 +87,6 @@ const DataTable: FC<DataTableProps> = ({
           )}
         </Box>
 
-        {/* Search and Filter */}
         {(searchable || filterable || showDateFilters || showTypeFilter) && (
           <SearchFilter
             searchable={searchable}
@@ -109,6 +106,129 @@ const DataTable: FC<DataTableProps> = ({
             typeFilterValue={typeFilterValue}
             onTypeFilterChange={onTypeFilterChange}
           />
+        )}
+      </Box>
+
+      {/* Date Filters */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "end",
+          mb: 2.5,
+          width: "100%",
+          gap: 1,
+        }}
+      >
+        {showDateFilters && (
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              value={startDate}
+              onChange={onStartDateChange}
+              format="dd/MM/yyyy"
+              slotProps={{
+                textField: {
+                  size: "small",
+                  placeholder: "Start",
+                  inputProps: { placeholder: "Start" },
+                  sx: {
+                    minWidth: "120px",
+                    "& .MuiOutlinedInput-root": {
+                      height: "26px",
+                      minHeight: "26px",
+                      borderRadius: "4px",
+                      padding: "0 4px",
+                      backgroundColor: "#FAFAFA",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      color: "#808080",
+                      "& fieldset": { border: "none" },
+                      "& input": {
+                        padding: "0 4px",
+                        height: "26px",
+                        minWidth: "50px",
+                        "&::placeholder": {
+                          color: "#808080",
+                          opacity: 1,
+                          fontSize: "14px",
+                        },
+                      },
+                    },
+                    "& .MuiInputAdornment-root": {
+                      marginLeft: 0,
+                    },
+                  },
+                },
+                openPickerIcon: { fontSize: "small" },
+                openPickerButton: {
+                  sx: {
+                    padding: "0",
+                    marginRight: 0,
+                    width: "20px",
+                    height: "20px",
+                    "& .MuiSvgIcon-root": {
+                      width: "16px",
+                      height: "16px",
+                      color: "#808080",
+                    },
+                  },
+                },
+              }}
+            />
+
+            <DatePicker
+              value={endDate}
+              onChange={onEndDateChange}
+              format="dd/MM/yyyy"
+              slotProps={{
+                textField: {
+                  size: "small",
+                  placeholder: "End",
+                  inputProps: { placeholder: "End" },
+                  sx: {
+                    minWidth: "120px",
+                    "& .MuiOutlinedInput-root": {
+                      height: "26px",
+                      minHeight: "26px",
+                      borderRadius: "4px",
+                      padding: "0 4px",
+                      backgroundColor: "#FAFAFA",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      color: "#808080",
+                      "& fieldset": { border: "none" },
+                      "& input": {
+                        padding: "0 4px",
+                        height: "26px",
+                        minWidth: "50px",
+                        "&::placeholder": {
+                          color: "#808080",
+                          opacity: 1,
+                          fontSize: "14px",
+                        },
+                      },
+                    },
+                    "& .MuiInputAdornment-root": {
+                      marginLeft: 0,
+                    },
+                  },
+                },
+                openPickerIcon: { fontSize: "small" },
+                openPickerButton: {
+                  sx: {
+                    padding: "0",
+                    marginRight: 0,
+                    width: "20px",
+                    height: "20px",
+                    "& .MuiSvgIcon-root": {
+                      width: "16px",
+                      height: "16px",
+                      color: "#808080",
+                    },
+                  },
+                },
+              }}
+            />
+          </LocalizationProvider>
         )}
       </Box>
 

@@ -1,7 +1,5 @@
 import { Box, InputBase, MenuItem, Select, Typography } from "@mui/material";
 import { type FC, useState } from "react";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import CategoryIcon from "@mui/icons-material/Category";
 import SearchIcon from "@/assets/icons/search.svg";
 import FilterIcon from "@/assets/icons/filter.svg";
@@ -16,10 +14,6 @@ const SearchFilter: FC<SearchFilterProps> = ({
   onFilterChange,
   defaultFilterValue = "filter",
   showDateFilters = false,
-  startDate,
-  endDate,
-  onStartDateChange,
-  onEndDateChange,
   showTypeFilter = false,
   typeFilterOptions = [],
   typeFilterValue = "all",
@@ -278,130 +272,6 @@ const SearchFilter: FC<SearchFilterProps> = ({
             </MenuItem>
           ))}
         </Select>
-      )}
-
-      {/* Date Filters */}
-      {showDateFilters && (
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            value={startDate}
-            onChange={onStartDateChange}
-            slotProps={{
-              textField: {
-                size: "small",
-                placeholder: "Start",
-                InputLabelProps: { shrink: false },
-                sx: {
-                  minWidth: "120px",
-                  "& .MuiOutlinedInput-root": {
-                    height: "26px",
-                    minHeight: "26px",
-                    borderRadius: "4px",
-                    padding: "0 4px",
-                    backgroundColor: "#FAFAFA",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    color: "#808080",
-                    "& fieldset": {
-                      border: "none",
-                    },
-                    "& input": {
-                      padding: "0 4px",
-                      height: "26px",
-                      minWidth: "50px",
-                      "&::placeholder": {
-                        color: "#808080",
-                        opacity: 1,
-                        fontSize: "14px",
-                      },
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    display: "none",
-                  },
-                  "& .MuiInputAdornment-root": {
-                    marginLeft: 0,
-                  },
-                },
-              },
-              openPickerIcon: {
-                fontSize: "small",
-              },
-              openPickerButton: {
-                sx: {
-                  padding: "0",
-                  marginRight: 0,
-                  width: "20px",
-                  height: "20px",
-                  "& .MuiSvgIcon-root": {
-                    width: "16px",
-                    height: "16px",
-                    color: "#808080",
-                  },
-                },
-              },
-            }}
-          />
-          <DatePicker
-            value={endDate}
-            onChange={onEndDateChange}
-            slotProps={{
-              textField: {
-                size: "small",
-                placeholder: "End",
-                InputLabelProps: { shrink: false },
-                sx: {
-                  minWidth: "120px",
-                  "& .MuiOutlinedInput-root": {
-                    height: "26px",
-                    minHeight: "26px",
-                    borderRadius: "4px",
-                    padding: "0 4px",
-                    backgroundColor: "#FAFAFA",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    color: "#808080",
-                    "& fieldset": {
-                      border: "none",
-                    },
-                    "& input": {
-                      padding: "0 4px",
-                      height: "26px",
-                      minWidth: "50px",
-                      "&::placeholder": {
-                        color: "#808080",
-                        opacity: 1,
-                        fontSize: "14px",
-                      },
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    display: "none",
-                  },
-                  "& .MuiInputAdornment-root": {
-                    marginLeft: 0,
-                  },
-                },
-              },
-              openPickerIcon: {
-                fontSize: "small",
-              },
-              openPickerButton: {
-                sx: {
-                  padding: "0",
-                  marginRight: 0,
-                  width: "20px",
-                  height: "20px",
-                  "& .MuiSvgIcon-root": {
-                    width: "16px",
-                    height: "16px",
-                    color: "#808080",
-                  },
-                },
-              },
-            }}
-          />
-        </LocalizationProvider>
       )}
     </Box>
   );

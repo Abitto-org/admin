@@ -122,107 +122,32 @@ const DataTable: FC<DataTableProps> = ({
         {showDateFilters && (
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
+              label="Start Date"
               value={startDate}
               onChange={onStartDateChange}
-              format="dd/MM/yyyy"
               slotProps={{
                 textField: {
                   size: "small",
-                  placeholder: "Start",
-                  inputProps: { placeholder: "Start" },
                   sx: {
-                    minWidth: "120px",
+                    minWidth: "220px",
                     "& .MuiOutlinedInput-root": {
-                      height: "26px",
-                      minHeight: "26px",
-                      borderRadius: "4px",
-                      padding: "0 4px",
-                      backgroundColor: "#FAFAFA",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      color: "#808080",
-                      "& fieldset": { border: "none" },
-                      "& input": {
-                        padding: "0 4px",
-                        height: "26px",
-                        minWidth: "50px",
-                        "&::placeholder": {
-                          color: "#808080",
-                          opacity: 1,
-                          fontSize: "14px",
-                        },
-                      },
-                    },
-                    "& .MuiInputAdornment-root": {
-                      marginLeft: 0,
-                    },
-                  },
-                },
-                openPickerIcon: { fontSize: "small" },
-                openPickerButton: {
-                  sx: {
-                    padding: "0",
-                    marginRight: 0,
-                    width: "20px",
-                    height: "20px",
-                    "& .MuiSvgIcon-root": {
-                      width: "16px",
-                      height: "16px",
-                      color: "#808080",
+                      borderRadius: "8px",
                     },
                   },
                 },
               }}
             />
-
             <DatePicker
+              label="End Date"
               value={endDate}
               onChange={onEndDateChange}
-              format="dd/MM/yyyy"
               slotProps={{
                 textField: {
                   size: "small",
-                  placeholder: "End",
-                  inputProps: { placeholder: "End" },
                   sx: {
-                    minWidth: "120px",
+                    minWidth: "200px",
                     "& .MuiOutlinedInput-root": {
-                      height: "26px",
-                      minHeight: "26px",
-                      borderRadius: "4px",
-                      padding: "0 4px",
-                      backgroundColor: "#FAFAFA",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      color: "#808080",
-                      "& fieldset": { border: "none" },
-                      "& input": {
-                        padding: "0 4px",
-                        height: "26px",
-                        minWidth: "50px",
-                        "&::placeholder": {
-                          color: "#808080",
-                          opacity: 1,
-                          fontSize: "14px",
-                        },
-                      },
-                    },
-                    "& .MuiInputAdornment-root": {
-                      marginLeft: 0,
-                    },
-                  },
-                },
-                openPickerIcon: { fontSize: "small" },
-                openPickerButton: {
-                  sx: {
-                    padding: "0",
-                    marginRight: 0,
-                    width: "20px",
-                    height: "20px",
-                    "& .MuiSvgIcon-root": {
-                      width: "16px",
-                      height: "16px",
-                      color: "#808080",
+                      borderRadius: "8px",
                     },
                   },
                 },

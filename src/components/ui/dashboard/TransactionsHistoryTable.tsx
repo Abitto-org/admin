@@ -1,4 +1,3 @@
-// TransactionsHistoryTable.tsx - Simplified version
 import { type FC, useMemo } from "react";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
@@ -10,7 +9,7 @@ import type {
   GetTransactionsResponse,
   Transaction,
 } from "@/types/transactions.types";
-import { formatDate } from "@/utils";
+import { formatAmount, formatDate } from "@/utils";
 
 const badgeConfig: BadgeConfig = {
   status: {
@@ -21,47 +20,51 @@ const badgeConfig: BadgeConfig = {
 };
 
 interface TransactionsHistoryTableProps {
-  currentPage: number;
-  onPageChange: (page: number) => void;
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-  filterValue: string;
-  onFilterChange: (value: string) => void;
-  typeFilter: string;
-  onTypeFilterChange: (value: string) => void;
-  startDate: Date | null;
-  endDate: Date | null;
-  onStartDateChange: (date: Date | null) => void;
-  onEndDateChange: (date: Date | null) => void;
+  // Mode props
+  mode?: "widget" | "full"; // widget = dashboard view, full = transactions page
+  showViewAllButton?: boolean;
+  onViewAll?: () => void;
+
+  // Data props
   data: GetTransactionsResponse | undefined;
   isLoading: boolean;
-  onViewTransaction: (id: string) => void;
+
+  // Full mode props (only used when mode="full")
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
+  filterValue?: string;
+  onFilterChange?: (value: string) => void;
+  typeFilter?: string;
+  onTypeFilterChange?: (value: string) => void;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  onStartDateChange?: (date: Date | null) => void;
+  onEndDateChange?: (date: Date | null) => void;
+  onViewTransaction?: (id: string) => void;
 }
 
 const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
-  currentPage,
-  onPageChange,
-  onSearchChange,
-  filterValue,
-  onFilterChange,
-  typeFilter,
-  onTypeFilterChange,
-  startDate,
-  endDate,
-  onStartDateChange,
-  onEndDateChange,
+  mode = "full",
+  showViewAllButton = false,
+  onViewAll,
   data,
   isLoading,
+  currentPage = 1,
+  onPageChange,
+  // searchQuery = "",
+  onSearchChange,
+  filterValue = "all",
+  onFilterChange,
+  typeFilter = "all",
+  onTypeFilterChange,
+  startDate = null,
+  endDate = null,
+  onStartDateChange,
+  onEndDateChange,
   onViewTransaction,
 }) => {
-  const formatAmount = (amount: string) => {
-    const numAmount = Number.parseFloat(amount);
-    return `₦${(numAmount / 100).toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  };
-
   const getGasUnit = (transaction: Transaction): string => {
     if (transaction.type === "GAS_PURCHASE_ONLINE") {
       const metadata = transaction.metadata;
@@ -76,23 +79,29 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
   };
 
   const handleSearchChange = (value: string) => {
-    onSearchChange(value);
+    onSearchChange?.(value);
   };
 
   const handleFilterChange = (value: string) => {
-    onFilterChange(value);
-    onPageChange(1);
+    onFilterChange?.(value);
+    onPageChange?.(1);
   };
 
   const handleTypeFilterChange = (value: string) => {
-    onTypeFilterChange(value);
-    onPageChange(1);
+    onTypeFilterChange?.(value);
+    onPageChange?.(1);
   };
 
   const tableData: TransactionTableRow[] = useMemo(() => {
     if (!data?.data?.transactions) return [];
 
-    return data.data.transactions.map((transaction) => {
+    const transactions = data.data.transactions;
+
+    // In widget mode, only show first 8 transactions
+    const displayTransactions =
+      mode === "widget" ? transactions.slice(0, 8) : transactions;
+
+    return displayTransactions.map((transaction) => {
       const getStatusForBadge = (status: string): TransactionStatusType => {
         if (status === "SUCCESS") return "success";
         if (status === "FAILED") return "failed";
@@ -104,13 +113,13 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
         timestamp: formatDate(transaction.createdAt),
         user: transaction.userName || "N/A",
         type: transaction.type.replace(/_/g, " "),
-        amount: formatAmount(transaction.amount),
+        amount: formatAmount(Number(transaction.amount)),
         gasUnit: getGasUnit(transaction),
         status: getStatusForBadge(transaction.status),
         reference: transaction.reference,
       };
     });
-  }, [data]);
+  }, [data, mode]);
 
   const columns: Column<TransactionTableRow>[] = [
     {
@@ -151,7 +160,7 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
       renderCell: (_, row) => (
         <LinkText
           text="View"
-          onClick={() => onViewTransaction(row.id)}
+          onClick={() => onViewTransaction?.(row.id)}
           showIcon={false}
         />
       ),
@@ -172,6 +181,30 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
     { label: "Wallet Debit", value: "WALLET_DEBIT" },
   ];
 
+  // Widget mode: No search, filters, or pagination
+  if (mode === "widget") {
+    return (
+      <DataTable
+        title="Transactions"
+        subtitle="Recent Activity"
+        columns={columns}
+        data={tableData}
+        searchable={false}
+        filterable={false}
+        showDateFilters={false}
+        showTypeFilter={false}
+        currentPage={1}
+        totalPages={1}
+        isLoading={isLoading}
+        skeletonRows={8}
+        showViewAllButton={showViewAllButton}
+        viewAllButtonText="View All Transactions"
+        onViewAll={onViewAll}
+      />
+    );
+  }
+
+  // Full mode: With all filters and pagination
   return (
     <DataTable
       title="Transactions"
@@ -194,7 +227,6 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
       typeFilterOptions={typeFilterOptions}
       typeFilterValue={typeFilter}
       onTypeFilterChange={handleTypeFilterChange}
-      // Pagination
       currentPage={currentPage}
       totalPages={data?.data?.pagination?.totalPages || 1}
       onPageChange={onPageChange}

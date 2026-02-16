@@ -3,14 +3,19 @@ import { type FC, useState, useMemo } from "react";
 import StatCard from "@/components/ui/dashboard/StatCard";
 import StatCardSkeleton from "@/components/ui/dashboard/StatCardSkeleton";
 import UsersTable from "@/components/ui/dashboard/UsersTable";
+import UserDrawer from "@/components/ui/drawers/UserDrawer";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import LinkText from "@/components/ui/dashboard/LinkText";
 import { useGetUsers } from "@/hooks/useUsers";
+import useDisclosure from "@/hooks/useDisclosure";
+import type { User } from "@/types/users.types";
 
 const Users: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterValue, setFilterValue] = useState<string>("all");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const userDrawer = useDisclosure();
 
   const handleRegisterUser = () => {
     console.log("Register new user clicked");
@@ -20,7 +25,11 @@ const Users: FC = () => {
     console.log("View link request clicked");
   };
 
-  // Prepare query params
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    userDrawer.onOpen();
+  };
+
   const queryParams = useMemo(() => {
     const params: {
       page: number;
@@ -45,11 +54,9 @@ const Users: FC = () => {
     return params;
   }, [currentPage, searchQuery, filterValue]);
 
-  // Fetch users data
   const { data, isLoading } = useGetUsers(queryParams);
   console.log("Users data:", data);
 
-  // Extract stats
   const stats = data?.data?.stats || {
     totalUsers: 0,
     joinedToday: 0,
@@ -198,7 +205,10 @@ const Users: FC = () => {
         onFilterChange={setFilterValue}
         data={data}
         isLoading={isLoading}
+        onViewUser={handleViewUser}
       />
+
+      <UserDrawer userDrawer={userDrawer} user={selectedUser} />
     </>
   );
 };

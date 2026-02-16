@@ -1,12 +1,5 @@
 import type { JSX } from "react";
-
-export interface User {
-  firstName: string;
-  lastName: string;
-  role: string;
-  email?: string;
-  avatar?: string;
-}
+import type { User } from "./users.types";
 
 export interface NavLink {
   label: string;

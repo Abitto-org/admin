@@ -10,3 +10,13 @@ export const useGetUsers = (params: GetUsersParams) => {
     retry: 2,
   });
 };
+
+export const useGetUserMeters = (userId: string) => {
+  return useQuery({
+    queryKey: ["userMeters", userId],
+    queryFn: () => usersApi.getUserMeters(userId),
+    enabled: !!userId,
+    staleTime: 30000,
+    retry: 2,
+  });
+};

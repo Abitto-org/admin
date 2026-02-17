@@ -1,3 +1,5 @@
+import type { Meter } from "./meters.types";
+
 export interface GetProfileResponseData {
   user: User;
 }
@@ -5,7 +7,6 @@ export interface GetProfileResponseData {
 export type GetProfileResponse =
   import("./api.types").ApiResponse<GetProfileResponseData>;
 
-// User API Types
 export interface User {
   id: string;
   email: string;
@@ -80,7 +81,15 @@ export interface GetUsersParams {
   isActive?: boolean;
 }
 
-// Table row type for UI
+export interface GetUserMetersResponse {
+  status: string;
+  message: string;
+  data: {
+    meters: Meter[];
+    count: number;
+  };
+}
+
 export interface UserTableRow {
   id: string;
   name: string;

@@ -21,7 +21,6 @@ const Dashboard: FC = () => {
   const linkMeterDrawer = useDisclosure();
   const navigate = useNavigate();
 
-  // Fetch only recent transactions for dashboard (limit 8)
   const queryParams = useMemo(
     () => ({
       page: 1,

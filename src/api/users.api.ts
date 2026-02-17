@@ -3,6 +3,7 @@ import type {
   GetProfileResponse,
   GetUsersParams,
   GetUsersResponse,
+  GetUserMetersResponse,
 } from "@/types/users.types";
 
 export const usersApi = {
@@ -19,6 +20,12 @@ export const usersApi = {
         ...(params.search && { search: params.search }),
       },
     });
+    return response.data;
+  },
+  getUserMeters: async (userId: string): Promise<GetUserMetersResponse> => {
+    const response = await http.get<GetUserMetersResponse>(
+      `/user/admin/users/${userId}/meters`,
+    );
     return response.data;
   },
 };

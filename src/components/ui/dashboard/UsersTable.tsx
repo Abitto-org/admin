@@ -3,7 +3,7 @@ import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
 import Badge from "../table/Badge";
 import LinkText from "./LinkText";
-import type { UserTableRow, GetUsersResponse } from "@/types/users.types";
+import type { UserTableRow, GetUsersResponse, User } from "@/types/users.types";
 
 // Badge color configuration
 const badgeConfig: BadgeConfig = {
@@ -26,6 +26,7 @@ interface UsersTableProps {
   onFilterChange: (value: string) => void;
   data: GetUsersResponse | undefined;
   isLoading: boolean;
+  onViewUser: (user: User) => void;
 }
 
 const UsersTable: FC<UsersTableProps> = ({
@@ -36,12 +37,8 @@ const UsersTable: FC<UsersTableProps> = ({
   onFilterChange,
   data,
   isLoading,
+  onViewUser,
 }) => {
-  const handleViewUser = (id: string) => {
-    console.log("View user:", id);
-    // Navigate to user details page or open modal
-  };
-
   const handleSearchChange = (value: string) => {
     onSearchChange(value);
   };
@@ -149,9 +146,13 @@ const UsersTable: FC<UsersTableProps> = ({
     {
       key: "actions",
       label: "Action",
-      renderCell: (_, row) => (
-        <LinkText text="View" onClick={() => handleViewUser(row.id)} />
-      ),
+      renderCell: (_, row) => {
+        // Find the original user object from the data
+        const user = data?.data?.users.find((u) => u.id === row.id);
+        return (
+          <LinkText text="View" onClick={() => user && onViewUser(user)} />
+        );
+      },
     },
   ];
 

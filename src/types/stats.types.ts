@@ -25,7 +25,8 @@ export interface GasSoldStats {
 }
 
 export interface UsageChartPoint {
-  [key: string]: unknown;
+  date: string;
+  totalKg: number;
 }
 
 export interface UsageStats {

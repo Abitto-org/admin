@@ -3,7 +3,7 @@ import { useMemo, useState, type FC } from "react";
 import StatCard from "@/components/ui/dashboard/StatCard";
 import TrendText from "@/components/ui/dashboard/TrendText";
 import LinkText from "@/components/ui/dashboard/LinkText";
-import RangeSelect from "@/components/ui/dashboard/RangeSelect";
+// import RangeSelect from "@/components/ui/dashboard/RangeSelect";
 import TotalUsageChart from "@/components/ui/dashboard/TotalUsageChart";
 import MeterComparisonChart from "@/components/ui/dashboard/MeterComparisonChart";
 import RecentActivity from "@/components/ui/dashboard/RecentActivity";
@@ -33,7 +33,7 @@ const Dashboard: FC = () => {
 
   const { data: statsData, isLoading: statsLoading } = useGetStats();
   const stats = statsData?.data;
-
+  console.log("Stats: ", stats);
   const queryParams = useMemo(
     () => ({
       page: 1,
@@ -202,7 +202,7 @@ const Dashboard: FC = () => {
                   color="#414141"
                 />
               }
-              action={<RangeSelect defaultValue="Today" />}
+              // action={<RangeSelect defaultValue="Today" />}
               subtextGap="4px"
             />
 

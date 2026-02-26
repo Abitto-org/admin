@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import CustomDrawer from "./CustomDrawer";
-import TransactionDetailsForm from "../dashboard/TransactionDetailsForm";
+import TransactionDetailsForm from "../forms/TransactionDetailsForm";
 import { Box, Typography } from "@mui/material";
 
 interface TransactionDrawerProps {

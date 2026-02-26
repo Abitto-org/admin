@@ -1,20 +1,30 @@
 import { Box, Typography, Stack } from "@mui/material";
-import { type FC } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import LinkText from "./LinkText";
+import { useGetMeters } from "@/hooks/useMeters";
+import { useNavigate } from "react-router-dom";
 
-const dummyData = [
-  { name: "Registered Meters", value: 70, color: "#3266CC" },
-  { name: "Linked Meters", value: 30, color: "#669900" },
-];
+const COLORS = {
+  registered: "#3266CC",
+  linked: "#669900",
+};
 
-const MeterComparisonChart: FC = () => {
-  const linkedPercentage = Math.round(
-    (dummyData[1].value / (dummyData[0].value + dummyData[1].value)) * 100,
-  );
+const MeterComparisonChart = () => {
+  const { data, isLoading } = useGetMeters({ page: 1, limit: 1 });
+  const navigate = useNavigate();
+
+  const stats = data?.data?.stats || { total: 0, linked: 0, unlinked: 0 };
+
+  const chartData = [
+    { name: "Registered Meters", value: stats.total, color: COLORS.registered },
+    { name: "Linked Meters", value: stats.linked, color: COLORS.linked },
+  ];
+
+  const linkedPercentage =
+    stats.total > 0 ? Math.round((stats.linked / stats.total) * 100) : 0;
 
   const handleViewMeters = () => {
-    console.log("View meters clicked");
+    navigate("/meters");
   };
 
   return (
@@ -70,7 +80,7 @@ const MeterComparisonChart: FC = () => {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={dummyData}
+              data={chartData}
               cx="50%"
               cy="50%"
               innerRadius={80}
@@ -78,7 +88,7 @@ const MeterComparisonChart: FC = () => {
               paddingAngle={0}
               dataKey="value"
             >
-              {dummyData.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
@@ -114,7 +124,7 @@ const MeterComparisonChart: FC = () => {
                 mb: "8px",
               }}
             >
-              {linkedPercentage}%
+              {isLoading ? "..." : `${linkedPercentage}%`}
             </Typography>
             <Typography
               sx={{
@@ -134,7 +144,7 @@ const MeterComparisonChart: FC = () => {
         </Box>
       </Box>
 
-      {/* Legend and View Link */}
+      {/* Legend */}
       <Box
         sx={{
           display: "flex",
@@ -143,9 +153,8 @@ const MeterComparisonChart: FC = () => {
           mt: "16px",
         }}
       >
-        {/* Legend */}
         <Stack direction="row" spacing="16px">
-          {dummyData.map((item, index) => (
+          {chartData.map((item, index) => (
             <Box
               key={index}
               sx={{

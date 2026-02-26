@@ -172,7 +172,6 @@ const UserDetailsForm: FC<UserDetailsFormProps> = ({ onClose, user }) => {
         {/* Location Information */}
         <SectionTitle title="Location Information" />
         <Box>
-          <DetailRow label="Estate ID" value={user.estateId || "N/A"} />
           <DetailRow label="House Number" value={user.houseNumber || "N/A"} />
           <DetailRow
             label="Onboarding Estate"
@@ -499,6 +498,7 @@ const DetailRow: FC<{ label: string; value: string | React.ReactNode }> = ({
         textAlign: "right",
         flex: 1,
         wordBreak: "break-word",
+        textTransform: "capitalize",
       }}
     >
       {value}

@@ -100,3 +100,22 @@ export interface UserTableRow {
   meterLinked: boolean;
   dateJoined: string;
 }
+
+export interface RegisterUserParams {
+  firstName: string;
+  lastName: string;
+  gender: string;
+  phoneNumber: string;
+  estateId: string;
+  estateName?: string;
+  houseNumber: string;
+  nin: string;
+  user_email: string;
+  meterNumber?: string;
+}
+
+export interface RegisterUserResponse {
+  status: string;
+  message: string;
+  data?: User;
+}

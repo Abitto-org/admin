@@ -46,12 +46,18 @@ const Meters: FC = () => {
 
   const { data, isLoading } = useGetMeters(queryParams);
 
-  const stats = data?.data?.stats || { total: 0, linked: 0, unlinked: 0 };
+  const stats = data?.data?.stats || {
+    total: 0,
+    linked: 0,
+    registered: 0,
+    unregistered: 0,
+    active: 0,
+  };
 
   const linkedPercentage =
     stats.total > 0 ? Math.round((stats.linked / stats.total) * 100) : 0;
   const unlinkedPercentage =
-    stats.total > 0 ? Math.round((stats.unlinked / stats.total) * 100) : 0;
+    stats.total > 0 ? Math.round((stats.unregistered / stats.total) * 100) : 0;
 
   const handleActionClick = (
     action: "link" | "unlink" | "view",
@@ -72,6 +78,7 @@ const Meters: FC = () => {
     setSelectedMeterData(undefined);
     linkMeterDrawer.onOpen();
   };
+  console.log("Meters data:", data); // Debugging log
 
   return (
     <>
@@ -176,20 +183,20 @@ const Meters: FC = () => {
           <>
             <StatCard
               label="Total Meters"
-              value={stats.total.toString()}
+              value={stats.total?.toString()}
               subtext="Total Available Meters"
               subtextColor="#2EAE4E"
             />
             <StatCard
               label="Total Linked Meters"
-              value={stats.linked.toString()}
+              value={stats.linked?.toString()}
               subtext={`${linkedPercentage}% of meters has been linked`}
             />
             <StatCard
-              label="Unlinked Meters"
-              value={stats.unlinked.toString()}
-              subtext={`${unlinkedPercentage}% of meters has been unlinked`}
-            />
+  label="Unlinked Meters"
+  value={stats.unregistered?.toString()}
+  subtext={`${unlinkedPercentage}% of meters has been unlinked`}
+/>
           </>
         )}
       </Box>

@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import CustomDrawer from "./CustomDrawer";
-import AddEstateForm from "../dashboard/AddEstateForm";
+import AddEstateForm from "../forms/AddEstateForm";
 
 interface AddEstateDrawerProps {
   addEstateDrawer: {

@@ -26,8 +26,10 @@ export interface MeterWithUser {
 
 export interface MeterStats {
   total: number;
+  active: number;
+  registered: number;
+  unregistered: number;
   linked: number;
-  unlinked: number;
 }
 
 export interface MeterPagination {

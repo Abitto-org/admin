@@ -1,70 +1,16 @@
-import { type FC, useState } from "react";
+// LinkRequestsTable.tsx - Add dummy data for testing
+import { type FC, useMemo } from "react";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
 import Badge from "../table/Badge";
 import LinkText from "./LinkText";
+import type {
+  LinkRequestTableRow,
+  LinkRequestStatus,
+  GetLinkRequestsResponse,
+  LinkRequestDetailsData,
+} from "@/types/linkRequests.types";
 
-interface LinkRequest {
-  id: string;
-  meterId: string;
-  user: string;
-  requestType: string;
-  date: string;
-  status: "success" | "pending" | "failed";
-}
-
-const mockLinkRequests: LinkRequest[] = [
-  {
-    id: "1",
-    meterId: "12r5543377283464",
-    user: "Chibuike Man",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "success",
-  },
-  {
-    id: "2",
-    meterId: "12r5543377283464",
-    user: "Chibuike Obisike",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "failed",
-  },
-  {
-    id: "3",
-    meterId: "12r5543377283464",
-    user: "Chris Mbah",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "success",
-  },
-  {
-    id: "4",
-    meterId: "12r5543377283464",
-    user: "Nelsomn Maduka",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "failed",
-  },
-  {
-    id: "5",
-    meterId: "12r5543377283464",
-    user: "Chibuike Man",
-    requestType: "New Link",
-    date: "20-08-2025 | 8:58am",
-    status: "pending",
-  },
-  {
-    id: "6",
-    meterId: "12r5543377283464",
-    user: "Chibuike Man",
-    requestType: "Re-Link",
-    date: "20-08-2025 | 8:58am",
-    status: "success",
-  },
-];
-
-// Badge color configuration
 const badgeConfig: BadgeConfig = {
   status: {
     success: { bg: "#E8F5E9", text: "#2E7D32" },
@@ -73,50 +19,142 @@ const badgeConfig: BadgeConfig = {
   },
 };
 
-const LinkRequestsTable: FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 10;
+interface LinkRequestsTableProps {
+  currentPage: number;
+  onPageChange: (page: number) => void;
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  filterValue: string;
+  onFilterChange: (value: string) => void;
+  data: GetLinkRequestsResponse | undefined;
+  isLoading: boolean;
+  onViewRequest: (requestData: LinkRequestDetailsData) => void;
+}
 
-  const handleViewTransaction = (id: string) => {
-    console.log("View transaction:", id);
-  };
+const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
+  currentPage,
+  onPageChange,
+  onSearchChange,
+  filterValue,
+  onFilterChange,
+  data,
+  isLoading,
+  onViewRequest,
+}) => {
+  const handleViewRequest = (row: LinkRequestTableRow) => {
+    const fullRequest = data?.data?.requests.find(
+      (item) => item.request.id === row.id,
+    );
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Add logic to fetch data for the selected page
+    if (fullRequest) {
+      const requestData: LinkRequestDetailsData = {
+        id: fullRequest.request.id,
+        userId: fullRequest.request.userId,
+        meterId: fullRequest.request.meterId,
+        deviceId: fullRequest.meter.deviceId,
+        meterNumber: fullRequest.meter.meterNumber,
+        userName:
+          `${fullRequest.user.firstName} ${fullRequest.user.lastName}`.trim(),
+        userEmail: fullRequest.user.email,
+        estateId: fullRequest.request.estateId,
+        estateName: fullRequest.request.estateName,
+        houseNumber: fullRequest.request.houseNumber,
+        status: fullRequest.request.status,
+        requestType: fullRequest.request.adminId ? "Re-Link" : "New Link",
+        createdAt: fullRequest.request.createdAt,
+        reason: fullRequest.request.reason,
+      };
+
+      onViewRequest(requestData);
+    }
   };
 
   const handleSearchChange = (value: string) => {
-    console.log("Search:", value);
-    // Add search logic here
+    onSearchChange(value);
   };
 
   const handleFilterChange = (value: string) => {
-    console.log("Filter:", value);
-    // Add filter logic here
+    onFilterChange(value);
+    onPageChange(1);
   };
 
-  // Column configuration
-  const columns: Column<LinkRequest>[] = [
+  const tableData: LinkRequestTableRow[] = useMemo(() => {
+    if (!data?.data?.requests) return [];
+
+    return data.data.requests.map((item) => {
+      const { request, user, meter } = item;
+
+      const getStatusForBadge = (status: string): LinkRequestStatus => {
+        if (status === "approved") return "success";
+        if (status === "rejected") return "failed";
+        return "pending";
+      };
+
+      const houseNumber = request.houseNumber || "N/A";
+      const estatePart = request.estateName ? `, ${request.estateName}` : "";
+      const address = `${houseNumber}${estatePart}`;
+
+      const formatDate = (dateString: string | null) => {
+        if (!dateString) return "N/A";
+        try {
+          const date = new Date(dateString);
+          const day = String(date.getDate()).padStart(2, "0");
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const year = date.getFullYear();
+          const hours = String(date.getHours()).padStart(2, "0");
+          const minutes = String(date.getMinutes()).padStart(2, "0");
+          return `${day}-${month}-${year} | ${hours}:${minutes}`;
+        } catch {
+          return "N/A";
+        }
+      };
+
+      const userName = user
+        ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+          "Unassigned"
+        : "Unassigned";
+
+      const requestType = request.adminId ? "Re-Link" : "New Link";
+
+      return {
+        id: request.id || "",
+        meterId: meter?.deviceId || "N/A",
+        meterNumber: meter?.meterNumber || "N/A",
+        user: userName,
+        requestType,
+        date: formatDate(request.createdAt),
+        address,
+        status: getStatusForBadge(request.status),
+        rawStatus: request.status,
+      };
+    });
+  }, [data]);
+
+  const columns: Column<LinkRequestTableRow>[] = [
     {
-      key: "meterId",
-      label: "Meter ID",
-      minWidth: "160px",
+      key: "meterNumber",
+      label: "Meter Number",
+      minWidth: "140px",
     },
     {
       key: "user",
       label: "User",
-      minWidth: "100px",
+      minWidth: "150px",
     },
     {
       key: "requestType",
       label: "Request Type",
-      minWidth: "100px",
+      minWidth: "120px",
     },
     {
       key: "date",
       label: "Date",
-      minWidth: "120px",
+      minWidth: "160px",
+    },
+    {
+      key: "address",
+      label: "Address",
+      minWidth: "200px",
     },
     {
       key: "status",
@@ -129,17 +167,20 @@ const LinkRequestsTable: FC = () => {
       key: "actions",
       label: "Action",
       renderCell: (_, row) => (
-        <LinkText text="View" onClick={() => handleViewTransaction(row.id)} />
+        <LinkText
+          text="View"
+          onClick={() => handleViewRequest(row)}
+          showIcon={false}
+        />
       ),
     },
   ];
 
-  // Filter options
   const filterOptions = [
-    { label: "All", value: "filter" },
-    { label: "Success", value: "success" },
+    { label: "All Requests", value: "all" },
     { label: "Pending", value: "pending" },
-    { label: "Failed", value: "failed" },
+    { label: "Approved", value: "approved" },
+    { label: "Rejected", value: "rejected" },
   ];
 
   return (
@@ -147,17 +188,19 @@ const LinkRequestsTable: FC = () => {
       title="Requests"
       subtitle="All Meter Linking Requests"
       columns={columns}
-      data={mockLinkRequests}
+      data={tableData}
       searchable
-      searchPlaceholder="Search"
+      searchPlaceholder="Search by meter number, device ID, or user name"
       onSearchChange={handleSearchChange}
       filterable
       filterOptions={filterOptions}
       onFilterChange={handleFilterChange}
-      defaultFilterValue="filter"
+      defaultFilterValue={filterValue}
       currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
+      totalPages={data?.data?.pagination?.totalPages || 1}
+      onPageChange={onPageChange}
+      isLoading={isLoading}
+      skeletonRows={10}
     />
   );
 };

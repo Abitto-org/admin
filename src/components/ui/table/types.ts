@@ -23,35 +23,35 @@ export interface FilterOption {
 }
 
 export interface DataTableProps<T = any> {
-  // Header
   title: string;
   subtitle?: string;
-
-  // Data
   columns: Column<T>[];
   data: T[];
-
-  // Search & Filter
   searchable?: boolean;
   searchPlaceholder?: string;
   onSearchChange?: (value: string) => void;
   filterable?: boolean;
-  filterOptions?: FilterOption[];
+  filterOptions?: { label: string; value: string }[];
   onFilterChange?: (value: string) => void;
   defaultFilterValue?: string;
-
-  // Pagination
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
-
-  // View All Button
   showViewAllButton?: boolean;
   viewAllButtonText?: string;
   onViewAll?: () => void;
-
-  // Styling
   containerSx?: any;
+  isLoading?: boolean;
+  skeletonRows?: number;
+  showDateFilters?: boolean;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  onStartDateChange?: (date: Date | null) => void;
+  onEndDateChange?: (date: Date | null) => void;
+  showTypeFilter?: boolean;
+  typeFilterOptions?: { label: string; value: string }[];
+  typeFilterValue?: string;
+  onTypeFilterChange?: (value: string) => void;
 }
 
 export interface PaginationProps {
@@ -60,14 +60,24 @@ export interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
+// types.ts - Add these to your existing SearchFilterProps interface
 export interface SearchFilterProps {
   searchable?: boolean;
   searchPlaceholder?: string;
   onSearchChange?: (value: string) => void;
   filterable?: boolean;
-  filterOptions?: FilterOption[];
+  filterOptions?: { label: string; value: string }[];
   onFilterChange?: (value: string) => void;
   defaultFilterValue?: string;
+  showDateFilters?: boolean;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  onStartDateChange?: (date: Date | null) => void;
+  onEndDateChange?: (date: Date | null) => void;
+  showTypeFilter?: boolean;
+  typeFilterOptions?: { label: string; value: string }[];
+  typeFilterValue?: string;
+  onTypeFilterChange?: (value: string) => void;
 }
 
 export interface BadgeProps {

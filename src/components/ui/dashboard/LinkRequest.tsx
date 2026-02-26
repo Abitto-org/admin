@@ -1,11 +1,54 @@
 import { Box, Typography } from "@mui/material";
-import { type FC } from "react";
+import { type FC, useMemo } from "react";
 import LinkRequestCard from "./LinkRequestCard";
-import { linkRequests } from "@/data";
+import LinkRequestCardSkeleton from "./LinkRequestCardSkeleton";
+import { useGetLinkRequests } from "@/hooks/useLinkRequests";
+import type { ILinkRequestCard } from "@/types/linkRequests.types";
+import { useNavigate } from "react-router-dom";
 
 const LinkRequest: FC = () => {
+  const navigate = useNavigate();
+
+  // Fetch only pending requests, limit to 4 (latest)
+  const { data, isLoading } = useGetLinkRequests({
+    page: 1,
+    limit: 4,
+    status: "pending",
+  });
+
+  console.log("Dashboard Link Requests data:", data);
+
+  // Transform API data to card format
+  const linkRequestCards: ILinkRequestCard[] = useMemo(() => {
+    if (!data?.data?.requests) return [];
+
+    return data.data.requests.map((item) => {
+      const { request, user, meter } = item;
+
+      // Format address with null checks
+      const houseNumber = request.houseNumber || "N/A";
+      const estatePart = request.estateName ? `, ${request.estateName}` : "";
+      const address = `${houseNumber}${estatePart}`;
+
+      // Format user name with null checks
+      const userName = user
+        ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+          "Unassigned"
+        : "Unassigned";
+
+      return {
+        id: request.id || "",
+        meterId: meter?.deviceId || "N/A",
+        meterNumber: meter?.meterNumber || "N/A",
+        userName,
+        address,
+      };
+    });
+  }, [data]);
+
   const handleViewAll = () => {
     console.log("View All clicked");
+    navigate("/link-requests");
   };
 
   return (
@@ -95,9 +138,40 @@ const LinkRequest: FC = () => {
           },
         }}
       >
-        {linkRequests.map((request, index) => (
-          <LinkRequestCard key={index} {...request} />
-        ))}
+        {isLoading ? (
+          <>
+            <LinkRequestCardSkeleton />
+            <LinkRequestCardSkeleton />
+            <LinkRequestCardSkeleton />
+            <LinkRequestCardSkeleton />
+          </>
+        ) : linkRequestCards.length > 0 ? (
+          linkRequestCards.map((request) => (
+            <LinkRequestCard key={request.id} {...request} />
+          ))
+        ) : (
+          <Box
+            sx={{
+              gridColumn: "1 / -1",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "200px",
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: "Geist",
+                fontWeight: 500,
+                fontSize: "14px",
+                color: "#808080",
+                textAlign: "center",
+              }}
+            >
+              No pending link requests
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Box>
   );

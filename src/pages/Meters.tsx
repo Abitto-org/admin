@@ -1,12 +1,76 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
-import { type FC } from "react";
+import { type FC, useState, useMemo } from "react";
 import StatCard from "@/components/ui/dashboard/StatCard";
+import StatCardSkeleton from "@/components/ui/dashboard/StatCardSkeleton";
 import MetersTable from "@/components/ui/dashboard/MetersTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
+import { useGetMeters } from "@/hooks/useMeters";
+import useDisclosure from "@/hooks/useDisclosure";
+import LinkMeterDrawer from "@/components/ui/drawers/LinkMeterDrawer";
+import type { MeterActionData } from "@/types/meters.types";
 
 const Meters: FC = () => {
-  const handleLinkMeter = () => {
-    console.log("Link a meter clicked");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterValue, setFilterValue] = useState<string>("all");
+  const [drawerMode, setDrawerMode] = useState<"link" | "unlink">("link");
+  const [selectedMeterData, setSelectedMeterData] = useState<
+    MeterActionData | undefined
+  >();
+
+  const linkMeterDrawer = useDisclosure();
+
+  const queryParams = useMemo(() => {
+    const params: {
+      page: number;
+      limit: number;
+      search?: string;
+      isLinked?: boolean;
+    } = {
+      page: currentPage,
+      limit: 10,
+    };
+
+    if (searchQuery) {
+      params.search = searchQuery;
+    }
+
+    if (filterValue === "linked") {
+      params.isLinked = true;
+    } else if (filterValue === "unlinked") {
+      params.isLinked = false;
+    }
+
+    return params;
+  }, [currentPage, searchQuery, filterValue]);
+
+  const { data, isLoading } = useGetMeters(queryParams);
+
+  const stats = data?.data?.stats || { total: 0, linked: 0, unlinked: 0 };
+
+  const linkedPercentage =
+    stats.total > 0 ? Math.round((stats.linked / stats.total) * 100) : 0;
+  const unlinkedPercentage =
+    stats.total > 0 ? Math.round((stats.unlinked / stats.total) * 100) : 0;
+
+  const handleActionClick = (
+    action: "link" | "unlink" | "view",
+    meterData: MeterActionData,
+  ) => {
+    if (action === "view") {
+      console.log("View meter:", meterData);
+      // Navigate to meter details or open view modal
+    } else {
+      setDrawerMode(action);
+      setSelectedMeterData(meterData);
+      linkMeterDrawer.onOpen();
+    }
+  };
+
+  const handleNewLinkClick = () => {
+    setDrawerMode("link");
+    setSelectedMeterData(undefined);
+    linkMeterDrawer.onOpen();
   };
 
   return (
@@ -22,7 +86,6 @@ const Meters: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        {/* Title and Subtitle */}
         <Box>
           <Typography
             variant="h1"
@@ -48,7 +111,6 @@ const Meters: FC = () => {
           </Typography>
         </Box>
 
-        {/* Action Buttons */}
         <Stack
           direction="row"
           spacing="16px"
@@ -57,7 +119,7 @@ const Meters: FC = () => {
           }}
         >
           <Button
-            onClick={handleLinkMeter}
+            onClick={handleNewLinkClick}
             sx={{
               height: "48px",
               borderRadius: "32px",
@@ -104,24 +166,51 @@ const Meters: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        <StatCard
-          label="Total Meters"
-          value="209"
-          subtext="Total Available Meters"
-          subtextColor="#2EAE4E"
-        />{" "}
-        <StatCard
-          label="Total Linked Meters"
-          value="2000"
-          subtext="75% of meters has been linked"
-        />{" "}
-        <StatCard
-          label="Unlinked Meters"
-          value="20"
-          subtext="25% of meters has been unlinked"
-        />
+        {isLoading ? (
+          <>
+            <StatCardSkeleton label="Total Meters" />
+            <StatCardSkeleton label="Total Linked Meters" />
+            <StatCardSkeleton label="Unlinked Meters" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              label="Total Meters"
+              value={stats.total.toString()}
+              subtext="Total Available Meters"
+              subtextColor="#2EAE4E"
+            />
+            <StatCard
+              label="Total Linked Meters"
+              value={stats.linked.toString()}
+              subtext={`${linkedPercentage}% of meters has been linked`}
+            />
+            <StatCard
+              label="Unlinked Meters"
+              value={stats.unlinked.toString()}
+              subtext={`${unlinkedPercentage}% of meters has been unlinked`}
+            />
+          </>
+        )}
       </Box>
-      <MetersTable />
+
+      <MetersTable
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterValue={filterValue}
+        onFilterChange={setFilterValue}
+        data={data}
+        isLoading={isLoading}
+        onActionClick={handleActionClick}
+      />
+
+      <LinkMeterDrawer
+        linkMeterDrawer={linkMeterDrawer}
+        mode={drawerMode}
+        meterData={selectedMeterData}
+      />
     </>
   );
 };

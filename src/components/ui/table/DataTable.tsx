@@ -1,9 +1,11 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Skeleton } from "@mui/material";
 import { type FC } from "react";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import SearchFilter from "./SearchFilter";
 import Pagination from "./Pagination";
 import { type DataTableProps } from "./types";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const DataTable: FC<DataTableProps> = ({
   title,
@@ -24,6 +26,17 @@ const DataTable: FC<DataTableProps> = ({
   viewAllButtonText = "View All",
   onViewAll,
   containerSx,
+  isLoading = false,
+  skeletonRows = 5,
+  showDateFilters = false,
+  startDate,
+  endDate,
+  onStartDateChange,
+  onEndDateChange,
+  showTypeFilter = false,
+  typeFilterOptions = [],
+  typeFilterValue = "all",
+  onTypeFilterChange,
 }) => {
   return (
     <Box
@@ -43,17 +56,14 @@ const DataTable: FC<DataTableProps> = ({
           justifyContent: "space-between",
           alignItems: { xs: "flex-start", sm: "center" },
           gap: { xs: "16px", sm: "12px" },
-          mb: "24px",
+          mb: 1,
         }}
       >
-        {/* Title */}
         <Box>
           <Typography
             sx={{
               fontWeight: 700,
               fontSize: "16px",
-              lineHeight: "100%",
-              letterSpacing: "-1%",
               textTransform: "capitalize",
               color: "#000000",
               mb: "4px",
@@ -61,13 +71,12 @@ const DataTable: FC<DataTableProps> = ({
           >
             {title}
           </Typography>
+
           {subtitle && (
             <Typography
               sx={{
                 fontWeight: 500,
                 fontSize: "14px",
-                lineHeight: "100%",
-                letterSpacing: "-1%",
                 textTransform: "capitalize",
                 color: "#424242",
                 mt: "12px",
@@ -78,8 +87,7 @@ const DataTable: FC<DataTableProps> = ({
           )}
         </Box>
 
-        {/* Search and Filter */}
-        {(searchable || filterable) && (
+        {(searchable || filterable || showDateFilters || showTypeFilter) && (
           <SearchFilter
             searchable={searchable}
             searchPlaceholder={searchPlaceholder}
@@ -88,7 +96,64 @@ const DataTable: FC<DataTableProps> = ({
             filterOptions={filterOptions}
             onFilterChange={onFilterChange}
             defaultFilterValue={defaultFilterValue}
+            showDateFilters={showDateFilters}
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={onStartDateChange}
+            onEndDateChange={onEndDateChange}
+            showTypeFilter={showTypeFilter}
+            typeFilterOptions={typeFilterOptions}
+            typeFilterValue={typeFilterValue}
+            onTypeFilterChange={onTypeFilterChange}
           />
+        )}
+      </Box>
+
+      {/* Date Filters */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "end",
+          mb: 2.5,
+          width: "100%",
+          gap: 1,
+        }}
+      >
+        {showDateFilters && (
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              label="Start Date"
+              value={startDate}
+              onChange={onStartDateChange}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: "220px",
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                    },
+                  },
+                },
+              }}
+            />
+            <DatePicker
+              label="End Date"
+              value={endDate}
+              onChange={onEndDateChange}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: "200px",
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                    },
+                  },
+                },
+              }}
+            />
+          </LocalizationProvider>
         )}
       </Box>
 
@@ -145,15 +210,15 @@ const DataTable: FC<DataTableProps> = ({
 
           {/* Table Body */}
           <Box component="tbody">
-            {data.map((row, rowIndex) => {
-              const isLastRow = rowIndex === data.length - 1;
-              return (
-                <Box component="tr" key={rowIndex}>
-                  {columns.map((column, colIndex) => {
-                    const cellValue = row[column.key];
-                    return (
+            {isLoading ? (
+              // Skeleton Loading Rows
+              Array.from({ length: skeletonRows }).map((_, rowIndex) => {
+                const isLastRow = rowIndex === skeletonRows - 1;
+                return (
+                  <Box component="tr" key={`skeleton-${rowIndex}`}>
+                    {columns.map((column, colIndex) => (
                       <Box
-                        key={column.key}
+                        key={`skeleton-${column.key}`}
                         component="td"
                         sx={{
                           paddingTop: colIndex === 0 ? "30px" : "14px",
@@ -167,31 +232,102 @@ const DataTable: FC<DataTableProps> = ({
                             colIndex === columns.length - 1
                               ? "none"
                               : "1px solid #EAEAEA",
-                          fontWeight: 600,
-                          fontSize: "14px",
-                          lineHeight: "150%",
-                          letterSpacing: "0%",
-                          color: "#0A0A0A",
                           textAlign: column.align || "left",
                           width: column.width,
                           minWidth: column.minWidth,
                         }}
                       >
-                        {column.renderCell
-                          ? column.renderCell(cellValue, row, rowIndex)
-                          : cellValue}
+                        <Skeleton
+                          variant="text"
+                          width={
+                            column.key === "actions"
+                              ? "60px"
+                              : colIndex === 0
+                                ? "120px"
+                                : "80%"
+                          }
+                          height={20}
+                          sx={{
+                            bgcolor: "#F5F5F5",
+                          }}
+                        />
                       </Box>
-                    );
-                  })}
+                    ))}
+                  </Box>
+                );
+              })
+            ) : data.length === 0 ? (
+              // Empty State
+              <Box component="tr">
+                <Box
+                  component="td"
+                  colSpan={columns.length}
+                  sx={{
+                    padding: "60px 16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      color: "#9E9E9E",
+                    }}
+                  >
+                    No data available
+                  </Typography>
                 </Box>
-              );
-            })}
+              </Box>
+            ) : (
+              // Actual Data Rows
+              data.map((row, rowIndex) => {
+                const isLastRow = rowIndex === data.length - 1;
+                return (
+                  <Box component="tr" key={rowIndex}>
+                    {columns.map((column, colIndex) => {
+                      const cellValue = row[column.key];
+                      return (
+                        <Box
+                          key={column.key}
+                          component="td"
+                          sx={{
+                            paddingTop: colIndex === 0 ? "30px" : "14px",
+                            paddingRight: "16px",
+                            paddingBottom: "14px",
+                            paddingLeft: "16px",
+                            borderBottom: isLastRow
+                              ? "none"
+                              : "1px solid #EAEAEA",
+                            borderRight:
+                              colIndex === columns.length - 1
+                                ? "none"
+                                : "1px solid #EAEAEA",
+                            fontWeight: 600,
+                            fontSize: "14px",
+                            lineHeight: "150%",
+                            letterSpacing: "0%",
+                            color: "#0A0A0A",
+                            textAlign: column.align || "left",
+                            width: column.width,
+                            minWidth: column.minWidth,
+                          }}
+                        >
+                          {column.renderCell
+                            ? column.renderCell(cellValue, row, rowIndex)
+                            : cellValue}
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                );
+              })
+            )}
           </Box>
         </Box>
       </Box>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {!isLoading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -199,8 +335,30 @@ const DataTable: FC<DataTableProps> = ({
         />
       )}
 
+      {/* Skeleton for Pagination during loading */}
+      {isLoading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <Skeleton
+            variant="rectangular"
+            width={280}
+            height={40}
+            sx={{
+              borderRadius: "8px",
+              bgcolor: "#F5F5F5",
+            }}
+          />
+        </Box>
+      )}
+
       {/* View All Button */}
-      {showViewAllButton && (
+      {showViewAllButton && !isLoading && (
         <Box
           sx={{
             display: "flex",

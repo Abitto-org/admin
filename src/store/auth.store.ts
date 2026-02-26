@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { User } from "@/types/user.types";
+import type { User } from "@/types/users.types";
 import {
   getAccessToken,
   setAccessToken,
   removeAccessToken,
 } from "@/utils/auth";
-import { userApi } from "@/api/user.api";
+import { usersApi } from "@/api/users.api";
 
 interface AuthState {
   user: User | null;
@@ -57,7 +57,7 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await userApi.getProfile();
+          const response = await usersApi.getProfile();
           if (response.status === "success") {
             set({
               user: response.data.user,

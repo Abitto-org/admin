@@ -1,5 +1,5 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
-import { type FC } from "react";
+import { useMemo, type FC } from "react";
 import StatCard from "@/components/ui/dashboard/StatCard";
 import TrendText from "@/components/ui/dashboard/TrendText";
 import LinkText from "@/components/ui/dashboard/LinkText";
@@ -8,17 +8,36 @@ import TotalUsageChart from "@/components/ui/dashboard/TotalUsageChart";
 import MeterComparisonChart from "@/components/ui/dashboard/MeterComparisonChart";
 import RecentActivity from "@/components/ui/dashboard/RecentActivity";
 import LinkRequest from "@/components/ui/dashboard/LinkRequest";
-import TransactionsHistory from "@/components/ui/dashboard/TransactionsHistoryTable";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import useDisclosure from "@/hooks/useDisclosure";
 import CustomDrawer from "@/components/ui/drawers/CustomDrawer";
+import { useNavigate } from "react-router-dom";
+import LinkMeterForm from "@/components/ui/dashboard/LinkMeterForm";
+import TransactionsHistoryTable from "@/components/ui/dashboard/TransactionsHistoryTable";
+import { useGetTransactions } from "@/hooks/useTransactions";
 
 const Dashboard: FC = () => {
   const registerUserDrawer = useDisclosure();
   const linkMeterDrawer = useDisclosure();
+  const navigate = useNavigate();
+
+  const queryParams = useMemo(
+    () => ({
+      page: 1,
+      limit: 8,
+    }),
+    [],
+  );
+
+  const { data: transactionsData, isLoading: transactionsLoading } =
+    useGetTransactions(queryParams);
 
   const handleViewLinkRequest = () => {
-    console.log("View link request clicked");
+    navigate("/link-requests");
+  };
+
+  const handleViewAllTransactions = () => {
+    navigate("/transactions");
   };
 
   return (
@@ -161,7 +180,7 @@ const Dashboard: FC = () => {
           value="500"
           subtext={
             <LinkText
-              text="View Link Request"
+              text="View Link Requests"
               onClick={handleViewLinkRequest}
               iconGap="6px" // Larger gap for the trailing icon
             />
@@ -216,7 +235,13 @@ const Dashboard: FC = () => {
       </Box>
 
       {/* Transactions History Section */}
-      <TransactionsHistory showViewAllButton  />
+      <TransactionsHistoryTable
+        mode="widget"
+        data={transactionsData}
+        isLoading={transactionsLoading}
+        showViewAllButton={true}
+        onViewAll={handleViewAllTransactions}
+      />
 
       {/* Register User Drawer */}
       <CustomDrawer
@@ -237,13 +262,10 @@ const Dashboard: FC = () => {
         open={linkMeterDrawer.open}
         onClose={linkMeterDrawer.onClose}
       >
-        <Box>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
-            Link a Meter
-          </Typography>
-          {/* Add your link meter form content here */}
-          <Typography>Link meter form goes here yayyayyaya...</Typography>
-        </Box>
+        <LinkMeterForm
+          onClose={linkMeterDrawer.onClose}
+          open={linkMeterDrawer.open}
+        />
       </CustomDrawer>
     </>
   );

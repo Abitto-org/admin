@@ -1,162 +1,186 @@
-import { type FC, useState } from "react";
+import { type FC, useMemo } from "react";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
 import Badge from "../table/Badge";
 import LinkText from "./LinkText";
+import type { UserTableRow, GetUsersResponse, User } from "@/types/users.types";
 
-interface Users {
-  id: string;
-  name: string;
-  email: string;
-  status: "linked" | "pending" | "unlinked";
-  date: string;
-  gasStatus: "Active" | "Inactive";
-}
-
-const mockUserss: Users[] = [
-  {
-    id: "1",
-    name: "Chris Mbah",
-    email: "chris@gmail.com",
-    status: "linked",
-    date: "20-08-2025 | 8:58am",
-    gasStatus: "Active",
-  },
-  {
-    id: "2",
-    name: "Chris Mbah",
-    email: "chris@gmail.com",
-    status: "pending",
-    date: "20-08-2025 | 8:58am",
-    gasStatus: "Inactive",
-  },
-  {
-    id: "3",
-    name: "Christian Mbah",
-    email: "chris@gmail.com",
-    status: "unlinked",
-    date: "20-08-2025 | 8:58am",
-    gasStatus: "Active",
-  },
-  {
-    id: "4",
-    name: "Chris Mbah",
-    email: "chris@gmail.com",
-    status: "linked",
-    date: "20-08-2025 | 8:58am",
-    gasStatus: "Active",
-  },
-  {
-    id: "5",
-    name: "Chris Mbah",
-    email: "chris@gmail.com",
-    status: "linked",
-    date: "20-08-2025 | 8:58am",
-    gasStatus: "Active",
-  },
-  {
-    id: "6",
-    name: "Chris Mbah",
-    email: "chris@gmail.com",
-    status: "pending",
-    date: "20-08-2025 | 8:58am",
-    gasStatus: "Active",
-  },
-];
-
+// Badge color configuration
 const badgeConfig: BadgeConfig = {
   status: {
+    active: { bg: "#E8F5E9", text: "#2E7D32" },
+    inactive: { bg: "#FFEBEE", text: "#EA0000" },
+  },
+  meterStatus: {
     linked: { bg: "#E8F5E9", text: "#2E7D32" },
-    pending: { bg: "#FFF9C4", text: "#F57F17" },
-    unlinked: { bg: "#FFEBEE", text: "#EA0000" },
+    unlinked: { bg: "#FFF9C4", text: "#F57F17" },
   },
 };
 
-const UsersTable: FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 10;
+interface UsersTableProps {
+  currentPage: number;
+  onPageChange: (page: number) => void;
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  filterValue: string;
+  onFilterChange: (value: string) => void;
+  data: GetUsersResponse | undefined;
+  isLoading: boolean;
+  onViewUser: (user: User) => void;
+}
 
-  const handleViewTransaction = (id: string) => {
-    console.log("View transaction:", id);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Add logic to fetch data for the selected page
-  };
-
+const UsersTable: FC<UsersTableProps> = ({
+  currentPage,
+  onPageChange,
+  onSearchChange,
+  filterValue,
+  onFilterChange,
+  data,
+  isLoading,
+  onViewUser,
+}) => {
   const handleSearchChange = (value: string) => {
-    console.log("Search:", value);
-    // Add search logic here
+    onSearchChange(value);
   };
 
   const handleFilterChange = (value: string) => {
-    console.log("Filter:", value);
-    // Add filter logic here
+    onFilterChange(value);
+    onPageChange(1); // Reset to page 1 when filter changes
   };
 
+  // Transform API data to table rows
+  const tableData: UserTableRow[] = useMemo(() => {
+    if (!data?.data?.users) return [];
+
+    return data.data.users.map((user) => {
+      // Format user name with null checks
+      const userName =
+        `${user.firstName || ""} ${user.lastName || ""}`.trim() || "N/A";
+
+      // Format role from slug to title case
+      const formatRole = (role: string) => {
+        if (!role) return "N/A";
+        return role
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      };
+
+      // Format date
+      const formatDate = (dateString: string) => {
+        try {
+          const date = new Date(dateString);
+          const day = String(date.getDate()).padStart(2, "0");
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const year = date.getFullYear();
+          const hours = String(date.getHours()).padStart(2, "0");
+          const minutes = String(date.getMinutes()).padStart(2, "0");
+          return `${day}-${month}-${year} | ${hours}:${minutes}`;
+        } catch {
+          return "N/A";
+        }
+      };
+
+      return {
+        id: user.id,
+        name: userName,
+        email: user.email,
+        phoneNumber: user.phoneNumber || "N/A",
+        role: formatRole(user.role),
+        status: user.isActive,
+        meterLinked: user.hasLinkedMeter,
+        dateJoined: formatDate(user.createdAt),
+      };
+    });
+  }, [data]);
+
   // Column configuration
-  const columns: Column<Users>[] = [
+  const columns: Column<UserTableRow>[] = [
     {
       key: "name",
       label: "Name",
-      minWidth: "160px",
+      minWidth: "150px",
     },
     {
       key: "email",
       label: "Email",
-      minWidth: "100px",
+      minWidth: "200px",
+    },
+    {
+      key: "phoneNumber",
+      label: "Phone Number",
+      minWidth: "140px",
+    },
+    {
+      key: "role",
+      label: "Role",
+      minWidth: "120px",
     },
     {
       key: "status",
       label: "Status",
       renderCell: (value) => (
-        <Badge type="status" value={value} config={badgeConfig} />
+        <Badge
+          type="status"
+          value={value ? "active" : "inactive"}
+          config={badgeConfig}
+        />
       ),
     },
     {
-      key: "date",
-      label: "Date Created",
-      minWidth: "100px",
+      key: "meterLinked",
+      label: "Meter Status",
+      renderCell: (value) => (
+        <Badge
+          type="meterStatus"
+          value={value ? "linked" : "unlinked"}
+          config={badgeConfig}
+        />
+      ),
     },
     {
-      key: "gasStatus",
-      label: "Gas Status",
+      key: "dateJoined",
+      label: "Date Joined",
+      minWidth: "160px",
     },
-
     {
       key: "actions",
       label: "Action",
-      renderCell: (_, row) => (
-        <LinkText text="View" onClick={() => handleViewTransaction(row.id)} />
-      ),
+      renderCell: (_, row) => {
+        // Find the original user object from the data
+        const user = data?.data?.users.find((u) => u.id === row.id);
+        return (
+          <LinkText text="View" onClick={() => user && onViewUser(user)} />
+        );
+      },
     },
   ];
 
   // Filter options
   const filterOptions = [
-    { label: "All", value: "filter" },
-    { label: "Linked", value: "linked" },
-    { label: "Pending", value: "pending" },
-    { label: "Unlinked", value: "unlinked" },
+    { label: "All Users", value: "all" },
+    { label: "Active", value: "active" },
+    { label: "Inactive", value: "inactive" },
   ];
 
   return (
     <DataTable
-      title="Meters"
-      subtitle="Details of All Users"
+      title="Users"
+      subtitle="All Registered Users"
       columns={columns}
-      data={mockUserss}
+      data={tableData}
       searchable
-      searchPlaceholder="Search"
+      searchPlaceholder="Search by name, email, phone, or NIN"
       onSearchChange={handleSearchChange}
       filterable
       filterOptions={filterOptions}
       onFilterChange={handleFilterChange}
-      defaultFilterValue="filter"
+      defaultFilterValue={filterValue}
       currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
+      totalPages={data?.data?.pagination?.totalPages || 1}
+      onPageChange={onPageChange}
+      isLoading={isLoading}
+      skeletonRows={10}
     />
   );
 };

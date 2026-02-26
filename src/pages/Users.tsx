@@ -1,16 +1,69 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
-import { type FC } from "react";
+import { type FC, useState, useMemo } from "react";
 import StatCard from "@/components/ui/dashboard/StatCard";
+import StatCardSkeleton from "@/components/ui/dashboard/StatCardSkeleton";
 import UsersTable from "@/components/ui/dashboard/UsersTable";
+import UserDrawer from "@/components/ui/drawers/UserDrawer";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import LinkText from "@/components/ui/dashboard/LinkText";
+import { useGetUsers } from "@/hooks/useUsers";
+import useDisclosure from "@/hooks/useDisclosure";
+import type { User } from "@/types/users.types";
 
 const Users: FC = () => {
-  const handleLinkMeter = () => {
-    console.log("Link a meter clicked");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterValue, setFilterValue] = useState<string>("all");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const userDrawer = useDisclosure();
+
+  const handleRegisterUser = () => {
+    console.log("Register new user clicked");
   };
+
   const handleViewLinkRequest = () => {
     console.log("View link request clicked");
+  };
+
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    userDrawer.onOpen();
+  };
+
+  const queryParams = useMemo(() => {
+    const params: {
+      page: number;
+      limit: number;
+      search?: string;
+      isActive?: boolean;
+    } = {
+      page: currentPage,
+      limit: 10,
+    };
+
+    if (searchQuery) {
+      params.search = searchQuery;
+    }
+
+    if (filterValue === "active") {
+      params.isActive = true;
+    } else if (filterValue === "inactive") {
+      params.isActive = false;
+    }
+
+    return params;
+  }, [currentPage, searchQuery, filterValue]);
+
+  const { data, isLoading } = useGetUsers(queryParams);
+  console.log("Users data:", data);
+
+  const stats = data?.data?.stats || {
+    totalUsers: 0,
+    joinedToday: 0,
+    activeToday: 0,
+    usersWithoutMeters: 0,
+    totalKgBoughtToday: 0,
+    percentageWithoutMeters: 0,
   };
 
   return (
@@ -61,7 +114,7 @@ const Users: FC = () => {
           }}
         >
           <Button
-            onClick={handleLinkMeter}
+            onClick={handleRegisterUser}
             sx={{
               height: "48px",
               borderRadius: "32px",
@@ -108,31 +161,54 @@ const Users: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        <StatCard
-          label="Total Users"
-          value="1,150"
-          subtext="1 new users today"
-          subtextColor="#2EAE4E"
-        />{" "}
-        <StatCard
-          label="Users Without Linked Meters"
-          value="290"
-          subtext={
-            <LinkText
-              text="10% of Total Users"
-              onClick={handleViewLinkRequest}
-              iconGap="6px"
+        {isLoading ? (
+          <>
+            <StatCardSkeleton label="Total Users" />
+            <StatCardSkeleton label="Users Without Linked Meters" />
+            <StatCardSkeleton label="Active Users Today" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              label="Total Users"
+              value={stats.totalUsers.toString()}
+              subtext={`${stats.joinedToday} new user${stats.joinedToday === 1 ? "" : "s"} today`}
+              subtextColor="#2EAE4E"
             />
-          }
-          subtextGap="6px"
-        />{" "}
-        <StatCard
-          label="Active Users Today"
-          value="300"
-          subtext="300kg of gas bought today"
-        />
+            <StatCard
+              label="Users Without Linked Meters"
+              value={stats.usersWithoutMeters.toString()}
+              subtext={
+                <LinkText
+                  text={`${stats.percentageWithoutMeters}% of Total Users`}
+                  onClick={handleViewLinkRequest}
+                  iconGap="6px"
+                />
+              }
+              subtextGap="6px"
+            />
+            <StatCard
+              label="Active Users Today"
+              value={stats.activeToday.toString()}
+              subtext={`${stats.totalKgBoughtToday}kg of gas bought today`}
+            />
+          </>
+        )}
       </Box>
-      <UsersTable />
+
+      <UsersTable
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterValue={filterValue}
+        onFilterChange={setFilterValue}
+        data={data}
+        isLoading={isLoading}
+        onViewUser={handleViewUser}
+      />
+
+      <UserDrawer userDrawer={userDrawer} user={selectedUser} />
     </>
   );
 };

@@ -3,7 +3,8 @@ import { type FC } from "react";
 import RefreshIcon from "@/assets/icons/refresh.svg";
 import NotificationsIcon from "@/assets/icons/notifications.svg";
 import CollapseIcon from "@/assets/icons/collapse.svg";
-import type { User } from "@/types/user.types";
+import type { User } from "@/types/users.types";
+import { getInitials, getDisplayName, getRole } from "@/utils/auth";
 
 interface NavbarProps {
   user?: User | null;
@@ -17,49 +18,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
 
   const handleNotifications = () => {
     console.log("Notifications clicked");
-  };
-
-  const getInitials = () => {
-    if (!user) return "AU";
-
-    // If both firstName and lastName exist, use their initials
-    if (user.firstName && user.lastName) {
-      return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
-    }
-
-    // Otherwise, use first letter of email
-    return user.email.charAt(0).toUpperCase();
-  };
-
-  const getDisplayName = () => {
-    if (!user) return "Admin User";
-
-    // If both firstName and lastName exist, use them
-    if (user.firstName && user.lastName) {
-      return `${user.firstName} ${user.lastName}`;
-    }
-
-    // Otherwise, use email username (before @) and truncate if too long
-    const emailUsername = user.email.split("@")[0];
-    const maxLength = 20;
-
-    if (user.email.length > maxLength) {
-      return emailUsername.substring(0, maxLength) + "...";
-    }
-
-    return emailUsername;
-  };
-
-  const getRole = () => {
-    if (!user) return "Admin";
-
-    // Remove hyphens/underscores and capitalize each word
-    // "super-admin" -> "Super Admin", "basic-user" -> "Basic User"
-    return user.role
-      .replaceAll(/[-_]/g, " ")
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
   };
 
   return (
@@ -204,7 +162,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
               fontSize: "16px",
             }}
           >
-            {getInitials()}
+            {getInitials(user)}
           </Avatar>
 
           {/* User Info */}
@@ -219,7 +177,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
                 color: "#000000",
               }}
             >
-              {getDisplayName()}
+              {getDisplayName(user)}
             </Typography>
 
             {/* Role Badge */}
@@ -244,7 +202,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
                   color: "#669900",
                 }}
               >
-                {getRole()}
+                {getRole(user)}
               </Typography>
             </Box>
           </Stack>
@@ -261,7 +219,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
             display: { xs: "flex", sm: "none" },
           }}
         >
-          {getInitials()}
+          {getInitials(user)}
         </Avatar>
       </Stack>
     </Box>

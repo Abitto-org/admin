@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import CustomDrawer from "./CustomDrawer";
-import LinkRequestDetailsForm from "../dashboard/LinkRequestDetailsForm";
+import LinkRequestDetailsForm from "../forms/LinkRequestDetailsForm";
 import type { LinkRequestDetailsData } from "@/types/linkRequests.types";
 import { Box, Typography } from "@mui/material";
 

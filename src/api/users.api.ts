@@ -4,6 +4,8 @@ import type {
   GetUsersParams,
   GetUsersResponse,
   GetUserMetersResponse,
+  RegisterUserParams,
+  RegisterUserResponse,
 } from "@/types/users.types";
 
 export const usersApi = {
@@ -25,6 +27,15 @@ export const usersApi = {
   getUserMeters: async (userId: string): Promise<GetUserMetersResponse> => {
     const response = await http.get<GetUserMetersResponse>(
       `/user/admin/users/${userId}/meters`,
+    );
+    return response.data;
+  },
+  registerUser: async (
+    params: RegisterUserParams,
+  ): Promise<RegisterUserResponse> => {
+    const response = await http.post<RegisterUserResponse>(
+      "/user/admin/register",
+      params,
     );
     return response.data;
   },

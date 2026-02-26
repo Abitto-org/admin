@@ -17,7 +17,7 @@ import {
   Logout as LogoutIcon,
   House,
 } from "@mui/icons-material";
-
+import ABITTO_LOGO from "@/assets/abitto_logo.png";
 import { type JSX, type FC, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CollapseIcon from "@/assets/icons/collapse.svg";
@@ -77,7 +77,6 @@ const Sidebar: FC<SidebarProps> = ({
   const { logout } = useAuthStore();
   const logoutDialog = useDisclosure();
 
-  // Persist collapse state to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(isCollapsed));
   }, [isCollapsed]);
@@ -150,20 +149,17 @@ const Sidebar: FC<SidebarProps> = ({
             gap: 1,
           }}
         >
-          <Typography
-            sx={{
-              fontWeight: 700,
-              fontSize: { xs: "18px", md: "20px" },
-              lineHeight: "24px",
-              letterSpacing: "-0.01em",
-              textTransform: "capitalize",
-              color: "#669900",
-              whiteSpace: "nowrap",
-              display: { xs: "block", md: isCollapsed ? "none" : "block" },
-            }}
-          >
-            AbittoEnergy
-          </Typography>
+          {!isCollapsed && (
+            <Box
+              component={"img"}
+              src={ABITTO_LOGO}
+              alt="abitto logo"
+              sx={{
+                width: { xs: "100px", sm: "140px" },
+                height: "auto",
+              }}
+            />
+          )}
           <Tooltip
             title={isCollapsed ? "Show menu" : "Hide menu"}
             placement="right"

@@ -100,10 +100,8 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({
     setApiError("");
   };
 
-  // LinkMeterForm.tsx - Update the onSubmit function
   const onSubmit = (data: LinkMeterFormData) => {
     if (mode === "unlink") {
-      // Unlink flow - use deviceId from meterData
       if (!meterData?.deviceId) {
         setApiError("Device ID is required for unlinking");
         return;
@@ -400,15 +398,17 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({
           ) : (
             <>
               {mode === "unlink" ? "Unlink" : "Link"}
-              <Box
-                component="img"
-                src={ButtonArrowIcon}
-                alt="arrow"
-                sx={{
-                  width: "20px",
-                  height: "20px",
-                }}
-              />
+              {mode === "link" && (
+                <Box
+                  component="img"
+                  src={ButtonArrowIcon}
+                  alt="arrow"
+                  sx={{
+                    width: "20px",
+                    height: "20px",
+                  }}
+                />
+              )}
             </>
           )}
         </Button>

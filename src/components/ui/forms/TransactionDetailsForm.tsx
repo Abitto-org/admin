@@ -144,7 +144,6 @@ const TransactionDetailsForm: FC<TransactionDetailsFormProps> = ({
 
         {/* Basic Information */}
         <Box>
-          <DetailRow label="Transaction ID" value={transaction.id} />
           <DetailRow label="Reference" value={transaction.reference} />
           <DetailRow label="Amount" value={formatAmount(transaction.amount)} />
           <DetailRow label="Type" value={transaction.type.replace(/_/g, " ")} />
@@ -178,7 +177,6 @@ const TransactionDetailsForm: FC<TransactionDetailsFormProps> = ({
                 label="Username"
                 value={transaction.user.username || "N/A"}
               />
-              <DetailRow label="User ID" value={transaction.user.id} />
             </Box>
           </>
         )}

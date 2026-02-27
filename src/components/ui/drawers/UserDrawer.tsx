@@ -2,7 +2,7 @@ import type { FC } from "react";
 import CustomDrawer from "./CustomDrawer";
 import { Box, Typography } from "@mui/material";
 import type { User } from "@/types/users.types";
-import UserDetailsForm from "../dashboard/UserDetailsForm";
+import UserDetailsForm from "../forms/UserDetailsForm";
 
 interface UserDrawerProps {
   userDrawer: {

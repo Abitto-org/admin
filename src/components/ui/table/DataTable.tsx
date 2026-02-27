@@ -132,6 +132,16 @@ const DataTable: FC<DataTableProps> = ({
                     minWidth: "220px",
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "8px",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "14px",
+                      fontWeight: 600,
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: "14px",
+                      fontWeight: 600,
                     },
                   },
                 },
@@ -145,9 +155,19 @@ const DataTable: FC<DataTableProps> = ({
                 textField: {
                   size: "small",
                   sx: {
-                    minWidth: "200px",
+                    minWidth: "220px",
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "8px",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "14px",
+                      fontWeight: 600,
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: "14px",
+                      fontWeight: 600,
                     },
                   },
                 },

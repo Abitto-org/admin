@@ -1,7 +1,7 @@
 // EstateDetailsDrawer.tsx
 import type { FC } from "react";
 import CustomDrawer from "./CustomDrawer";
-import EstateDetailsForm from "../dashboard/EstateDetailsForm";
+import EstateDetailsForm from "../forms/EstateDetailsForm";
 import type { Estate } from "@/types/estates.types";
 import { Box, Typography } from "@mui/material";
 

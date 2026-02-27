@@ -1,26 +1,39 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
-import { useMemo, type FC } from "react";
+import { useMemo, useState, type FC } from "react";
 import StatCard from "@/components/ui/dashboard/StatCard";
 import TrendText from "@/components/ui/dashboard/TrendText";
 import LinkText from "@/components/ui/dashboard/LinkText";
-import RangeSelect from "@/components/ui/dashboard/RangeSelect";
+// import RangeSelect from "@/components/ui/dashboard/RangeSelect";
 import TotalUsageChart from "@/components/ui/dashboard/TotalUsageChart";
 import MeterComparisonChart from "@/components/ui/dashboard/MeterComparisonChart";
 import RecentActivity from "@/components/ui/dashboard/RecentActivity";
 import LinkRequest from "@/components/ui/dashboard/LinkRequest";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import useDisclosure from "@/hooks/useDisclosure";
-import CustomDrawer from "@/components/ui/drawers/CustomDrawer";
 import { useNavigate } from "react-router-dom";
-import LinkMeterForm from "@/components/ui/dashboard/LinkMeterForm";
 import TransactionsHistoryTable from "@/components/ui/dashboard/TransactionsHistoryTable";
 import { useGetTransactions } from "@/hooks/useTransactions";
+import TransactionDrawer from "@/components/ui/drawers/TransactionDrawer";
+import LinkMeterDrawer from "@/components/ui/drawers/LinkMeterDrawer";
+import { useGetStats } from "@/hooks/useStats";
+import StatCardSkeleton from "@/components/ui/dashboard/StatCardSkeleton";
+import RegisterUserDrawer from "@/components/ui/drawers/RegisterUserDrawer";
 
 const Dashboard: FC = () => {
-  const registerUserDrawer = useDisclosure();
-  const linkMeterDrawer = useDisclosure();
   const navigate = useNavigate();
 
+  const [selectedTransactionId, setSelectedTransactionId] = useState<
+    string | null
+  >(null);
+
+  // Drawers
+  const registerUserDrawer = useDisclosure();
+  const transactionDrawer = useDisclosure();
+  const linkMeterDrawer = useDisclosure();
+
+  const { data: statsData, isLoading: statsLoading } = useGetStats();
+  const stats = statsData?.data;
+  console.log("Stats: ", stats);
   const queryParams = useMemo(
     () => ({
       page: 1,
@@ -40,9 +53,13 @@ const Dashboard: FC = () => {
     navigate("/transactions");
   };
 
+  const handleViewTransaction = (id: string) => {
+    setSelectedTransactionId(id);
+    transactionDrawer.onOpen();
+  };
+
   return (
     <>
-      {/* Header Section */}
       <Box
         sx={{
           display: "flex",
@@ -53,7 +70,6 @@ const Dashboard: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        {/* Title and Subtitle */}
         <Box>
           <Typography
             variant="h1"
@@ -157,53 +173,74 @@ const Dashboard: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        {/* Card 1: Default TrendText (works exactly like before!) */}
-        <StatCard
-          label="Total Users"
-          value="266"
-          subtext={<TrendText text="+200 users this month" />}
-          subtextGap="4px"
-        />
-
-        {/* Card 2: TrendText with custom color + Action component */}
-        <StatCard
-          label="Total Revenue"
-          value="₦ 790,000"
-          subtext={<TrendText text="₦20,000 today" color="#414141" />}
-          action={<RangeSelect defaultValue="Today" />}
-          subtextGap="4px"
-        />
-
-        {/* Card 3: LinkText with larger gap (icon feels more separate) */}
-        <StatCard
-          label="Total Active Meters"
-          value="500"
-          subtext={
-            <LinkText
-              text="View Link Requests"
-              onClick={handleViewLinkRequest}
-              iconGap="6px" // Larger gap for the trailing icon
+        {statsLoading ? (
+          <>
+            <StatCardSkeleton label="Total Users" />
+            <StatCardSkeleton label="Total Revenue" />
+            <StatCardSkeleton label="Total Active Meters" />
+            <StatCardSkeleton label="Total Gas Sold" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              label="Total Users"
+              value={stats?.users.total.toString() ?? "0"}
+              subtext={
+                <TrendText
+                  text={`+${stats?.users.increasePastMonth ?? 0} users this month`}
+                />
+              }
+              subtextGap="4px"
             />
-          }
-          subtextGap="6px" // Match the larger gap
-        />
 
-        {/* Card 4: Plain text without icon */}
-        <StatCard
-          label="Total Gas Sold"
-          value="5,000 kg"
-          subtext={
-            <TrendText
-              text="10kg gas sold today"
-              showIcon={false}
-              color="#414141"
+            <StatCard
+              label="Total Revenue"
+              value={`₦ ${Number(stats?.revenue.total ?? 0).toLocaleString()}`}
+              subtext={
+                <TrendText
+                  text={`₦${Number(stats?.revenue.today ?? 0).toLocaleString()} today`}
+                  color="#414141"
+                />
+              }
+              // action={<RangeSelect defaultValue="Today" />}
+              subtextGap="4px"
             />
-          }
-          subtextGap="4px"
-        />
+
+            <StatCard
+              label="Total Active Meters"
+              value={stats?.meters.active.toString() ?? "0"}
+              subtext={
+                <LinkText
+                  text="View Link Requests"
+                  onClick={handleViewLinkRequest}
+                  iconGap="6px"
+                />
+              }
+              subtextGap="6px"
+            />
+
+            <StatCard
+              label="Total Gas Sold"
+              value={`${Number(stats?.gasSold.totalKg ?? 0).toLocaleString(
+                undefined,
+                {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 2,
+                },
+              )} kg`}
+              subtext={
+                <TrendText
+                  text={`${stats?.gasSold.todayKg ?? 0}kg gas sold today`}
+                  showIcon={false}
+                  color="#414141"
+                />
+              }
+              subtextGap="4px"
+            />
+          </>
+        )}
       </Box>
 
-      {/* Charts Section */}
       <Box
         sx={{
           display: "grid",
@@ -241,32 +278,15 @@ const Dashboard: FC = () => {
         isLoading={transactionsLoading}
         showViewAllButton={true}
         onViewAll={handleViewAllTransactions}
+        onViewTransaction={handleViewTransaction}
       />
 
-      {/* Register User Drawer */}
-      <CustomDrawer
-        open={registerUserDrawer.open}
-        onClose={registerUserDrawer.onClose}
-      >
-        <Box>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
-            Register New User
-          </Typography>
-          {/* Add your register user form content here */}
-          <Typography>Register user form goes here...</Typography>
-        </Box>
-      </CustomDrawer>
-
-      {/* Link Meter Drawer */}
-      <CustomDrawer
-        open={linkMeterDrawer.open}
-        onClose={linkMeterDrawer.onClose}
-      >
-        <LinkMeterForm
-          onClose={linkMeterDrawer.onClose}
-          open={linkMeterDrawer.open}
-        />
-      </CustomDrawer>
+      <RegisterUserDrawer registerUserDrawer={registerUserDrawer} />
+      <LinkMeterDrawer linkMeterDrawer={linkMeterDrawer} />
+      <TransactionDrawer
+        transactionDrawer={transactionDrawer}
+        transactionId={selectedTransactionId}
+      />
     </>
   );
 };

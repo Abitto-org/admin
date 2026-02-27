@@ -1,10 +1,13 @@
 import { Box, Avatar, Typography, Stack, Tooltip } from "@mui/material";
-import { type FC } from "react";
+import { type FC, useState, useRef, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import RefreshIcon from "@/assets/icons/refresh.svg";
 import NotificationsIcon from "@/assets/icons/notifications.svg";
 import CollapseIcon from "@/assets/icons/collapse.svg";
 import type { User } from "@/types/users.types";
 import { getInitials, getDisplayName, getRole } from "@/utils/auth";
+import { useGetUnreadCount } from "@/hooks/useNotifications";
+import NotificationsDropdown from "@/components/ui/notifications/NotificationsDropdown";
 
 interface NavbarProps {
   user?: User | null;
@@ -12,13 +15,36 @@ interface NavbarProps {
 }
 
 const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  const queryClient = useQueryClient();
+  const { data: unreadData } = useGetUnreadCount();
+  const unreadCount = unreadData?.data?.count ?? 0;
+
   const handleRefresh = () => {
-    console.log("Refresh clicked");
+    queryClient.invalidateQueries();
   };
 
-  const handleNotifications = () => {
-    console.log("Notifications clicked");
-  };
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target as Node)
+      ) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    if (notificationsOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [notificationsOpen]);
 
   return (
     <Box
@@ -42,7 +68,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
           gap: "12px",
         }}
       >
-        {/* Menu Toggle Button */}
         <Box
           onClick={onMobileMenuToggle}
           sx={{
@@ -63,7 +88,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
           />
         </Box>
 
-        {/* Logo */}
         <Typography
           sx={{
             fontWeight: 700,
@@ -79,7 +103,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
         </Typography>
       </Box>
 
-      {/* Desktop and Mobile: Right Side Actions */}
+      {/* Right Side Actions */}
       <Stack
         direction="row"
         alignItems="center"
@@ -89,7 +113,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
         }}
       >
         {/* Refresh Button */}
-        <Tooltip title={"Refresh"} placement="top">
+        <Tooltip title="Refresh" placement="top">
           <Box
             onClick={handleRefresh}
             sx={{
@@ -101,9 +125,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
               justifyContent: "center",
               borderRadius: "4px",
               transition: "background-color 0.2s ease-in-out",
-              "&:hover": {
-                backgroundColor: "#FAFAFA",
-              },
+              "&:hover": { backgroundColor: "#FAFAFA" },
             }}
             aria-label="refresh"
           >
@@ -117,34 +139,68 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
         </Tooltip>
 
         {/* Notifications Button */}
-        <Tooltip title={"Notifications"} placement="top">
-          <Box
-            onClick={handleNotifications}
-            sx={{
-              width: "28px",
-              height: "28px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: "4px",
-              transition: "background-color 0.2s ease-in-out",
-              "&:hover": {
-                backgroundColor: "#FAFAFA",
-              },
-            }}
-            aria-label="notifications"
-          >
+        <Box ref={notificationsRef} sx={{ position: "relative" }}>
+          <Tooltip title="Notifications" placement="top">
             <Box
-              component="img"
-              src={NotificationsIcon}
-              alt="notifications"
-              sx={{ width: "28px", height: "28px" }}
-            />
-          </Box>
-        </Tooltip>
+              onClick={() => setNotificationsOpen((prev) => !prev)}
+              sx={{
+                width: "28px",
+                height: "28px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "4px",
+                transition: "background-color 0.2s ease-in-out",
+                position: "relative",
+                "&:hover": { backgroundColor: "#FAFAFA" },
+              }}
+              aria-label="notifications"
+            >
+              <Box
+                component="img"
+                src={NotificationsIcon}
+                alt="notifications"
+                sx={{ width: "28px", height: "28px" }}
+              />
 
-        {/* User Profile Section */}
+              {/* Unread badge */}
+              {unreadCount > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "-2px",
+                    right: "-2px",
+                    minWidth: "16px",
+                    height: "16px",
+                    borderRadius: "8px",
+                    backgroundColor: "#CC3300",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 3px",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "10px",
+                      lineHeight: "100%",
+                      color: "white",
+                    }}
+                  >
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </Tooltip>
+
+          {/* Dropdown */}
+          {notificationsOpen && <NotificationsDropdown />}
+        </Box>
+
+        {/* User Profile — Desktop */}
         <Box
           sx={{
             display: { xs: "none", sm: "flex" },
@@ -152,7 +208,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
             gap: "12px",
           }}
         >
-          {/* Profile Avatar */}
           <Avatar
             sx={{
               width: { md: "40px", lg: "47px" },
@@ -165,7 +220,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
             {getInitials(user)}
           </Avatar>
 
-          {/* User Info */}
           <Stack spacing="4px">
             <Typography
               sx={{
@@ -180,7 +234,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
               {getDisplayName(user)}
             </Typography>
 
-            {/* Role Badge */}
             <Box
               sx={{
                 display: "inline-flex",
@@ -208,7 +261,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
           </Stack>
         </Box>
 
-        {/* Mobile: Avatar only */}
+        {/* User Profile — Mobile avatar only */}
         <Avatar
           sx={{
             width: "32px",

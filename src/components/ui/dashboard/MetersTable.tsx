@@ -65,11 +65,10 @@ const MetersTable: FC<MetersTableProps> = ({
     setSelectedRow(null);
   };
 
-  // MetersTable.tsx - Update handleMenuItemClick
   const handleMenuItemClick = (action: "link" | "unlink" | "view") => {
     if (selectedRow) {
       onActionClick(action, {
-        deviceId: selectedRow.deviceId || selectedRow.meterId, // Add deviceId
+        deviceId: selectedRow.deviceId || selectedRow.meterId, 
         meterNumber: selectedRow.meterNumber,
         userId: selectedRow.userId,
         userName:

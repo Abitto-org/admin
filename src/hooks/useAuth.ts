@@ -17,13 +17,13 @@ const storeTempOtp = (email: string, otp: string) => {
 
 // Helper to get and clear temp OTP
 export const getTempOtp = (): { email: string; otp: string } | null => {
-  if (import.meta.env.DEV) {
-    const otp = localStorage.getItem(OTP_STORAGE_KEY);
-    const email = localStorage.getItem(EMAIL_STORAGE_KEY);
-    if (otp && email) {
-      return { email, otp };
-    }
+  // if (import.meta.env.DEV) {
+  const otp = localStorage.getItem(OTP_STORAGE_KEY);
+  const email = localStorage.getItem(EMAIL_STORAGE_KEY);
+  if (otp && email) {
+    return { email, otp };
   }
+  // }
   return null;
 };
 

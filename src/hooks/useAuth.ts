@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { authApi } from "@/api/auth.api";
-import { useAuthStore } from "@/store/auth.store";
-import type { LoginRequest, VerifyOtpRequest } from "@/types/api.types";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authApi } from '@/api/auth.api';
+import { useAuthStore } from '@/store/auth.store';
+import type { LoginRequest, VerifyOtpRequest } from '@/types/api.types';
 
-const OTP_STORAGE_KEY = "ABITTO_TEMP_OTP";
-const EMAIL_STORAGE_KEY = "ABITTO_TEMP_EMAIL";
+const OTP_STORAGE_KEY = 'ABITTO_TEMP_OTP';
+const EMAIL_STORAGE_KEY = 'ABITTO_TEMP_EMAIL';
 
 // Helper to store OTP temporarily in development
 const storeTempOtp = (email: string, otp: string) => {
-  if (import.meta.env.DEV) {
-    localStorage.setItem(OTP_STORAGE_KEY, otp);
-    localStorage.setItem(EMAIL_STORAGE_KEY, email);
-  }
+  //if (import.meta.env.DEV) {
+  localStorage.setItem(OTP_STORAGE_KEY, otp);
+  localStorage.setItem(EMAIL_STORAGE_KEY, email);
+  // }
 };
 
 // Helper to get and clear temp OTP
@@ -44,19 +44,19 @@ export const useLogin = () => {
     try {
       const response = await authApi.login(data);
 
-      if (response.status === "success") {
+      if (response.status === 'success') {
         // Store OTP temporarily in development
         storeTempOtp(data.email, response.data.otp);
 
         // Navigate to verify OTP page
-        navigate("/auth/verify-otp", {
+        navigate('/auth/verify-otp', {
           state: { email: data.email },
         });
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorMessage =
-        err.response?.data?.message || "Login failed. Please try again.";
+        err.response?.data?.message || 'Login failed. Please try again.';
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -79,7 +79,7 @@ export const useVerifyOtp = () => {
     try {
       const response = await authApi.verifyOtp(data);
 
-      if (response.status === "success" && response.data.validated) {
+      if (response.status === 'success' && response.data.validated) {
         // Save access token
         setToken(response.data.token);
 
@@ -90,13 +90,13 @@ export const useVerifyOtp = () => {
         clearTempOtp();
 
         // Navigate to dashboard
-        navigate("/dashboard");
+        navigate('/dashboard');
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message ||
-        "OTP verification failed. Please try again.";
+        'OTP verification failed. Please try again.';
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -117,11 +117,11 @@ export const useResendOtp = () => {
     try {
       const response = await authApi.resendOtp({
         email,
-        otp: "555555", // Placeholder as per API requirements
-        type: "login_device_verification",
+        otp: '555555', // Placeholder as per API requirements
+        type: 'login_device_verification',
       });
 
-      if (response.status === "success") {
+      if (response.status === 'success') {
         // Store new OTP temporarily in development
         storeTempOtp(email, response.data.otp);
         return response.data.otp;
@@ -130,7 +130,7 @@ export const useResendOtp = () => {
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message ||
-        "Failed to resend OTP. Please try again.";
+        'Failed to resend OTP. Please try again.';
       setError(errorMessage);
     } finally {
       setIsLoading(false);

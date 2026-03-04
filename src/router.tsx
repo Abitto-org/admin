@@ -11,7 +11,6 @@ import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 // Guards
 import AuthGuard from "@/components/guards/AuthGuard";
-// import GuestGuard from "@/components/guards/GuestGuard";
 
 // Layouts
 import AuthLayout from "@/components/layouts/AuthLayout";
@@ -41,19 +40,13 @@ interface RouteConfig {
   page: FC;
   layout?: FC<PropsWithChildren>;
   guard?: FC<PropsWithChildren>;
+  children?: RouteConfig[];
 }
 
 const routes: RouteConfig[] = [
-  {
-    path: "/",
-    page: App,
-  },
+  { path: "/", page: App },
   { path: "/auth/login", page: Login, layout: AuthLayout },
-  {
-    path: "/auth/verify-otp",
-    page: VerifyOTP,
-    layout: AuthLayout,
-  },
+  { path: "/auth/verify-otp", page: VerifyOTP, layout: AuthLayout },
   {
     path: "/dashboard",
     page: Dashboard,
@@ -73,7 +66,15 @@ const routes: RouteConfig[] = [
     layout: DashboardLayout,
     guard: AuthGuard,
   },
+  // Users has a nested /:id route — both render the same Users page,
+  // the page itself reads the param to open/close the drawer
   { path: "/users", page: Users, layout: DashboardLayout, guard: AuthGuard },
+  {
+    path: "/users/:userId",
+    page: Users,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
   {
     path: "/transactions",
     page: Transactions,

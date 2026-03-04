@@ -1,5 +1,6 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
-import { type FC, useState, useMemo } from "react";
+import { type FC, useState, useMemo, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import StatCard from "@/components/ui/dashboard/StatCard";
 import StatCardSkeleton from "@/components/ui/dashboard/StatCardSkeleton";
 import UsersTable from "@/components/ui/dashboard/UsersTable";
@@ -9,26 +10,18 @@ import LinkText from "@/components/ui/dashboard/LinkText";
 import { useGetUsers } from "@/hooks/useUsers";
 import useDisclosure from "@/hooks/useDisclosure";
 import type { User } from "@/types/users.types";
+import RegisterUserDrawer from "@/components/ui/drawers/RegisterUserDrawer";
 
 const Users: FC = () => {
+  const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
+  const registerUserDrawer = useDisclosure();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterValue, setFilterValue] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const userDrawer = useDisclosure();
-
-  const handleRegisterUser = () => {
-    console.log("Register new user clicked");
-  };
-
-  const handleViewLinkRequest = () => {
-    console.log("View link request clicked");
-  };
-
-  const handleViewUser = (user: User) => {
-    setSelectedUser(user);
-    userDrawer.onOpen();
-  };
 
   const queryParams = useMemo(() => {
     const params: {
@@ -36,26 +29,51 @@ const Users: FC = () => {
       limit: number;
       search?: string;
       isActive?: boolean;
-    } = {
-      page: currentPage,
-      limit: 10,
-    };
+    } = { page: currentPage, limit: 10 };
 
-    if (searchQuery) {
-      params.search = searchQuery;
-    }
-
-    if (filterValue === "active") {
-      params.isActive = true;
-    } else if (filterValue === "inactive") {
-      params.isActive = false;
-    }
+    if (searchQuery) params.search = searchQuery;
+    if (filterValue === "active") params.isActive = true;
+    else if (filterValue === "inactive") params.isActive = false;
 
     return params;
   }, [currentPage, searchQuery, filterValue]);
 
   const { data, isLoading } = useGetUsers(queryParams);
-  console.log("Users data:", data);
+
+  // When the URL has a userId and we have user data, open the drawer
+  // Only open from URL on initial load — do not re-open when actively closing
+  useEffect(() => {
+    if (userId && data?.data?.users && !userDrawer.open) {
+      const user = data.data.users.find((u) => u.id === userId);
+      if (user) {
+        queueMicrotask(() => {
+          setSelectedUser(user);
+          userDrawer.onOpen();
+        });
+      }
+    }
+  }, [userId, data?.data?.users]);
+
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    userDrawer.onOpen();
+    navigate(`/users/${user.id}`);
+  };
+
+  // FIX 1: clear selectedUser so drawer content resets on any close trigger
+  const handleCloseDrawer = () => {
+    userDrawer.onClose();
+    setSelectedUser(null);
+    navigate("/users");
+  };
+
+  const handleRegisterUser = () => {
+    registerUserDrawer.onOpen();
+  };
+
+  const handleViewLinkRequest = () => {
+    console.log("View link request clicked");
+  };
 
   const stats = data?.data?.stats || {
     totalUsers: 0,
@@ -79,7 +97,6 @@ const Users: FC = () => {
           mb: { xs: 2, md: 3 },
         }}
       >
-        {/* Title and Subtitle */}
         <Box>
           <Typography
             variant="h1"
@@ -105,13 +122,10 @@ const Users: FC = () => {
           </Typography>
         </Box>
 
-        {/* Action Buttons */}
         <Stack
           direction="row"
           spacing="16px"
-          sx={{
-            width: { xs: "100%", sm: "auto" },
-          }}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
         >
           <Button
             onClick={handleRegisterUser}
@@ -130,9 +144,7 @@ const Users: FC = () => {
               alignItems: "center",
               gap: "12px",
               whiteSpace: "nowrap",
-              "&:hover": {
-                backgroundColor: "#558000",
-              },
+              "&:hover": { backgroundColor: "#558000" },
             }}
           >
             Register New User
@@ -140,10 +152,7 @@ const Users: FC = () => {
               component="img"
               src={ButtonArrowIcon}
               alt="arrow"
-              sx={{
-                width: "20px",
-                height: "20px",
-              }}
+              sx={{ width: "20px", height: "20px" }}
             />
           </Button>
         </Stack>
@@ -153,10 +162,7 @@ const Users: FC = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: {
-            xs: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
-          },
+          gridTemplateColumns: { xs: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
           gap: "8px",
           mb: { xs: 2, md: 3 },
         }}
@@ -208,7 +214,13 @@ const Users: FC = () => {
         onViewUser={handleViewUser}
       />
 
-      <UserDrawer userDrawer={userDrawer} user={selectedUser} />
+      {/* FIX 2: pass onClose explicitly so backdrop click goes through handleCloseDrawer */}
+      <UserDrawer
+        userDrawer={userDrawer}
+        user={selectedUser}
+        onClose={handleCloseDrawer}
+      />
+      <RegisterUserDrawer registerUserDrawer={registerUserDrawer} />
     </>
   );
 };

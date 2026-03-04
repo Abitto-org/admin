@@ -1,11 +1,4 @@
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Divider,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import { type FC, useRef, useCallback, useEffect } from "react";
 import {
   useGetNotifications,
@@ -14,14 +7,14 @@ import {
 } from "@/hooks/useNotifications";
 import type { Notification } from "@/types/notifications.types";
 
-
 const NotificationsDropdown = () => {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useGetNotifications();
 
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllRead();
-  const { mutate: markOneRead, isPending: isMarkingOne } = useMarkOneRead();
+  const { mutate: markOneRead } = useMarkOneRead();
 
+  // Infinite scroll sentinel
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -137,7 +130,7 @@ const NotificationsDropdown = () => {
       <Divider />
 
       {/* Body */}
-      <Box sx={{ flex: 1, overflowY: "auto" }}>
+      <Box className="no-scrollbar" sx={{ flex: 1, overflowY: "auto" }}>
         {isLoading ? (
           <Box
             sx={{
@@ -161,11 +154,7 @@ const NotificationsDropdown = () => {
             }}
           >
             <Typography
-              sx={{
-                fontWeight: 600,
-                fontSize: "14px",
-                color: "#414141",
-              }}
+              sx={{ fontWeight: 600, fontSize: "14px", color: "#414141" }}
             >
               No notifications yet
             </Typography>
@@ -186,12 +175,9 @@ const NotificationsDropdown = () => {
               <Box key={notification?.id ?? index}>
                 <NotificationItem
                   notification={notification}
-                  onMarkRead={(id) => markOneRead(id)}
-                  isMarkingRead={isMarkingOne}
+                  onVisible={(id) => markOneRead(id)}
                 />
-                {index < allNotifications.length - 1 && (
-                  <Divider sx={{ mx: "16px" }} />
-                )}
+                {index < allNotifications.length - 1 && <Divider />}
               </Box>
             ))}
 
@@ -220,13 +206,11 @@ export default NotificationsDropdown;
 
 const NotificationItem: FC<{
   notification: Notification;
-  onMarkRead: (id: string) => void;
-  isMarkingRead: boolean;
-}> = ({ notification, onMarkRead, isMarkingRead }) => {
-  // Log shape on first render so we can inspect the actual fields
-  useEffect(() => {
-    console.log("[NotificationItem] shape:", notification);
-  }, [notification]);
+  onVisible: (id: string) => void;
+}> = ({ notification, onVisible }) => {
+  const itemRef = useRef<HTMLDivElement | null>(null);
+  // Track if we've already fired for this item so we only mark once
+  const hasMarked = useRef(false);
 
   const isRead = notification?.isRead as boolean | undefined;
   const title = (notification?.title as string) ?? "Notification";
@@ -235,12 +219,44 @@ const NotificationItem: FC<{
     ? new Date(notification.createdAt as string).toLocaleString()
     : null;
 
+  useEffect(() => {
+    // Already read or already marked this session — no observer needed
+    if (isRead !== false || hasMarked.current) return;
+
+    const node = itemRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasMarked.current) {
+          // Small delay so we don't fire on items that flash by quickly
+          const timer = setTimeout(() => {
+            hasMarked.current = true;
+            onVisible(notification.id);
+            observer.disconnect();
+          }, 800);
+
+          // If it leaves viewport before the delay, cancel
+          entries[0].target.addEventListener(
+            "mouseleave",
+            () => clearTimeout(timer),
+            { once: true },
+          );
+        }
+      },
+      { threshold: 0.6 }, // at least 60% of the item must be visible
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isRead, notification.id, onVisible]);
+
   return (
     <Box
+      ref={itemRef}
       sx={{
         display: "flex",
         alignItems: "flex-start",
-        justifyContent: "space-between",
         gap: "12px",
         padding: "12px 16px",
         backgroundColor: isRead === false ? "#F0F7E6" : "white",
@@ -248,11 +264,11 @@ const NotificationItem: FC<{
         "&:hover": {
           backgroundColor: isRead === false ? "#E8F2D8" : "#FAFAFA",
         },
-        cursor: "default",
+        cursor: "pointer",
       }}
     >
       {/* Unread dot */}
-      <Box sx={{ pt: "6px", flexShrink: 0 }}>
+      {/* <Box sx={{ pt: "6px", flexShrink: 0 }}>
         <Box
           sx={{
             width: "8px",
@@ -262,7 +278,7 @@ const NotificationItem: FC<{
             border: isRead === false ? "none" : "1.5px solid #CCCCCC",
           }}
         />
-      </Box>
+      </Box> */}
 
       {/* Content */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -308,39 +324,6 @@ const NotificationItem: FC<{
           </Typography>
         )}
       </Box>
-
-      {/* Mark as read button — only show if unread */}
-      {isRead === false && (
-        <Tooltip title="Mark as read" placement="top">
-          <IconButton
-            onClick={() => onMarkRead(notification.id)}
-            disabled={isMarkingRead}
-            size="small"
-            sx={{
-              flexShrink: 0,
-              width: "24px",
-              height: "24px",
-              color: "#669900",
-              "&:hover": { backgroundColor: "#6699001A" },
-            }}
-          >
-            {isMarkingRead ? (
-              <CircularProgress size={12} sx={{ color: "#669900" }} />
-            ) : (
-              // Simple checkmark icon via SVG to avoid extra imports
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path
-                  d="M2 7L5.5 10.5L12 3.5"
-                  stroke="#669900"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            )}
-          </IconButton>
-        </Tooltip>
-      )}
     </Box>
   );
 };

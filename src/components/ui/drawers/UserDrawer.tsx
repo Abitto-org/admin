@@ -11,13 +11,14 @@ interface UserDrawerProps {
     onClose: () => void;
   };
   user: User | null;
+  onClose: () => void;
 }
 
-const UserDrawer: FC<UserDrawerProps> = ({ userDrawer, user }) => {
+const UserDrawer: FC<UserDrawerProps> = ({ userDrawer, user, onClose }) => {
   return (
-    <CustomDrawer open={userDrawer.open} onClose={userDrawer.onClose}>
+    <CustomDrawer open={userDrawer.open} onClose={onClose}>
       {user ? (
-        <UserDetailsForm onClose={userDrawer.onClose} user={user} />
+        <UserDetailsForm onClose={onClose} user={user} />
       ) : (
         <Box sx={{ p: 3 }}>
           <Typography>No user selected</Typography>

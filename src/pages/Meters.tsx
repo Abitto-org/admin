@@ -54,6 +54,8 @@ const Meters: FC = () => {
     active: 0,
   };
 
+  console.log('Stats', stats)
+
   const linkedPercentage =
     stats.total > 0 ? Math.round((stats.linked / stats.total) * 100) : 0;
   const unlinkedPercentage =
@@ -183,7 +185,7 @@ const Meters: FC = () => {
           <>
             <StatCard
               label="Total Meters"
-              value={stats.total?.toString()}
+              value={stats?.total?.toString()}
               subtext="Total Available Meters"
               subtextColor="#2EAE4E"
             />
@@ -193,10 +195,10 @@ const Meters: FC = () => {
               subtext={`${linkedPercentage}% of meters has been linked`}
             />
             <StatCard
-  label="Unlinked Meters"
-  value={stats.unregistered?.toString()}
-  subtext={`${unlinkedPercentage}% of meters has been unlinked`}
-/>
+              label="Unlinked Meters"
+              value={stats.unregistered?.toString()}
+              subtext={`${unlinkedPercentage}% of meters has been unlinked`}
+            />
           </>
         )}
       </Box>

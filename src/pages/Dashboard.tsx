@@ -32,8 +32,12 @@ const Dashboard: FC = () => {
   const linkMeterDrawer = useDisclosure();
 
   const { data: statsData, isLoading: statsLoading } = useGetStats();
-  const stats = statsData?.data;
-  console.log("Stats: ", stats);
+
+  const users = statsData?.data?.users;
+  const revenue = statsData?.data?.revenue;
+  const meters = statsData?.data?.meters;
+  const gasSold = statsData?.data?.gasSold;
+
   const queryParams = useMemo(
     () => ({
       page: 1,
@@ -184,10 +188,10 @@ const Dashboard: FC = () => {
           <>
             <StatCard
               label="Total Users"
-              value={stats?.users.total.toString() ?? "0"}
+              value={(users?.total ?? 0).toString()}
               subtext={
                 <TrendText
-                  text={`+${stats?.users.increasePastMonth ?? 0} users this month`}
+                  text={`+${users?.increasePastMonth ?? 0} users this month`}
                 />
               }
               subtextGap="4px"
@@ -195,20 +199,19 @@ const Dashboard: FC = () => {
 
             <StatCard
               label="Total Revenue"
-              value={`₦ ${Number(stats?.revenue.total ?? 0).toLocaleString()}`}
+              value={`₦ ${Number(revenue?.total ?? 0).toLocaleString()}`}
               subtext={
                 <TrendText
-                  text={`₦${Number(stats?.revenue.today ?? 0).toLocaleString()} today`}
+                  text={`₦${Number(revenue?.today ?? 0).toLocaleString()} today`}
                   color="#414141"
                 />
               }
-              // action={<RangeSelect defaultValue="Today" />}
               subtextGap="4px"
             />
 
             <StatCard
               label="Total Active Meters"
-              value={stats?.meters.active.toString() ?? "0"}
+              value={(meters?.active ?? 0).toString()}
               subtext={
                 <LinkText
                   text="View Link Requests"
@@ -221,7 +224,7 @@ const Dashboard: FC = () => {
 
             <StatCard
               label="Total Gas Sold"
-              value={`${Number(stats?.gasSold.totalKg ?? 0).toLocaleString(
+              value={`${Number(gasSold?.totalKg ?? 0).toLocaleString(
                 undefined,
                 {
                   minimumFractionDigits: 0,
@@ -230,7 +233,7 @@ const Dashboard: FC = () => {
               )} kg`}
               subtext={
                 <TrendText
-                  text={`${stats?.gasSold.todayKg ?? 0}kg gas sold today`}
+                  text={`${gasSold?.todayKg ?? 0}kg gas sold today`}
                   showIcon={false}
                   color="#414141"
                 />

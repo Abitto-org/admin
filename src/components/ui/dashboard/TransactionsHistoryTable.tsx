@@ -204,7 +204,6 @@ const TransactionsHistoryTable: FC<TransactionsHistoryTableProps> = ({
     );
   }
 
-  // Full mode: With all filters and pagination
   return (
     <DataTable
       title="Transactions"

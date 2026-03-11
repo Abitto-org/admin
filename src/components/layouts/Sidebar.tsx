@@ -17,6 +17,8 @@ import {
   Logout as LogoutIcon,
   House,
 } from "@mui/icons-material";
+import GasMeterIcon from "@mui/icons-material/GasMeter";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ABITTO_LOGO from "@/assets/abitto_logo.png";
 import { type JSX, type FC, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -55,6 +57,12 @@ const navSections: NavSection[] = [
       { label: "Users", path: "/users", icon: <People /> },
       { label: "Estates", path: "/estates", icon: <House /> },
       { label: "Transactions", path: "/transactions", icon: <Receipt /> },
+      { label: "Incidents", path: "/incidents", icon: <GasMeterIcon /> },
+      {
+        label: "Admin & Roles",
+        path: "/admin",
+        icon: <AdminPanelSettingsIcon />,
+      },
     ],
   },
   {

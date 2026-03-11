@@ -149,14 +149,6 @@ const TransactionDetailsForm: FC<TransactionDetailsFormProps> = ({
           <DetailRow label="Type" value={transaction.type.replace(/_/g, " ")} />
           <DetailRow label="Provider" value={transaction.provider} />
           <DetailRow label="Description" value={transaction.description} />
-          <DetailRow
-            label="Created At"
-            value={formatDate(transaction.createdAt)}
-          />
-          <DetailRow
-            label="Updated At"
-            value={formatDate(transaction.updatedAt)}
-          />
         </Box>
 
         {/* User Information */}

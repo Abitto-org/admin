@@ -24,6 +24,7 @@ import App from "./App";
 // Auth Pages
 const Login = lazy(() => import("@/pages/auth/Login"));
 const VerifyOTP = lazy(() => import("@/pages/auth/VerifyOTP"));
+const CompleteSetup = lazy(() => import("@/pages/auth/CompleteSetup"));
 
 // Main Pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -32,6 +33,8 @@ const Meters = lazy(() => import("@/pages/Meters"));
 const Estates = lazy(() => import("@/pages/Estates"));
 const Users = lazy(() => import("@/pages/Users"));
 const Transactions = lazy(() => import("@/pages/Transactions"));
+const Incidents = lazy(() => import("@/pages/Incidents"));
+const AdminandRoles = lazy(() => import("@/pages/Admin&Roles"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 const Settings = lazy(() => import("@/pages/Settings"));
 
@@ -47,6 +50,7 @@ const routes: RouteConfig[] = [
   { path: "/", page: App },
   { path: "/auth/login", page: Login, layout: AuthLayout },
   { path: "/auth/verify-otp", page: VerifyOTP, layout: AuthLayout },
+  { path: "/invite", page: CompleteSetup, layout: AuthLayout },
   {
     path: "/dashboard",
     page: Dashboard,
@@ -66,8 +70,6 @@ const routes: RouteConfig[] = [
     layout: DashboardLayout,
     guard: AuthGuard,
   },
-  // Users has a nested /:id route — both render the same Users page,
-  // the page itself reads the param to open/close the drawer
   { path: "/users", page: Users, layout: DashboardLayout, guard: AuthGuard },
   {
     path: "/users/:userId",
@@ -78,6 +80,18 @@ const routes: RouteConfig[] = [
   {
     path: "/transactions",
     page: Transactions,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/incidents",
+    page: Incidents,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/admin",
+    page: AdminandRoles,
     layout: DashboardLayout,
     guard: AuthGuard,
   },

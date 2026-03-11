@@ -1,9 +1,15 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
 import { type FC } from "react";
 import AdminRolesTable from "@/components/ui/dashboard/AdminRolesTable";
+import InvitationsTable from "@/components/ui/dashboard/InvitationsTable";
+import InviteAdminDrawer from "@/components/ui/drawers/InviteAdminDrawer";
+import RoleGuard from "@/components/guards/RoleGuard";
+import useDisclosure from "@/hooks/useDisclosure";
 import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 
 const AdminandRoles: FC = () => {
+  const inviteAdminDrawer = useDisclosure();
+
   return (
     <>
       <Box
@@ -40,50 +46,48 @@ const AdminandRoles: FC = () => {
             Manage and monitor all admins
           </Typography>
         </Box>
-        <Stack
-          direction="row"
-          spacing="16px"
-          sx={{
-            width: { xs: "100%", sm: "auto" },
-          }}
-        >
-          <Button
-            // onClick={linkMeterDrawer.onOpen}
-            sx={{
-              height: "48px",
-              borderRadius: "32px",
-              padding: "12px 24px",
-              backgroundColor: "#669900",
-              color: "#FFFFFF",
-              fontWeight: 600,
-              fontSize: { xs: "14px", sm: "16px" },
-              lineHeight: "100%",
-              letterSpacing: "0%",
-              textTransform: "capitalize",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              whiteSpace: "nowrap",
-              "&:hover": {
-                backgroundColor: "#558000",
-              },
-            }}
+
+        <RoleGuard action="canInviteAdmin">
+          <Stack
+            direction="row"
+            spacing="16px"
+            sx={{ width: { xs: "100%", sm: "auto" } }}
           >
-            Add New Admin
-            <Box
-              component="img"
-              src={ButtonArrowIcon}
-              alt="arrow"
+            <Button
+              onClick={inviteAdminDrawer.onOpen}
               sx={{
-                width: "20px",
-                height: "20px",
+                height: "48px",
+                borderRadius: "32px",
+                padding: "12px 24px",
+                backgroundColor: "#669900",
+                color: "#FFFFFF",
+                fontWeight: 600,
+                fontSize: { xs: "14px", sm: "16px" },
+                lineHeight: "100%",
+                textTransform: "capitalize",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                whiteSpace: "nowrap",
+                "&:hover": { backgroundColor: "#558000" },
               }}
-            />
-          </Button>
-        </Stack>
+            >
+              Add New Admin
+              <Box
+                component="img"
+                src={ButtonArrowIcon}
+                alt="arrow"
+                sx={{ width: "20px", height: "20px" }}
+              />
+            </Button>
+          </Stack>
+        </RoleGuard>
       </Box>
 
       <AdminRolesTable />
+      <InvitationsTable />
+
+      <InviteAdminDrawer inviteAdminDrawer={inviteAdminDrawer} />
     </>
   );
 };

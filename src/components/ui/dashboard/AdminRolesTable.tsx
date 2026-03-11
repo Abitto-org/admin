@@ -24,8 +24,10 @@ interface AdminTableRow {
   actions: User;
 }
 
+
 const AdminRolesTable: FC = () => {
   const { data, isLoading } = useGetAdmins();
+  console.log("Admin data: ", data);
   const adminDrawer = useDisclosure();
   const [selectedAdmin, setSelectedAdmin] = useState<User | null>(null);
 
@@ -49,16 +51,8 @@ const AdminRolesTable: FC = () => {
   }, [data]);
 
   const columns: Column<AdminTableRow>[] = [
-    {
-      key: "name",
-      label: "Name",
-      minWidth: "160px",
-    },
-    {
-      key: "email",
-      label: "Email",
-      minWidth: "200px",
-    },
+    { key: "name", label: "Name", minWidth: "160px" },
+    { key: "email", label: "Email", minWidth: "200px" },
     {
       key: "role",
       label: "Role",

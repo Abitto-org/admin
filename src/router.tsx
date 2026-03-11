@@ -11,6 +11,7 @@ import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 // Guards
 import AuthGuard from "@/components/guards/AuthGuard";
+import RoleProtectedRoute from "@/components/guards/RoleProtectedRoute";
 
 // Layouts
 import AuthLayout from "@/components/layouts/AuthLayout";
@@ -50,7 +51,35 @@ const routes: RouteConfig[] = [
   { path: "/", page: App },
   { path: "/auth/login", page: Login, layout: AuthLayout },
   { path: "/auth/verify-otp", page: VerifyOTP, layout: AuthLayout },
-  { path: "/invite", page: CompleteSetup, layout: AuthLayout },
+  { path: "/setup-profile", page: CompleteSetup, layout: AuthLayout },
+
+  // ── Installer-accessible routes ─────────────────────────────────────────────
+  {
+    path: "/link-requests",
+    page: LinkRequests,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/meters",
+    page: Meters,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/users",
+    page: Users,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/users/:userId",
+    page: Users,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+
+  // ── Standard admin routes (super-admin, admin, support) ─────────────────────
   {
     path: "/dashboard",
     page: Dashboard,
@@ -58,22 +87,8 @@ const routes: RouteConfig[] = [
     guard: AuthGuard,
   },
   {
-    path: "/link-requests",
-    page: LinkRequests,
-    layout: DashboardLayout,
-    guard: AuthGuard,
-  },
-  { path: "/meters", page: Meters, layout: DashboardLayout, guard: AuthGuard },
-  {
     path: "/estates",
     page: Estates,
-    layout: DashboardLayout,
-    guard: AuthGuard,
-  },
-  { path: "/users", page: Users, layout: DashboardLayout, guard: AuthGuard },
-  {
-    path: "/users/:userId",
-    page: Users,
     layout: DashboardLayout,
     guard: AuthGuard,
   },
@@ -90,12 +105,6 @@ const routes: RouteConfig[] = [
     guard: AuthGuard,
   },
   {
-    path: "/admin",
-    page: AdminandRoles,
-    layout: DashboardLayout,
-    guard: AuthGuard,
-  },
-  {
     path: "/help-center",
     page: HelpCenter,
     layout: DashboardLayout,
@@ -107,6 +116,19 @@ const routes: RouteConfig[] = [
     layout: DashboardLayout,
     guard: AuthGuard,
   },
+
+  // ── Super-admin only routes ─────────────────────────────────────────────────
+  {
+    path: "/admin",
+    page: () => (
+      <RoleProtectedRoute allowedRoles={["super-admin"]}>
+        <AdminandRoles />
+      </RoleProtectedRoute>
+    ),
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+
   { path: "*", page: NotFound },
 ];
 

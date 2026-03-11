@@ -12,7 +12,7 @@ import {
   Speed,
   People,
   Receipt,
-  HelpCenter,
+  // HelpCenter,
   Settings,
   Logout as LogoutIcon,
   House,
@@ -20,12 +20,13 @@ import {
 import GasMeterIcon from "@mui/icons-material/GasMeter";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ABITTO_LOGO from "@/assets/abitto_logo.png";
-import { type JSX, type FC, useEffect } from "react";
+import { type JSX, type FC, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CollapseIcon from "@/assets/icons/collapse.svg";
 import { useAuthStore } from "@/store/auth.store";
 import useDisclosure from "@/hooks/useDisclosure";
 import LogoutConfirmDialog from "@/components/ui/modals/LogoutConfirmDialog";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface NavLink {
   label: string;
@@ -47,7 +48,7 @@ interface SidebarProps {
 
 const SIDEBAR_STORAGE_KEY = "sidebar-collapsed-state";
 
-const navSections: NavSection[] = [
+const ALL_NAV_SECTIONS: (NavSection & { requiredRoles?: string[] })[] = [
   {
     title: "General",
     links: [
@@ -57,7 +58,11 @@ const navSections: NavSection[] = [
       { label: "Users", path: "/users", icon: <People /> },
       { label: "Estates", path: "/estates", icon: <House /> },
       { label: "Transactions", path: "/transactions", icon: <Receipt /> },
-      { label: "Incidents", path: "/incidents", icon: <GasMeterIcon /> },
+      {
+        label: "Incidents",
+        path: "/incidents",
+        icon: <GasMeterIcon />,
+      },
       {
         label: "Admin & Roles",
         path: "/admin",
@@ -68,11 +73,25 @@ const navSections: NavSection[] = [
   {
     title: "System",
     links: [
-      { label: "Help Center", path: "/help-center", icon: <HelpCenter /> },
+      // { label: "Help Center", path: "/help-center", icon: <HelpCenter /> },
       { label: "Settings", path: "/settings", icon: <Settings /> },
     ],
   },
 ];
+
+// Which paths each role can see in the sidebar
+const SIDEBAR_ACCESS: Record<string, string[]> = {
+  "/dashboard": ["super-admin", "admin", "support"],
+  "/link-requests": ["super-admin", "admin", "support", "installer"],
+  "/meters": ["super-admin", "admin", "support", "installer"],
+  "/estates": ["super-admin", "admin", "support"],
+  "/users": ["super-admin", "admin", "support", "installer"],
+  "/transactions": ["super-admin", "admin", "support"],
+  "/incidents": ["super-admin", "admin", "support"],
+  "/admin": ["super-admin"],
+  "/help-center": ["super-admin", "admin", "support"],
+  "/settings": ["super-admin", "admin"],
+};
 
 const Sidebar: FC<SidebarProps> = ({
   isCollapsed,
@@ -84,10 +103,24 @@ const Sidebar: FC<SidebarProps> = ({
   const navigate = useNavigate();
   const { logout } = useAuthStore();
   const logoutDialog = useDisclosure();
+  const { role } = usePermissions();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(isCollapsed));
   }, [isCollapsed]);
+
+  // Filter nav sections based on current role
+  const filteredSections = useMemo(() => {
+    if (!role) return [];
+    return ALL_NAV_SECTIONS.map((section) => ({
+      ...section,
+      links: section.links.filter((link) => {
+        const allowed = SIDEBAR_ACCESS[link.path];
+        if (!allowed) return true; // default show if not specified
+        return allowed.includes(role);
+      }),
+    })).filter((section) => section.links.length > 0);
+  }, [role]);
 
   const handleLogout = () => {
     logout();
@@ -118,14 +151,8 @@ const Sidebar: FC<SidebarProps> = ({
       {/* Sidebar */}
       <Box
         sx={{
-          width: {
-            xs: "75%",
-            md: isCollapsed ? "auto" : "273px",
-          },
-          minWidth: {
-            xs: "75%",
-            md: isCollapsed ? "auto" : "273px",
-          },
+          width: { xs: "75%", md: isCollapsed ? "auto" : "273px" },
+          minWidth: { xs: "75%", md: isCollapsed ? "auto" : "273px" },
           height: "100dvh",
           padding: { xs: "16px", md: "21px" },
           borderRight: "1px solid #ECECEC",
@@ -136,10 +163,7 @@ const Sidebar: FC<SidebarProps> = ({
           overflowX: "hidden",
           position: { xs: "fixed", md: "sticky" },
           top: 0,
-          left: {
-            xs: isMobileOpen ? 0 : "-100%",
-            md: 0,
-          },
+          left: { xs: isMobileOpen ? 0 : "-100%", md: 0 },
           bgcolor: "white",
           zIndex: { xs: 1200, md: "auto" },
         }}
@@ -159,13 +183,10 @@ const Sidebar: FC<SidebarProps> = ({
         >
           {!isCollapsed && (
             <Box
-              component={"img"}
+              component="img"
               src={ABITTO_LOGO}
               alt="abitto logo"
-              sx={{
-                width: { xs: "100px", sm: "140px" },
-                height: "auto",
-              }}
+              sx={{ width: { xs: "100px", sm: "140px" }, height: "auto" }}
             />
           )}
           <Tooltip
@@ -201,14 +222,13 @@ const Sidebar: FC<SidebarProps> = ({
           spacing={3}
           sx={{ flex: 1, overflowY: "auto", pb: 5 }}
         >
-          {navSections.map((section, index) => (
+          {filteredSections.map((section, index) => (
             <Box key={index}>
               <Typography
                 sx={{
                   fontWeight: 700,
                   fontSize: "16px",
                   lineHeight: "100%",
-                  letterSpacing: "0%",
                   textTransform: "capitalize",
                   color: "#414141",
                   mb: "12px",
@@ -240,9 +260,7 @@ const Sidebar: FC<SidebarProps> = ({
                           xs: "flex-start",
                           md: isCollapsed ? "center" : "flex-start",
                         },
-                        "&:hover": {
-                          backgroundColor: "#FAFAFA",
-                        },
+                        "&:hover": { backgroundColor: "#FAFAFA" },
                         "& .MuiSvgIcon-root": {
                           fontSize: "20px",
                           color: "#414141",
@@ -256,7 +274,6 @@ const Sidebar: FC<SidebarProps> = ({
                           fontWeight: 600,
                           fontSize: "14px",
                           lineHeight: "100%",
-                          letterSpacing: "0%",
                           textTransform: "capitalize",
                           color: "#414141",
                           whiteSpace: "nowrap",
@@ -275,7 +292,7 @@ const Sidebar: FC<SidebarProps> = ({
             </Box>
           ))}
 
-          {/* Logout Button */}
+          {/* Logout */}
           <Tooltip title={isCollapsed ? "Logout" : ""} placement="right">
             <Box
               onClick={logoutDialog.onOpen}
@@ -291,9 +308,7 @@ const Sidebar: FC<SidebarProps> = ({
                   xs: "flex-start",
                   md: isCollapsed ? "center" : "flex-start",
                 },
-                "&:hover": {
-                  backgroundColor: "#EA00002A",
-                },
+                "&:hover": { backgroundColor: "#EA00002A" },
                 "& .MuiSvgIcon-root": {
                   fontSize: "20px",
                   color: "#EA0000",
@@ -307,7 +322,6 @@ const Sidebar: FC<SidebarProps> = ({
                   fontWeight: 600,
                   fontSize: "14px",
                   lineHeight: "100%",
-                  letterSpacing: "0%",
                   textTransform: "capitalize",
                   color: "#EA0000",
                   whiteSpace: "nowrap",
@@ -321,7 +335,6 @@ const Sidebar: FC<SidebarProps> = ({
         </Stack>
       </Box>
 
-      {/* Logout Confirmation Dialog */}
       <LogoutConfirmDialog
         open={logoutDialog.open}
         onClose={logoutDialog.onClose}

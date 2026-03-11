@@ -9,6 +9,7 @@ import ButtonArrowIcon from "@/assets/icons/button-arrow.svg";
 import LinkText from "@/components/ui/dashboard/LinkText";
 import { useGetUsers } from "@/hooks/useUsers";
 import useDisclosure from "@/hooks/useDisclosure";
+import RoleGuard from "@/components/guards/RoleGuard";
 import type { User } from "@/types/users.types";
 import RegisterUserDrawer from "@/components/ui/drawers/RegisterUserDrawer";
 
@@ -40,8 +41,6 @@ const Users: FC = () => {
 
   const { data, isLoading } = useGetUsers(queryParams);
 
-  // When the URL has a userId and we have user data, open the drawer
-  // Only open from URL on initial load — do not re-open when actively closing
   useEffect(() => {
     if (userId && data?.data?.users && !userDrawer.open) {
       const user = data.data.users.find((u) => u.id === userId);
@@ -60,15 +59,10 @@ const Users: FC = () => {
     navigate(`/users/${user.id}`);
   };
 
-  // FIX 1: clear selectedUser so drawer content resets on any close trigger
   const handleCloseDrawer = () => {
     userDrawer.onClose();
     setSelectedUser(null);
     navigate("/users");
-  };
-
-  const handleRegisterUser = () => {
-    registerUserDrawer.onOpen();
   };
 
   const handleViewLinkRequest = () => {
@@ -122,85 +116,90 @@ const Users: FC = () => {
           </Typography>
         </Box>
 
-        <Stack
-          direction="row"
-          spacing="16px"
-          sx={{ width: { xs: "100%", sm: "auto" } }}
-        >
-          <Button
-            onClick={handleRegisterUser}
-            sx={{
-              height: "48px",
-              borderRadius: "32px",
-              padding: "12px 24px",
-              backgroundColor: "#669900",
-              color: "#FFFFFF",
-              fontWeight: 600,
-              fontSize: { xs: "14px", sm: "16px" },
-              lineHeight: "100%",
-              letterSpacing: "0%",
-              textTransform: "capitalize",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              whiteSpace: "nowrap",
-              "&:hover": { backgroundColor: "#558000" },
-            }}
+        {/* Only super-admin and admin can register users */}
+        <RoleGuard action="canRegisterUser">
+          <Stack
+            direction="row"
+            spacing="16px"
+            sx={{ width: { xs: "100%", sm: "auto" } }}
           >
-            Register New User
-            <Box
-              component="img"
-              src={ButtonArrowIcon}
-              alt="arrow"
-              sx={{ width: "20px", height: "20px" }}
-            />
-          </Button>
-        </Stack>
+            <Button
+              onClick={registerUserDrawer.onOpen}
+              sx={{
+                height: "48px",
+                borderRadius: "32px",
+                padding: "12px 24px",
+                backgroundColor: "#669900",
+                color: "#FFFFFF",
+                fontWeight: 600,
+                fontSize: { xs: "14px", sm: "16px" },
+                lineHeight: "100%",
+                letterSpacing: "0%",
+                textTransform: "capitalize",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                whiteSpace: "nowrap",
+                "&:hover": { backgroundColor: "#558000" },
+              }}
+            >
+              Register New User
+              <Box
+                component="img"
+                src={ButtonArrowIcon}
+                alt="arrow"
+                sx={{ width: "20px", height: "20px" }}
+              />
+            </Button>
+          </Stack>
+        </RoleGuard>
       </Box>
 
-      {/* Stats Cards */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
-          gap: "8px",
-          mb: { xs: 2, md: 3 },
-        }}
-      >
-        {isLoading ? (
-          <>
-            <StatCardSkeleton label="Total Users" />
-            <StatCardSkeleton label="Users Without Linked Meters" />
-            <StatCardSkeleton label="Active Users Today" />
-          </>
-        ) : (
-          <>
-            <StatCard
-              label="Total Users"
-              value={stats.totalUsers.toString()}
-              subtext={`${stats.joinedToday} new user${stats.joinedToday === 1 ? "" : "s"} today`}
-              subtextColor="#2EAE4E"
-            />
-            <StatCard
-              label="Users Without Linked Meters"
-              value={stats.usersWithoutMeters.toString()}
-              subtext={
-                <LinkText
-                  text={`${stats.percentageWithoutMeters}% of Total Users`}
-                  onClick={handleViewLinkRequest}
-                  iconGap="6px"
-                />
-              }
-              subtextGap="6px"
-            />
-            <StatCard
-              label="Active Users Today"
-              value={stats.activeToday.toString()}
-              subtext={`${stats.totalKgBoughtToday}kg of gas bought today`}
-            />
-          </>
-        )}
-      </Box>
+      {/* Stats Cards — hidden for installer (they don't need the overview) */}
+      <RoleGuard roles={["super-admin", "admin", "support"]}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+            gap: "8px",
+            mb: { xs: 2, md: 3 },
+          }}
+        >
+          {isLoading ? (
+            <>
+              <StatCardSkeleton label="Total Users" />
+              <StatCardSkeleton label="Users Without Linked Meters" />
+              <StatCardSkeleton label="Active Users Today" />
+            </>
+          ) : (
+            <>
+              <StatCard
+                label="Total Users"
+                value={stats.totalUsers.toString()}
+                subtext={`${stats.joinedToday} new user${stats.joinedToday === 1 ? "" : "s"} today`}
+                subtextColor="#2EAE4E"
+              />
+              <StatCard
+                label="Users Without Linked Meters"
+                value={stats.usersWithoutMeters.toString()}
+                subtext={
+                  <LinkText
+                    text={`${stats.percentageWithoutMeters}% of Total Users`}
+                    onClick={handleViewLinkRequest}
+                    iconGap="6px"
+                  />
+                }
+                subtextGap="6px"
+              />
+              <StatCard
+                label="Active Users Today"
+                value={stats.activeToday.toString()}
+                subtext={`${stats.totalKgBoughtToday}kg of gas bought today`}
+              />
+            </>
+          )}
+        </Box>
+      </RoleGuard>
 
       <UsersTable
         currentPage={currentPage}
@@ -214,7 +213,6 @@ const Users: FC = () => {
         onViewUser={handleViewUser}
       />
 
-      {/* FIX 2: pass onClose explicitly so backdrop click goes through handleCloseDrawer */}
       <UserDrawer
         userDrawer={userDrawer}
         user={selectedUser}

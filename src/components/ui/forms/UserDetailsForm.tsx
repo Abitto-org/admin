@@ -368,7 +368,6 @@ const UserDetailsForm: FC<UserDetailsFormProps> = ({ onClose, user }) => {
         <SectionTitle title="Account Dates" />
         <Box>
           <DetailRow label="Created At" value={formatDate(user.createdAt)} />
-          <DetailRow label="Updated At" value={formatDate(user.updatedAt)} />
           {user.emailVerifiedAt && (
             <DetailRow
               label="Email Verified At"

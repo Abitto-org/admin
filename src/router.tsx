@@ -11,6 +11,7 @@ import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 // Guards
 import AuthGuard from "@/components/guards/AuthGuard";
+import RoleProtectedRoute from "@/components/guards/RoleProtectedRoute";
 
 // Layouts
 import AuthLayout from "@/components/layouts/AuthLayout";
@@ -24,6 +25,7 @@ import App from "./App";
 // Auth Pages
 const Login = lazy(() => import("@/pages/auth/Login"));
 const VerifyOTP = lazy(() => import("@/pages/auth/VerifyOTP"));
+const CompleteSetup = lazy(() => import("@/pages/auth/CompleteSetup"));
 
 // Main Pages
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -32,6 +34,8 @@ const Meters = lazy(() => import("@/pages/Meters"));
 const Estates = lazy(() => import("@/pages/Estates"));
 const Users = lazy(() => import("@/pages/Users"));
 const Transactions = lazy(() => import("@/pages/Transactions"));
+const Incidents = lazy(() => import("@/pages/Incidents"));
+const AdminandRoles = lazy(() => import("@/pages/Admin&Roles"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 const Settings = lazy(() => import("@/pages/Settings"));
 
@@ -47,6 +51,35 @@ const routes: RouteConfig[] = [
   { path: "/", page: App },
   { path: "/auth/login", page: Login, layout: AuthLayout },
   { path: "/auth/verify-otp", page: VerifyOTP, layout: AuthLayout },
+  { path: "/setup-profile", page: CompleteSetup, layout: AuthLayout },
+
+  // ── Installer-accessible routes ─────────────────────────────────────────────
+  {
+    path: "/link-requests",
+    page: LinkRequests,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/meters",
+    page: Meters,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/users",
+    page: Users,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/users/:userId",
+    page: Users,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+
+  // ── Standard admin routes (super-admin, admin, support) ─────────────────────
   {
     path: "/dashboard",
     page: Dashboard,
@@ -54,30 +87,20 @@ const routes: RouteConfig[] = [
     guard: AuthGuard,
   },
   {
-    path: "/link-requests",
-    page: LinkRequests,
-    layout: DashboardLayout,
-    guard: AuthGuard,
-  },
-  { path: "/meters", page: Meters, layout: DashboardLayout, guard: AuthGuard },
-  {
     path: "/estates",
     page: Estates,
-    layout: DashboardLayout,
-    guard: AuthGuard,
-  },
-  // Users has a nested /:id route — both render the same Users page,
-  // the page itself reads the param to open/close the drawer
-  { path: "/users", page: Users, layout: DashboardLayout, guard: AuthGuard },
-  {
-    path: "/users/:userId",
-    page: Users,
     layout: DashboardLayout,
     guard: AuthGuard,
   },
   {
     path: "/transactions",
     page: Transactions,
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+  {
+    path: "/incidents",
+    page: Incidents,
     layout: DashboardLayout,
     guard: AuthGuard,
   },
@@ -93,6 +116,19 @@ const routes: RouteConfig[] = [
     layout: DashboardLayout,
     guard: AuthGuard,
   },
+
+  // ── Super-admin only routes ─────────────────────────────────────────────────
+  {
+    path: "/admin",
+    page: () => (
+      <RoleProtectedRoute allowedRoles={["super-admin"]}>
+        <AdminandRoles />
+      </RoleProtectedRoute>
+    ),
+    layout: DashboardLayout,
+    guard: AuthGuard,
+  },
+
   { path: "*", page: NotFound },
 ];
 

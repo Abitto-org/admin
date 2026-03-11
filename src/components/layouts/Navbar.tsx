@@ -26,7 +26,6 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
     queryClient.invalidateQueries();
   };
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -45,6 +44,7 @@ const Navbar: FC<NavbarProps> = ({ user, onMobileMenuToggle }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [notificationsOpen]);
+  console.log("User details: ", user);
 
   return (
     <Box

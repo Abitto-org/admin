@@ -41,10 +41,12 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
   isLoading,
   onViewRequest,
 }) => {
+  console.log("Data", data?.data?.requests)
   const handleViewRequest = (row: LinkRequestTableRow) => {
     const fullRequest = data?.data?.requests.find(
       (item) => item.request.id === row.id,
     );
+
 
     if (fullRequest) {
       const requestData: LinkRequestDetailsData = {
@@ -57,10 +59,10 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
           `${fullRequest.user.firstName} ${fullRequest.user.lastName}`.trim(),
         userEmail: fullRequest.user.email,
         estateId: fullRequest.request.estateId,
-        estateName: fullRequest.request.estateName,
-        houseNumber: fullRequest.request.houseNumber,
+        estateName: fullRequest.request?.estateName,
+        houseNumber: fullRequest.request?.houseNumber,
         status: fullRequest.request.status,
-        requestType: fullRequest.request.adminId ? "Re-Link" : "New Link",
+        requestType: fullRequest?.request?.adminId ? "Re-Link" : "New Link",
         createdAt: fullRequest.request.createdAt,
         reason: fullRequest.request.reason,
       };
@@ -90,8 +92,8 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
         return "pending";
       };
 
-      const houseNumber = request.houseNumber || "N/A";
-      const estatePart = request.estateName ? `, ${request.estateName}` : "";
+      const houseNumber = request?.houseNumber || "N/A";
+      const estatePart = request?.estateName ? `, ${request?.estateName}` : "";
       const address = `${houseNumber}${estatePart}`;
 
       const formatDate = (dateString: string | null) => {
@@ -111,13 +113,13 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
 
       const userName = user
         ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-          "Unassigned"
+        "Unassigned"
         : "Unassigned";
 
-      const requestType = request.adminId ? "Re-Link" : "New Link";
+      const requestType = request?.adminId ? "Re-Link" : "New Link";
 
       return {
-        id: request.id || "",
+        id: request?.id || "",
         meterId: meter?.deviceId || "N/A",
         meterNumber: meter?.meterNumber || "N/A",
         user: userName,

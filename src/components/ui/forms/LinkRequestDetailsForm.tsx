@@ -203,9 +203,9 @@ const LinkRequestDetailsForm: FC<LinkRequestDetailsFormProps> = ({
           <DetailRow label="Request Type" value={requestData.requestType} />
           <DetailRow
             label="House Number"
-            value={requestData.houseNumber || "N/A"}
+            value={requestData?.houseNumber || "N/A"}
           />
-          <DetailRow label="Estate" value={requestData.estateName || "N/A"} />
+          <DetailRow label="Estate" value={requestData?.estateName || "N/A"} />
           <DetailRow
             label="Date Requested"
             value={formatDate(requestData.createdAt)}

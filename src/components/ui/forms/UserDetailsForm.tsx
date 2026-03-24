@@ -172,7 +172,7 @@ const UserDetailsForm: FC<UserDetailsFormProps> = ({ onClose, user }) => {
         {/* Location Information */}
         <SectionTitle title="Location Information" />
         <Box>
-          <DetailRow label="House Number" value={user.houseNumber || "N/A"} />
+          <DetailRow label="House Number" value={user?.houseNumber || "N/A"} />
           <DetailRow
             label="Onboarding Estate"
             value={user.onboardingEstateName || "N/A"}
@@ -325,15 +325,15 @@ const UserDetailsForm: FC<UserDetailsFormProps> = ({ onClose, user }) => {
                         label="Device ID"
                         value={meter.deviceId}
                       />
-                      {meter.houseNumber && (
+                      {meter?.houseNumber && (
                         <MeterDetailRow
                           label="House Number"
-                          value={meter.houseNumber}
+                          value={meter?.houseNumber}
                         />
                       )}
                       <MeterDetailRow
                         label="Estate"
-                        value={meter.estateName || "N/A"}
+                        value={meter?.estateName || "N/A"}
                       />
                       <MeterDetailRow
                         label="Valve Status"

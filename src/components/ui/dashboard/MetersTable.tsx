@@ -68,14 +68,14 @@ const MetersTable: FC<MetersTableProps> = ({
   const handleMenuItemClick = (action: "link" | "unlink" | "view") => {
     if (selectedRow) {
       onActionClick(action, {
-        deviceId: selectedRow.deviceId || selectedRow.meterId, 
+        deviceId: selectedRow.deviceId || selectedRow.meterId,
         meterNumber: selectedRow.meterNumber,
         userId: selectedRow.userId,
         userName:
           selectedRow.user === "Unassigned" ? undefined : selectedRow.user,
         estateId: selectedRow.estateId,
-        houseNumber: selectedRow.houseNumber,
-        estateName: selectedRow.estateName,
+        houseNumber: selectedRow?.houseNumber,
+        estateName: selectedRow?.estateName,
       });
     }
     handleMenuClose();
@@ -102,8 +102,8 @@ const MetersTable: FC<MetersTableProps> = ({
         return "pending";
       };
 
-      const houseNumber = meter.houseNumber || "N/A";
-      const estatePart = meter.estateName ? `, ${meter.estateName}` : "";
+      const houseNumber = meter?.houseNumber || "N/A";
+      const estatePart = meter?.estateName ? `, ${meter?.estateName}` : "";
       const address = `${houseNumber}${estatePart}`;
 
       const formatDate = (dateString: string | null) => {
@@ -123,8 +123,8 @@ const MetersTable: FC<MetersTableProps> = ({
 
       const userName = user
         ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-          user.email ||
-          "Unassigned"
+        user.email ||
+        "Unassigned"
         : "Unassigned";
 
       return {
@@ -139,8 +139,8 @@ const MetersTable: FC<MetersTableProps> = ({
         status: meter.status,
         valveStatus: meter.valveStatus,
         estateId: meter.estateId || undefined,
-        houseNumber: meter.houseNumber || undefined,
-        estateName: meter.estateName || undefined,
+        houseNumber: meter?.houseNumber || undefined,
+        estateName: meter?.estateName || undefined,
         deviceId: meter.deviceId, // Add this line
       };
     });

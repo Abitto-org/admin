@@ -73,7 +73,7 @@ const RegisterUserForm: FC<RegisterUserFormProps> = ({ onClose }) => {
   );
   const [apiError, setApiError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const estateSearch = step === 2 ? step2Data.estateName || "" : "";
+  const estateSearch = step === 2 ? step2Data?.estateName || "" : "";
   // Init from persisted
   const [selectedEstate, setSelectedEstate] = useState<Estate | null>(
     persistedState.selectedEstate,
@@ -129,8 +129,8 @@ const RegisterUserForm: FC<RegisterUserFormProps> = ({ onClose }) => {
     resolver: zodResolver(registerUserStep2Schema),
     defaultValues: {
       estateId: persistedState.step2.estateId ?? "",
-      estateName: persistedState.step2.estateName ?? "",
-      houseNumber: persistedState.step2.houseNumber ?? "",
+      estateName: persistedState.step2?.estateName ?? "",
+      houseNumber: persistedState.step2?.houseNumber ?? "",
       nin: persistedState.step2.nin ?? "",
       meterNumber: persistedState.step2.meterNumber ?? "",
     },
@@ -164,7 +164,7 @@ const RegisterUserForm: FC<RegisterUserFormProps> = ({ onClose }) => {
       phoneNumber: step1Data.phoneNumber!,
       estateId: step2Data.estateId!,
       ...(selectedEstate && { estateName: selectedEstate.name }),
-      houseNumber: step2Data.houseNumber!,
+      houseNumber: step2Data?.houseNumber!,
       nin: step2Data.nin!,
       user_email: data.user_email,
       ...(step2Data.meterNumber && { meterNumber: step2Data.meterNumber }),
@@ -524,8 +524,8 @@ const RegisterUserForm: FC<RegisterUserFormProps> = ({ onClose }) => {
                     {...field}
                     fullWidth
                     placeholder="e.g. Block A, Room 5"
-                    error={!!step2Form.formState.errors.houseNumber}
-                    helperText={step2Form.formState.errors.houseNumber?.message}
+                    error={!!step2Form.formState.errors?.houseNumber}
+                    helperText={step2Form.formState.errors?.houseNumber?.message}
                     sx={inputSx}
                   />
                 )}

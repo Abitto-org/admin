@@ -82,8 +82,8 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({
             lastName: meterData.userName?.split(" ").slice(1).join(" ") || "",
             email: "",
             estateId: meterData.estateId || "",
-            houseNumber: meterData.houseNumber || "",
-            onboardingEstateName: meterData.estateName,
+            houseNumber: meterData?.houseNumber || "",
+            onboardingEstateName: meterData?.estateName,
           } as User);
         } else {
           setSelectedUser(null);
@@ -135,7 +135,7 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({
         return;
       }
 
-      if (!selectedUser.houseNumber) {
+      if (!selectedUser?.houseNumber) {
         setApiError("Selected user must have a house number");
         return;
       }
@@ -144,11 +144,11 @@ const LinkMeterForm: FC<LinkMeterFormProps> = ({
         meterNumber: data.meterNumber,
         userId: selectedUser.id,
         estateId: selectedUser.estateId,
-        houseNumber: selectedUser.houseNumber,
+        houseNumber: selectedUser?.houseNumber,
         ...(selectedUser.estateId === "OTHER" &&
           selectedUser.onboardingEstateName && {
-            estateName: selectedUser.onboardingEstateName,
-          }),
+          estateName: selectedUser.onboardingEstateName,
+        }),
       };
 
       linkMeter(params, {

@@ -22,22 +22,22 @@ const LinkRequest: FC = () => {
   const linkRequestCards: ILinkRequestCard[] = useMemo(() => {
     if (!data?.data?.requests) return [];
 
-    return data.data.requests.map((item) => {
+    return data?.data?.requests?.map((item) => {
       const { request, user, meter } = item;
 
       // Format address with null checks
-      const houseNumber = request.houseNumber || "N/A";
-      const estatePart = request.estateName ? `, ${request.estateName}` : "";
+      const houseNumber = request?.houseNumber || "N/A";
+      const estatePart = request?.estateName ? `, ${request?.estateName}` : "";
       const address = `${houseNumber}${estatePart}`;
 
       // Format user name with null checks
       const userName = user
-        ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-          "Unassigned"
+        ? `${user?.firstName || ""} ${user?.lastName || ""}`.trim() ||
+        "Unassigned"
         : "Unassigned";
 
       return {
-        id: request.id || "",
+        id: request?.id || "",
         meterId: meter?.deviceId || "N/A",
         meterNumber: meter?.meterNumber || "N/A",
         userName,

@@ -46,12 +46,10 @@ export const getDisplayName = (user: User | null | undefined) => {
 };
 
 export const getRole = (user: User | null | undefined) => {
-  if (!user) return "Admin";
+  if (!user) return "N/A";
 
-  // Remove hyphens/underscores and capitalize each word
-  // "super-admin" -> "Super Admin", "basic-user" -> "Basic User"
   return user.role
-    .replaceAll(/[-_]/g, " ")
+    ?.replaceAll(/[-_]/g, " ")
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");

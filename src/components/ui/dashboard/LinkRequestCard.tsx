@@ -2,12 +2,11 @@ import type { FC } from "react";
 import type { ILinkRequestCard } from "@/types/linkRequests.types";
 import { Box, Typography } from "@mui/material";
 
-const LinkRequestCard: FC<ILinkRequestCard> = (request) => {
-  const handleApprove = () => {
-    console.log("Approve clicked for:", request.id);
-    console.log("Request details:", request);
-  };
+interface LinkRequestCardProps extends ILinkRequestCard {
+  onView: (id: string) => void;
+}
 
+const LinkRequestCard: FC<LinkRequestCardProps> = (request) => {
   return (
     <Box
       sx={{
@@ -18,7 +17,7 @@ const LinkRequestCard: FC<ILinkRequestCard> = (request) => {
         flexDirection: "column",
       }}
     >
-      {/* Top Box with ID and Approve */}
+      {/* Top Box with ID and View */}
       <Box
         sx={{
           borderRadius: "8px",
@@ -46,7 +45,7 @@ const LinkRequestCard: FC<ILinkRequestCard> = (request) => {
         </Typography>
 
         <Typography
-          onClick={handleApprove}
+          onClick={() => request.onView(request.id)}
           sx={{
             fontFamily: "Geist",
             fontWeight: 700,
@@ -62,7 +61,7 @@ const LinkRequestCard: FC<ILinkRequestCard> = (request) => {
             },
           }}
         >
-          Approve
+          View
         </Typography>
       </Box>
 

@@ -1,4 +1,3 @@
-// transactions.api.ts
 import { http } from "./index";
 import type {
   GetTransactionsResponse,

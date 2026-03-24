@@ -1,4 +1,3 @@
-// LinkRequestsTable.tsx - Add dummy data for testing
 import { type FC, useMemo } from "react";
 import { type Column, type BadgeConfig } from "../table/types";
 import DataTable from "../table/DataTable";
@@ -44,27 +43,32 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
   console.log("Data", data?.data?.requests)
   const handleViewRequest = (row: LinkRequestTableRow) => {
     const fullRequest = data?.data?.requests.find(
-      (item) => item.request.id === row.id,
+      (item) => item.meter_link_requests.id === row.id,
     );
 
 
     if (fullRequest) {
+      const {
+        meter_link_requests: request,
+        users: user,
+        meters: meter,
+      } = fullRequest;
+
       const requestData: LinkRequestDetailsData = {
-        id: fullRequest.request.id,
-        userId: fullRequest.request.userId,
-        meterId: fullRequest.request.meterId,
-        deviceId: fullRequest.meter.deviceId,
-        meterNumber: fullRequest.meter.meterNumber,
-        userName:
-          `${fullRequest.user.firstName} ${fullRequest.user.lastName}`.trim(),
-        userEmail: fullRequest.user.email,
-        estateId: fullRequest.request.estateId,
-        estateName: fullRequest.request?.estateName,
-        houseNumber: fullRequest.request?.houseNumber,
-        status: fullRequest.request.status,
-        requestType: fullRequest?.request?.adminId ? "Re-Link" : "New Link",
-        createdAt: fullRequest.request.createdAt,
-        reason: fullRequest.request.reason,
+        id: request.id,
+        userId: request.userId,
+        meterId: request.meterId,
+        deviceId: meter.deviceId,
+        meterNumber: meter.meterNumber,
+        userName: `${user.firstName} ${user.lastName}`.trim(),
+        userEmail: user.email,
+        estateId: request.estateId,
+        estateName: request.estateName,
+        houseNumber: request.houseNumber ?? "N/A",
+        status: request.status,
+        requestType: request.adminId ? "Re-Link" : "New Link",
+        createdAt: request.createdAt,
+        reason: request.reason,
       };
 
       onViewRequest(requestData);
@@ -84,7 +88,7 @@ const LinkRequestsTable: FC<LinkRequestsTableProps> = ({
     if (!data?.data?.requests) return [];
 
     return data.data.requests.map((item) => {
-      const { request, user, meter } = item;
+      const { meter_link_requests: request, users: user, meters: meter } = item;
 
       const getStatusForBadge = (status: string): LinkRequestStatus => {
         if (status === "approved") return "success";

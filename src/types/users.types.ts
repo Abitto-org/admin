@@ -39,6 +39,8 @@ export interface User {
   telegramLinkedAt: string | null;
   adminRoleId: string | null;
   adminGroupId: string | null;
+  adminRoleName: string | null;
+
   gender: string | null;
   nin: string | null;
   estateId: string | null;
